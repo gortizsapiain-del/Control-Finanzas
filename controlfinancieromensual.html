@@ -449,9 +449,6 @@ function renderResumen() {
     return t.tipo==="deposito" ? s+t.monto : s-t.monto;
   },0);
 
-  // Flujo neto del mes: CC ingresos - CC gastos - TC gastos
-  const flujo = ccIngresos - ccGastos - tcTotal;
-
   const mesLabel = MESES[m] + " " + a;
 
   document.getElementById("viewResumen").innerHTML = `
@@ -475,17 +472,6 @@ function renderResumen() {
         <div class="s-label" style="color:#FCD34D">Saldo Ahorros</div>
         <div class="s-amount" style="color:#FCD34D">${mxn(ahTotal)}</div>
         <div class="s-sub" style="color:#7A5A18">Acumulado total</div>
-      </div>
-    </div>
-
-    <!-- Flujo neto -->
-    <div class="card" style="background:${flujo>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border-color:${flujo>=0?'#0D4030':'#4A1020'}">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:11px;color:${flujo>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Flujo neto del mes</div>
-          <div style="font-size:13px;color:var(--dim)">CC Ingresos − CC Gastos − TC Gastos</div>
-        </div>
-        <div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:${flujo>=0?'#6EE7B7':'#F87171'}">${mxn(flujo)}</div>
       </div>
     </div>
 
