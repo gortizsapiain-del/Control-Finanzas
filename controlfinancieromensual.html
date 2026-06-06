@@ -365,6 +365,7 @@ let anio = new Date().getFullYear();
 let tabActual = "resumen";
 let filtroTC = "todas";
 let filtroCC = "todas";
+let filtroPersonaTC = "todas"; // "todas" | "gonzalo" | "javi"
 let vistaTC = "categorias"; // "lista" | "categorias"
 let catExpandida = null;
 let editandoId = null;
@@ -512,25 +513,40 @@ function renderTC() {
     id,...CATS[id],
     total: gm.filter(t=>t.cat===id).reduce((s,t)=>s+t.monto,0),
     items: gm.filter(t=>t.cat===id).sort((a,b)=>b.monto-a.monto)
-  })).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
+  })).filter(c=>{
+    if (filtroPersonaTC==='javi') return c.items.some(t=>(t.monto_javi||0)>0);
+    return c.total>0;
+  }).sort((a,b)=>{
+    if (filtroPersonaTC==='javi') {
+      const ja = a.items.reduce((s,t)=>s+(t.monto_javi||0),0);
+      const jb = b.items.reduce((s,t)=>s+(t.monto_javi||0),0);
+      return jb-ja;
+    }
+    if (filtroPersonaTC==='gonzalo') return b.total-a.total;
+    const ba = a.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+    const bb = b.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+    return bb-ba;
+  });
 
   // ── Header resumen ──
-  const totalFacturado = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalJavi      = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const totalJavi_global = totalJavi; // alias para usar dentro del map
 
+  const selStyle = (p) => filtroPersonaTC===p ? 'ring:0;outline:2px solid #fff;transform:scale(1.03);' : 'opacity:.75;';
   let html = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div class="summary-card neutral">
+      <div class="summary-card neutral" onclick="setFiltroPersonaTC('todas')" style="cursor:pointer;transition:all .15s;${filtroPersonaTC==='todas'?'outline:2px solid #A78BFA;outline-offset:2px;opacity:1':'opacity:.65'}">
         <div class="s-label" style="color:var(--muted)">Total facturado</div>
         <div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(totalFacturado)}</div>
         <div class="s-sub" style="color:var(--dim)">${gm.length} movimientos</div>
       </div>
-      <div class="summary-card purple">
+      <div class="summary-card purple" onclick="setFiltroPersonaTC('gonzalo')" style="cursor:pointer;transition:all .15s;${filtroPersonaTC==='gonzalo'?'outline:2px solid #A78BFA;outline-offset:2px;opacity:1':'opacity:.65'}">
         <div class="s-label" style="color:#A78BFA">Gonzalo</div>
         <div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(total)}</div>
         <div class="s-sub" style="color:#7060A0">${totalFacturado>0?(total/totalFacturado*100).toFixed(0):'0'}% del total</div>
       </div>
-      <div class="summary-card neutral" style="border-color:#64748B40">
+      <div class="summary-card neutral" onclick="setFiltroPersonaTC('javi')" style="cursor:pointer;transition:all .15s;border-color:#64748B40;${filtroPersonaTC==='javi'?'outline:2px solid #94A3B8;outline-offset:2px;opacity:1':'opacity:.65'}">
         <div class="s-label" style="color:#94A3B8">Javi</div>
         <div class="s-amount" style="color:#94A3B8;font-size:17px">${mxn(totalJavi)}</div>
         <div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div>
@@ -555,7 +571,10 @@ function renderTC() {
       const abierta = catExpandida === c.id;
       const totalJavi = c.items.reduce((s,t)=>s+(t.monto_javi||0),0);
       const totalBruto = c.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-      const pct = (totalBruto/totalFacturado*100).toFixed(1);
+      // Monto a mostrar según filtro de persona
+      const montoVisible = filtroPersonaTC==='javi' ? totalJavi : filtroPersonaTC==='gonzalo' ? c.total : totalBruto;
+      const baseTotal = filtroPersonaTC==='javi' ? totalJavi_global : filtroPersonaTC==='gonzalo' ? total : totalFacturado;
+      const pct = (baseTotal>0 ? montoVisible/baseTotal*100 : 0).toFixed(1);
 
       // Badge de regla
       const badgeRegla = c.regla==="gonzalo"
@@ -576,14 +595,13 @@ function renderTC() {
                 <span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>
                 ${badgeRegla}
               </div>
-              <div style="background:var(--surface2);border-radius:3px;height:4px;width:100%">
-                <div style="height:4px;border-radius:3px;width:${pct}%;background:${c.color};box-shadow:0 0 6px ${c.color}60"></div>
+              <div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px">
+                <div style="height:4px;border-radius:3px;width:${Math.min(pct,100)}%;background:${c.color};box-shadow:0 0 6px ${c.color}60"></div>
               </div>
             </div>
             <div style="text-align:right;flex-shrink:0;margin-left:8px">
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalBruto)}</div>
-              ${c.total<totalBruto?`<div style="font-size:11px;color:#A78BFA;font-weight:600">G: ${mxn(c.total)}</div>`:`<div style="font-size:11px;color:${c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>`}
-              <div style="font-size:10px;color:var(--dim)">${pct}% · ${c.items.length} mov.</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(montoVisible)}</div>
+              <div style="font-size:11px;color:${c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>
             </div>
             <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
           </div>
@@ -820,12 +838,13 @@ function emptyState(icon, title, sub) {
 ══════════════════════════════════════════════ */
 function setFiltroTC(f) { filtroTC=f; renderTC(); }
 function setFiltroCC(f) { filtroCC=f; renderCC(); }
+function setFiltroPersonaTC(p) { filtroPersonaTC=p; catExpandida=null; renderTC(); }
 
 function cambiarMes(dir) {
   mes+=dir;
   if(mes<0){mes=11;anio--;}
   if(mes>11){mes=0;anio++;}
-  filtroTC="todas"; filtroCC="todas";
+  filtroTC="todas"; filtroCC="todas"; filtroPersonaTC="todas";
   render();
 }
 
