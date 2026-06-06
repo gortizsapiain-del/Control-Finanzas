@@ -552,10 +552,10 @@ function renderTC() {
   // ── Vista por categoría ──
   if (vistaTC === "categorias") {
     html += porCat.map(c => {
-      const pct = (c.total/total*100).toFixed(1);
       const abierta = catExpandida === c.id;
       const totalJavi = c.items.reduce((s,t)=>s+(t.monto_javi||0),0);
       const totalBruto = c.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+      const pct = (totalBruto/totalFacturado*100).toFixed(1);
 
       // Badge de regla
       const badgeRegla = c.regla==="gonzalo"
@@ -581,8 +581,9 @@ function renderTC() {
               </div>
             </div>
             <div style="text-align:right;flex-shrink:0;margin-left:8px">
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(c.total)}</div>
-              <div style="font-size:11px;color:${c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalBruto)}</div>
+              ${c.total<totalBruto?`<div style="font-size:11px;color:#A78BFA;font-weight:600">G: ${mxn(c.total)}</div>`:`<div style="font-size:11px;color:${c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>`}
+              <div style="font-size:10px;color:var(--dim)">${pct}% · ${c.items.length} mov.</div>
             </div>
             <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
           </div>
