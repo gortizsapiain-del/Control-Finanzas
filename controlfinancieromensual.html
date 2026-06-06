@@ -258,7 +258,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </select>
     </div>
 
-    <div class="field"><label>Fecha</label><input id="fFecha" type="date"/></div>
+    <div class="field" id="fieldFecha"><label id="labelFecha">Fecha</label><input id="fFecha" type="date"/></div>
 
     <div class="modal-footer">
       <button class="btn-ghost" onclick="cerrarModal()">Cancelar</button>
@@ -870,16 +870,26 @@ function abrirModal(id=null) {
     document.getElementById("fDesc").value = t.desc;
     document.getElementById("fMonto").value = t.monto;
     document.getElementById("fCat").value = t.cat || "otros";
-    document.getElementById("fFecha").value = t.fecha;
     actualizarModalPorCuenta(t.cuenta);
+    // Para TC usar selector de mes (YYYY-MM), para otros usar fecha completa
+    if (t.cuenta==="tc") {
+      document.getElementById("fFecha").value = t.fecha.slice(0,7);
+    } else {
+      document.getElementById("fFecha").value = t.fecha;
+    }
   } else {
     document.getElementById("modalTitulo").textContent = "Nueva transacción";
     modalTipo = tabActual==="ahorros" ? "deposito" : (tabActual==="cc" ? "ingreso" : "gasto");
     document.getElementById("fDesc").value = "";
     document.getElementById("fMonto").value = "";
     document.getElementById("fCat").value = "cuotas_personales";
-    document.getElementById("fFecha").value = hoy;
     actualizarModalPorCuenta(cuentaDefault);
+    // Para TC preseleccionar mes actual
+    if (cuentaDefault==="tc") {
+      document.getElementById("fFecha").value = hoy.slice(0,7);
+    } else {
+      document.getElementById("fFecha").value = hoy;
+    }
   }
 
   document.getElementById("modalOverlay").style.display = "flex";
@@ -896,6 +906,8 @@ function actualizarModalPorCuenta(cuentaForzada) {
     fieldTipo.style.display = "none";
     fieldCat.style.display = "";
     modalTipo = "gasto";
+    document.getElementById("labelFecha").textContent = "Mes de facturación";
+    document.getElementById("fFecha").type = "month";
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -904,6 +916,8 @@ function actualizarModalPorCuenta(cuentaForzada) {
     tipoToggle.innerHTML = `
       <button class="tipo-btn ${modalTipo==="ingreso"?"selected-ingreso":""}" onclick="setTipo('ingreso')">✅ Ingreso</button>
       <button class="tipo-btn ${modalTipo==="gasto"?"selected-gasto":""}" onclick="setTipo('gasto')">🔴 Gasto</button>`;
+    document.getElementById("labelFecha").textContent = "Fecha";
+    document.getElementById("fFecha").type = "date";
   } else { // ahorros
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -912,6 +926,8 @@ function actualizarModalPorCuenta(cuentaForzada) {
     tipoToggle.innerHTML = `
       <button class="tipo-btn ${modalTipo==="deposito"?"selected-deposito":""}" onclick="setTipo('deposito')">💰 Depósito</button>
       <button class="tipo-btn ${modalTipo==="retiro"?"selected-retiro":""}" onclick="setTipo('retiro')">💸 Retiro</button>`;
+    document.getElementById("labelFecha").textContent = "Fecha";
+    document.getElementById("fFecha").type = "date";
   }
 }
 
@@ -933,7 +949,10 @@ async function guardar() {
 
   if(!desc || isNaN(monto) || monto<=0 || !fecha) { mostrarToast("⚠️ Completa todos los campos"); return; }
 
-  const trans = { desc, monto, fecha, cuenta, tipo: modalTipo,
+  // Si TC y fecha viene como YYYY-MM, convertir a YYYY-MM-01
+  const fechaFinal = (cuenta==="tc" && fecha.length===7) ? fecha+"-01" : fecha;
+
+  const trans = { desc, monto, fecha: fechaFinal, cuenta, tipo: modalTipo,
     cat: (cuenta==="tc" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null };
 
   cerrarModal();
