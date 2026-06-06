@@ -258,7 +258,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </select>
     </div>
 
-    <div class="field" id="fieldFecha"><label id="labelFecha">Fecha</label><input id="fFecha" type="date"/></div>
+    <div class="field" id="fieldFecha"><label id="labelFecha">Fecha de compra</label><input id="fFecha" type="date"/></div>
+    <div class="field" id="fieldMesFac" style="display:none"><label>Mes de facturación</label><input id="fMesFac" type="month"/></div>
 
     <div class="modal-footer">
       <button class="btn-ghost" onclick="cerrarModal()">Cancelar</button>
@@ -385,7 +386,9 @@ function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").re
 
 function delMes(lista) {
   return lista.filter(t => {
-    const d = fechaLocal(t.fecha);
+    // TC: usar mes_facturacion si existe, si no usar fecha
+    const ref = (t.cuenta==="tc" && t.mes_facturacion) ? t.mes_facturacion+"-01" : t.fecha;
+    const d = fechaLocal(ref);
     return d.getMonth()===mes && d.getFullYear()===anio;
   });
 }
@@ -871,11 +874,9 @@ function abrirModal(id=null) {
     document.getElementById("fMonto").value = t.monto;
     document.getElementById("fCat").value = t.cat || "otros";
     actualizarModalPorCuenta(t.cuenta);
-    // Para TC usar selector de mes (YYYY-MM), para otros usar fecha completa
+    document.getElementById("fFecha").value = t.fecha;
     if (t.cuenta==="tc") {
-      document.getElementById("fFecha").value = t.fecha.slice(0,7);
-    } else {
-      document.getElementById("fFecha").value = t.fecha;
+      document.getElementById("fMesFac").value = (t.mes_facturacion || t.fecha.slice(0,7));
     }
   } else {
     document.getElementById("modalTitulo").textContent = "Nueva transacción";
@@ -884,11 +885,9 @@ function abrirModal(id=null) {
     document.getElementById("fMonto").value = "";
     document.getElementById("fCat").value = "cuotas_personales";
     actualizarModalPorCuenta(cuentaDefault);
-    // Para TC preseleccionar mes actual
+    document.getElementById("fFecha").value = hoy;
     if (cuentaDefault==="tc") {
-      document.getElementById("fFecha").value = hoy.slice(0,7);
-    } else {
-      document.getElementById("fFecha").value = hoy;
+      document.getElementById("fMesFac").value = hoy.slice(0,7);
     }
   }
 
@@ -906,8 +905,9 @@ function actualizarModalPorCuenta(cuentaForzada) {
     fieldTipo.style.display = "none";
     fieldCat.style.display = "";
     modalTipo = "gasto";
-    document.getElementById("labelFecha").textContent = "Mes de facturación";
-    document.getElementById("fFecha").type = "month";
+    document.getElementById("labelFecha").textContent = "Fecha de compra";
+    document.getElementById("fFecha").type = "date";
+    document.getElementById("fieldMesFac").style.display = "";
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -918,6 +918,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
       <button class="tipo-btn ${modalTipo==="gasto"?"selected-gasto":""}" onclick="setTipo('gasto')">🔴 Gasto</button>`;
     document.getElementById("labelFecha").textContent = "Fecha";
     document.getElementById("fFecha").type = "date";
+    document.getElementById("fieldMesFac").style.display = "none";
   } else { // ahorros
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -928,6 +929,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
       <button class="tipo-btn ${modalTipo==="retiro"?"selected-retiro":""}" onclick="setTipo('retiro')">💸 Retiro</button>`;
     document.getElementById("labelFecha").textContent = "Fecha";
     document.getElementById("fFecha").type = "date";
+    document.getElementById("fieldMesFac").style.display = "none";
   }
 }
 
@@ -947,13 +949,13 @@ async function guardar() {
   const cuenta = document.getElementById("fCuenta").value;
   const cat    = document.getElementById("fCat").value;
 
+  const mesFac = document.getElementById("fMesFac").value;
   if(!desc || isNaN(monto) || monto<=0 || !fecha) { mostrarToast("⚠️ Completa todos los campos"); return; }
+  if(cuenta==="tc" && !mesFac) { mostrarToast("⚠️ Selecciona el mes de facturación"); return; }
 
-  // Si TC y fecha viene como YYYY-MM, convertir a YYYY-MM-01
-  const fechaFinal = (cuenta==="tc" && fecha.length===7) ? fecha+"-01" : fecha;
-
-  const trans = { desc, monto, fecha: fechaFinal, cuenta, tipo: modalTipo,
-    cat: (cuenta==="tc" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null };
+  const trans = { desc, monto, fecha, cuenta, tipo: modalTipo,
+    cat: (cuenta==="tc" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null,
+    ...(cuenta==="tc" ? {mes_facturacion: mesFac} : {}) };
 
   cerrarModal();
 
