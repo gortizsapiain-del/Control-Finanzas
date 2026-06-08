@@ -659,8 +659,8 @@ function renderTC() {
       ${porCat.map(c=>`<button class="chip ${filtroTC===c.id?"active":""}" onclick="setFiltroTC('${c.id}')" style="${filtroTC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("")}
     </div>`;
     const filtrados = (filtroTC==="todas" ? gm : gm.filter(t=>t.cat===filtroTC))
-      .sort((a,b)=>b.monto-a.monto);
-    html += `<div class="expense-list">${filtrados.map((t,i)=>filaTransaccion(t,i)).join("")}</div>`;
+      .sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    html += `<div class="expense-list">${filtrados.map((t,i)=>filaTransaccionTC(t,i)).join("")}</div>`;
   }
 
   document.getElementById("viewTC").innerHTML = html;
@@ -825,6 +825,27 @@ function filaTransaccion(t, i) {
       <div class="expense-meta">${metaLabel}</div>
     </div>
     <div class="expense-amount ${amountClass}">${signo}${mxn(t.monto)}</div>
+    <div style="display:flex;gap:2px;flex-shrink:0">
+      <button class="btn-icon" onclick="abrirModal('${t.id}')" title="Editar">✏️</button>
+      <button class="btn-icon" onclick="eliminar('${t.id}')" title="Eliminar">🗑️</button>
+    </div>
+  </div>`;
+}
+
+// Fila TC con monto total visible (Gonzalo + Javi) y fecha de compra
+function filaTransaccionTC(t, i) {
+  const c = CATS[t.cat] || {icon:"📦",color:"#6B7280",label:"Otros"};
+  const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
+  const montoTotal = t.monto_total || t.monto;
+  const tieneJavi = (t.monto_javi||0) > 0;
+
+  return `<div class="expense-row" style="animation-delay:${i*35}ms">
+    <div class="expense-icon" style="background:${c.color}22">${c.icon}</div>
+    <div style="flex:1;min-width:0">
+      <div class="expense-desc">${esc(t.desc)}</div>
+      <div class="expense-meta">${c.label} · ${fecha}${tieneJavi?` · <span style="color:#C4B5FD">G:${mxn(t.monto)}</span> <span style="color:#94A3B8">J:${mxn(t.monto_javi)}</span>`:''}</div>
+    </div>
+    <div class="expense-amount amount-gasto">-${mxn(montoTotal)}</div>
     <div style="display:flex;gap:2px;flex-shrink:0">
       <button class="btn-icon" onclick="abrirModal('${t.id}')" title="Editar">✏️</button>
       <button class="btn-icon" onclick="eliminar('${t.id}')" title="Eliminar">🗑️</button>
