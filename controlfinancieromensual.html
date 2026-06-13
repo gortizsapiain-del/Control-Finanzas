@@ -708,6 +708,15 @@ function toggleCat(id) { catExpandida = catExpandida===id ? null : id; renderTC(
 ══════════════════════════════════════════════ */
 function renderCC() {
   const todos = data.filter(t=>t.cuenta==="cc");
+
+  // Saldo acumulado hasta el mes seleccionado (inclusive)
+  const hastaElMes = todos.filter(t => {
+    const d = fechaLocal(t.fecha);
+    return (d.getFullYear() < anio) || (d.getFullYear()===anio && d.getMonth()<=mes);
+  });
+  const saldoAcumulado = hastaElMes.reduce((s,t)=>
+    t.tipo==="ingreso" ? s+t.monto : s-t.monto, 0);
+
   const gm = delMes(todos);
   const ingresos = gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
   const gastos   = gm.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
@@ -725,6 +734,17 @@ function renderCC() {
     .sort((a,b)=>b.fecha.localeCompare(a.fecha));
 
   let html = `
+    <!-- Saldo acumulado destacado -->
+    <div style="background:${saldoAcumulado>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${saldoAcumulado>=0?'#0D4030':'#4A1020'};border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-size:10px;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Saldo actual</div>
+        <div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(saldoAcumulado)}</div>
+        <div style="font-size:11px;color:${saldoAcumulado>=0?'#34794A':'#7A3040'};margin-top:3px">Acumulado hasta ${MESES[mes]} ${anio}</div>
+      </div>
+      <div style="font-size:36px;opacity:.4">${saldoAcumulado>=0?'🏦':'⚠️'}</div>
+    </div>
+
+    <!-- KPIs del mes -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
         <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ingresos</div>
@@ -735,7 +755,7 @@ function renderCC() {
         <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171">${mxn(gastos)}</div>
       </div>
       <div style="background:${balance>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${balance>=0?'#0D4030':'#4A1020'};border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:${balance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Balance</div>
+        <div style="font-size:10px;color:${balance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Mes</div>
         <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:${balance>=0?'#6EE7B7':'#F87171'}">${mxn(balance)}</div>
       </div>
     </div>`;
