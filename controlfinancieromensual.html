@@ -348,7 +348,6 @@ function escucharDatos() {
 /* ══════════════════════════════════════════════
    CONSTANTES
 ══════════════════════════════════════════════ */
-// regla: "gonzalo" | "javi" | "50_50" | "60_40"
 const CATS = {
   cuotas_personales:    {label:"Cuotas Personales",    icon:"💳",color:"#8B5CF6", regla:"gonzalo", pct_g:1,   pct_j:0},
   cuotas_depto:         {label:"Cuotas Depto",         icon:"🏠",color:"#3B82F6", regla:"50_50",   pct_g:0.5, pct_j:0.5},
@@ -384,11 +383,11 @@ let anio = new Date().getFullYear();
 let tabActual = "resumen";
 let filtroTC = "todas";
 let filtroCC = "todas";
-let filtroPersonaTC = "todas"; // "todas" | "gonzalo" | "javi"
-let vistaTC = "categorias"; // "lista" | "categorias"
+let filtroPersonaTC = "todas";
+let vistaTC = "categorias";
 let catExpandida = null;
 let editandoId = null;
-let modalTipo = "gasto";   // tipo activo en el modal
+let modalTipo = "gasto";
 let toastTimer = null;
 
 /* ══════════════════════════════════════════════
@@ -404,7 +403,6 @@ function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").re
 
 function delMes(lista) {
   return lista.filter(t => {
-    // TC: usar mes_facturacion si existe, si no usar fecha
     const ref = (t.cuenta==="tc" && t.mes_facturacion) ? t.mes_facturacion+"-01" : t.fecha;
     const d = fechaLocal(ref);
     return d.getMonth()===mes && d.getFullYear()===anio;
@@ -447,18 +445,15 @@ function render() {
    RESUMEN
 ══════════════════════════════════════════════ */
 function renderResumen() {
-  // Calcular para cada mes visible (mes actual)
   const now = new Date();
   const m = now.getMonth(), a = now.getFullYear();
 
-  // TC gastos del mes actual
   const tcM = data.filter(t => t.cuenta==="tc" && t.tipo==="gasto").filter(t => {
     const d=fechaLocal(t.fecha); return d.getMonth()===m && d.getFullYear()===a;
   });
-  const tcTotal         = tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0); // total facturado
+  const tcTotal         = tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const tcTotalGonzalo  = tcM.reduce((s,t)=>s+t.monto,0);
 
-  // CC del mes actual
   const ccM = data.filter(t => t.cuenta==="cc").filter(t => {
     const d=fechaLocal(t.fecha); return d.getMonth()===m && d.getFullYear()===a;
   });
@@ -466,7 +461,6 @@ function renderResumen() {
   const ccGastos   = ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
   const ccBalance  = ccIngresos - ccGastos;
 
-  // Ahorros saldo total (todo el historial)
   const ahTotal = data.filter(t=>t.cuenta==="ahorros").reduce((s,t)=>{
     return t.tipo==="deposito" ? s+t.monto : s-t.monto;
   },0);
@@ -478,7 +472,6 @@ function renderResumen() {
       <div style="font-size:12px;color:var(--dim);font-weight:600">${mesLabel}</div>
     </div>
 
-    <!-- KPIs -->
     <div class="summary-grid-3">
       <div class="summary-card purple">
         <div class="s-label" style="color:#A78BFA">TC Facturado</div>
@@ -497,7 +490,6 @@ function renderResumen() {
       </div>
     </div>
 
-    <!-- Desglose CC -->
     <div class="card">
       <div class="section-head">
         <div class="section-label">Cuenta Corriente — ${mesLabel}</div>
@@ -521,7 +513,6 @@ function renderResumen() {
       </div>
     </div>
 
-    <!-- Acciones exportar -->
     <div class="actions-bar">
       <button class="btn-ghost" onclick="exportarJSON()">⬇ Exportar</button>
       <label class="btn-ghost" style="cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importarJSON(event)"/></label>
@@ -536,14 +527,11 @@ function renderTC() {
   const todos = data.filter(t=>t.cuenta==="tc" && t.tipo==="gasto");
   const gm = delMes(todos);
 
-  // ── CORRECCIÓN: "Pago" resta en el total Gonzalo ──
-  // total Gonzalo = suma de todos los gastos, excepto "pago" que se resta
   const total = gm.reduce((s,t)=> t.cat==="pago" ? s-t.monto : s+t.monto, 0);
 
   const porCat = Object.keys(CATS).map(id=>{
     const items = gm.filter(t=>t.cat===id).sort((a,b)=>b.monto-a.monto);
     const rawTotal = items.reduce((s,t)=>s+t.monto,0);
-    // "pago" resta: su contribución al total Gonzalo es negativa
     const catTotal = id==="pago" ? -rawTotal : rawTotal;
     return { id, ...CATS[id], total: catTotal, rawTotal, items };
   }).filter(c=>{
@@ -561,7 +549,6 @@ function renderTC() {
     return bb-ba;
   });
 
-  // ── Header resumen ──
   const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   const totalJavi_global = totalJavi;
@@ -585,7 +572,6 @@ function renderTC() {
       </div>
     </div>
 
-    <!-- Toggle vista -->
     <div style="display:flex;gap:6px">
       <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
       <button onclick="setVistaTC('lista')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='lista'?'var(--accent)':'var(--border2)'};background:${vistaTC==='lista'?'#3D1880':'var(--surface2)'};color:${vistaTC==='lista'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📋 Lista completa</button>
@@ -597,29 +583,24 @@ function renderTC() {
     return;
   }
 
-  // ── Vista por categoría ──
   if (vistaTC === "categorias") {
     html += porCat.map(c => {
       const abierta = catExpandida === c.id;
       const totalJavi = c.items.reduce((s,t)=>s+(t.monto_javi||0),0);
       const totalBruto = c.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
 
-      // Monto a mostrar según filtro de persona
-      // Para "pago" en vista Gonzalo, mostramos el valor negativo (resta)
       const montoVisible = filtroPersonaTC==='javi'
         ? totalJavi
         : filtroPersonaTC==='gonzalo'
-          ? c.total  // ya es negativo para "pago"
+          ? c.total
           : totalBruto;
 
       const baseTotal = filtroPersonaTC==='javi' ? totalJavi_global
         : filtroPersonaTC==='gonzalo' ? total
         : totalFacturado;
 
-      // Para la barra de progreso usamos valor absoluto
       const pct = (baseTotal!==0 ? Math.abs(montoVisible)/Math.abs(baseTotal)*100 : 0).toFixed(1);
 
-      // Badge de regla
       const badgeRegla = c.regla==="gonzalo"
         ? `<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`
         : c.regla==="javi"
@@ -628,18 +609,14 @@ function renderTC() {
         ? `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`
         : `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">60% G · 40% J</span>`;
 
-      // Badge especial para Pago indicando que resta
       const badgePago = c.id==="pago"
         ? `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">↓ Resta de Gonzalo</span>`
         : '';
 
-      // Color del monto: verde si es negativo (porque resta = reduce la deuda)
       const montoColor = (c.id==="pago" && filtroPersonaTC!=='javi') ? '#6EE7B7' : '#F0EEF8';
-      const montoDisplay = (c.id==="pago" && filtroPersonaTC!=='javi') ? mxn(montoVisible) : mxn(montoVisible);
 
       return `
         <div style="background:var(--surface);border:1px solid ${abierta?c.color+'60':'var(--border)'};border-radius:14px;overflow:hidden;transition:border-color .2s">
-          <!-- Header categoría -->
           <div onclick="toggleCat('${c.id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer">
             <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
             <div style="flex:1;min-width:0">
@@ -653,16 +630,13 @@ function renderTC() {
               </div>
             </div>
             <div style="text-align:right;flex-shrink:0;margin-left:8px">
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${montoDisplay}</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${mxn(montoVisible)}</div>
               <div style="font-size:11px;color:${c.id==='pago'?'#10B981':c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>
             </div>
             <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
           </div>
 
-          <!-- Expandido -->
           ${abierta ? `<div style="border-top:1px solid var(--border2);background:var(--surface2)">
-
-            <!-- Resumen regla -->
             <div style="padding:10px 14px 8px;display:grid;grid-template-columns:1fr 1fr${totalJavi>0?' 1fr':''};gap:8px;border-bottom:1px solid var(--border)">
               <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid ${c.id==='pago'?'#10B98130':'#8B5CF630'}">
                 <div style="font-size:10px;color:${c.id==='pago'?'#6EE7B7':'#C4B5FD'};font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div>
@@ -678,8 +652,6 @@ function renderTC() {
                 <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:var(--muted)">${mxn(totalBruto)}</div>
               </div>`:''}
             </div>
-
-            <!-- Lista transacciones -->
             <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
             ${c.items.map(t=>{
               const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
@@ -703,7 +675,6 @@ function renderTC() {
     }).join("");
   }
 
-  // ── Vista lista ──
   if (vistaTC === "lista") {
     html += `<div class="chips">
       <button class="chip ${filtroTC==="todas"?"active":""}" onclick="setFiltroTC('todas')">Todas</button>
@@ -726,7 +697,6 @@ function toggleCat(id) { catExpandida = catExpandida===id ? null : id; renderTC(
 function renderCC() {
   const todos = data.filter(t=>t.cuenta==="cc");
 
-  // Saldo acumulado hasta el mes seleccionado (inclusive)
   const hastaElMes = todos.filter(t => {
     const d = fechaLocal(t.fecha);
     return (d.getFullYear() < anio) || (d.getFullYear()===anio && d.getMonth()<=mes);
@@ -751,7 +721,6 @@ function renderCC() {
     .sort((a,b)=>b.fecha.localeCompare(a.fecha));
 
   let html = `
-    <!-- Saldo acumulado destacado -->
     <div style="background:${saldoAcumulado>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${saldoAcumulado>=0?'#0D4030':'#4A1020'};border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
         <div style="font-size:10px;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Saldo actual</div>
@@ -761,7 +730,6 @@ function renderCC() {
       <div style="font-size:36px;opacity:.4">${saldoAcumulado>=0?'🏦':'⚠️'}</div>
     </div>
 
-    <!-- KPIs del mes -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
         <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ingresos</div>
@@ -791,7 +759,6 @@ function renderCC() {
     </div>`;
   }
 
-  // Chips
   const catChips = porCat.map(c=>`<button class="chip ${filtroCC===c.id?"active":""}" onclick="setFiltroCC('${c.id}')" style="${filtroCC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("");
   html += `<div class="chips">
     <button class="chip ${filtroCC==="todas"?"active":""}" onclick="setFiltroCC('todas')">Todos</button>
@@ -814,18 +781,15 @@ function renderCC() {
 function renderAhorros() {
   const todos = data.filter(t=>t.cuenta==="ahorros");
 
-  // Saldo acumulado hasta el mes actual (inclusive)
   const hastaHoy = todos.filter(t => {
     const d = fechaLocal(t.fecha);
     return (d.getFullYear() < anio) || (d.getFullYear()===anio && d.getMonth()<=mes);
   });
   const saldo = hastaHoy.reduce((s,t)=> t.tipo==="deposito" ? s+t.monto : s-t.monto, 0);
 
-  // Movimientos del mes
   const gm = delMes(todos);
   const depositos = gm.filter(t=>t.tipo==="deposito").reduce((s,t)=>s+t.monto,0);
   const retiros   = gm.filter(t=>t.tipo==="retiro").reduce((s,t)=>s+t.monto,0);
-  const movsMes   = depositos - retiros;
 
   const filtrados = gm.sort((a,b)=>b.fecha.localeCompare(a.fecha));
 
@@ -875,7 +839,7 @@ function filaTransaccion(t, i) {
       iconBg = c.color+"22"; icon = c.icon; amountClass = "amount-gasto"; signo = "-";
       badge = `<span class="badge badge-gasto">Gasto</span>`;
     }
-  } else { // ahorros
+  } else {
     if (t.tipo==="deposito") {
       iconBg = "#10B98120"; icon = "💰"; amountClass = "amount-deposito"; signo = "+";
       badge = `<span class="badge badge-deposito">Depósito</span>`;
@@ -903,7 +867,6 @@ function filaTransaccion(t, i) {
   </div>`;
 }
 
-// Fila TC con monto total visible (Gonzalo + Javi) y fecha de compra
 function filaTransaccionTC(t, i) {
   const c = CATS[t.cat] || {icon:"📦",color:"#6B7280",label:"Otros"};
   const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
@@ -950,7 +913,6 @@ function abrirModal(id=null) {
   editandoId = id;
   const hoy = new Date().toISOString().slice(0,10);
 
-  // Determinar cuenta según tab
   const cuentaDefault = tabActual==="resumen" ? "tc" : tabActual;
   const enResumen = tabActual==="resumen";
 
@@ -963,7 +925,8 @@ function abrirModal(id=null) {
     document.getElementById("fCuenta").value = t.cuenta;
     modalTipo = t.tipo;
     document.getElementById("fDesc").value = t.desc;
-    document.getElementById("fMonto").value = t.monto;
+    // Al editar, mostrar el monto_total si existe (para que el usuario vea el total, no solo la parte de Gonzalo)
+    document.getElementById("fMonto").value = t.monto_total || t.monto;
     document.getElementById("fCat").value = t.cat || "otros";
     actualizarModalPorCuenta(t.cuenta);
     document.getElementById("fFecha").value = t.fecha;
@@ -1011,7 +974,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("labelFecha").textContent = "Fecha";
     document.getElementById("fFecha").type = "date";
     document.getElementById("fieldMesFac").style.display = "none";
-  } else { // ahorros
+  } else {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
     fieldCat.style.display = "none";
@@ -1034,22 +997,49 @@ function setTipo(t) {
 function cerrarModal() { document.getElementById("modalOverlay").style.display="none"; }
 function cerrarSiAfuera(e) { if(e.target===document.getElementById("modalOverlay")) cerrarModal(); }
 
+/* ══════════════════════════════════════════════
+   GUARDAR — con cálculo de split por categoría
+══════════════════════════════════════════════ */
 async function guardar() {
   const desc   = document.getElementById("fDesc").value.trim();
   const monto  = parseFloat(document.getElementById("fMonto").value);
   const fecha  = document.getElementById("fFecha").value;
   const cuenta = document.getElementById("fCuenta").value;
   const cat    = document.getElementById("fCat").value;
-
   const mesFac = document.getElementById("fMesFac").value;
+
   if(!desc || isNaN(monto) || monto<=0 || !fecha) { mostrarToast("⚠️ Completa todos los campos"); return; }
   if(cuenta==="tc" && !mesFac) { mostrarToast("⚠️ Selecciona el mes de facturación"); return; }
 
-  const esPagoTC = (cuenta==="tc" && cat==="pago");
+  // ── Calcular split por categoría (solo TC, no para "pago") ──
+  let monto_gonzalo    = monto;
+  let monto_javi_calc  = 0;
+  let monto_total_calc = monto;
 
-  const trans = { desc, monto, fecha, cuenta, tipo: modalTipo,
+  if (cuenta === "tc" && cat !== "pago") {
+    const regla = CATS[cat];
+    if (regla) {
+      monto_total_calc = monto;                            // el usuario ingresa el total
+      monto_gonzalo    = Math.round(monto * regla.pct_g);
+      monto_javi_calc  = Math.round(monto * regla.pct_j);
+    }
+  }
+
+  const esPagoTC = (cuenta === "tc" && cat === "pago");
+
+  const trans = {
+    desc,
+    monto: monto_gonzalo,
+    fecha,
+    cuenta,
+    tipo: modalTipo,
     cat: (cuenta==="tc" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null,
-    ...(cuenta==="tc" ? {mes_facturacion: mesFac} : {}) };
+    ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}),
+    ...(cuenta==="tc" && monto_javi_calc > 0 ? {
+      monto_javi:  monto_javi_calc,
+      monto_total: monto_total_calc,
+    } : {}),
+  };
 
   cerrarModal();
 
@@ -1057,9 +1047,7 @@ async function guardar() {
     if (editandoId) {
       await colUsuario().doc(editandoId).update(trans);
 
-      // Si es un Pago TC, actualizar o crear el gasto espejo en CC
       if (esPagoTC) {
-        // Buscar si ya existe un gasto CC vinculado a este TC
         const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===editandoId);
         const transCC = { desc: `Pago TC: ${desc}`, monto, fecha, cuenta:"cc",
           tipo:"gasto", cat:"pago", tc_pago_ref: editandoId };
@@ -1069,7 +1057,6 @@ async function guardar() {
           await colUsuario().add(transCC);
         }
       } else {
-        // Si cambió la categoría y ya no es Pago, eliminar el espejo CC si existía
         const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===editandoId);
         if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
       }
@@ -1078,7 +1065,6 @@ async function guardar() {
     } else {
       const docRef = await colUsuario().add(trans);
 
-      // Si es un Pago TC nuevo, crear automáticamente el gasto en CC
       if (esPagoTC) {
         await colUsuario().add({ desc: `Pago TC: ${desc}`, monto, fecha,
           cuenta:"cc", tipo:"gasto", cat:"pago", tc_pago_ref: docRef.id });
@@ -1095,7 +1081,6 @@ async function guardar() {
 async function eliminar(id) {
   if(!confirm("¿Eliminar esta transacción?")) return;
   try {
-    // Si es un Pago TC, eliminar también el gasto espejo en CC
     const trans = data.find(t=>t.id===id);
     if (trans && trans.cuenta==="tc" && trans.cat==="pago") {
       const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===id);
@@ -1132,13 +1117,11 @@ function importarJSON(e) {
       if(!Array.isArray(d)) throw new Error("No es un array");
       mostrarToast("⏳ Importando " + d.length + " movimientos…");
 
-      // Borrar datos existentes
       const existentes = await colUsuario().get();
       const borrar = db.batch();
       existentes.docs.forEach(doc => borrar.delete(doc.ref));
       await borrar.commit();
 
-      // Escribir en lotes de 499
       for (let i = 0; i < d.length; i += 499) {
         const lote = db.batch();
         d.slice(i, i+499).forEach(item => {
@@ -1171,4 +1154,4 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Escape") cerrarModal();
   if(e.key==="Enter" && document.getElementById("modalOverlay").style.display!=="none") guardar();
 });
-</script>
+</script></body></html>
