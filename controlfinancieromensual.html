@@ -558,6 +558,7 @@ function renderTC() {
   const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   const totalJavi_global = totalJavi;
+  const totalPagos      = gm.filter(t=>t.cat==="pago").reduce((s,t)=>s+t.monto,0);
 
   let html = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -577,6 +578,20 @@ function renderTC() {
         <div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div>
       </div>
     </div>
+    ${totalPagos>0?`
+    <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:14px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">💸</span>
+        <div>
+          <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Pagos Anticipados TC</div>
+          <div style="font-size:11px;color:#34794A">Restan del saldo de Gonzalo</div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:17px;color:#6EE7B7">-${mxn(totalPagos)}</div>
+        <div style="font-size:10px;color:#34794A;margin-top:2px">${totalFacturado>0?(totalPagos/totalFacturado*100).toFixed(0):'0'}% del total</div>
+      </div>
+    </div>`:''}
 
     <div style="display:flex;gap:6px">
       <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
