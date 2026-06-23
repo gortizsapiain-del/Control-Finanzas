@@ -558,7 +558,8 @@ function renderTC() {
   const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   const totalJavi_global = totalJavi;
-  const totalPagos      = gm.filter(t=>t.cat==="pago").reduce((s,t)=>s+t.monto,0);
+  // Pagos: usar gm directamente (ya filtrado por mes) buscando cat pago (cualquier case)
+  const totalPagos = gm.filter(t=>t.cat && t.cat.toLowerCase()==="pago").reduce((s,t)=>s+t.monto,0);
 
   let html = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
