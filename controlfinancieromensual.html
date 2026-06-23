@@ -555,11 +555,17 @@ function renderTC() {
     return bb-ba;
   });
 
-  const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
+  // totalFacturado: suma bruta de todo (monto_total cuando hay split, monto si no)
+  const totalFacturado   = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalJavi        = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   const totalJavi_global = totalJavi;
-  // Pagos: usar gm directamente (ya filtrado por mes) buscando cat pago (cualquier case)
-  const totalPagos = gm.filter(t=>t.cat && t.cat.toLowerCase()==="pago").reduce((s,t)=>s+t.monto,0);
+  // Pagos: monto bruto de los pagos (usando monto_total por consistencia con totalFacturado)
+  const totalPagos       = gm.filter(t=>t.cat && t.cat.toLowerCase()==="pago").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  // Gonzalo bruto real = totalFacturado - Javi - Pagos
+  // total (Gonzalo) ya tiene los pagos restados, así que: total = gonzaloBruto - pagos
+  // => gonzaloBruto = total + pagos
+  // Verificación: total + totalPagos + totalJavi debería = totalFacturado
+  const diffCheck = totalFacturado - (total + totalPagos + totalJavi);
 
   let html = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -589,7 +595,17 @@ function renderTC() {
         </div>
       </div>
       <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:#6EE7B7;flex-shrink:0">-${mxn(totalPagos)}</div>
-    </div>`:''}
+    </div>
+    ${diffCheck>1?`<div style="background:#1E1008;border:1px solid #F59E0B40;border-radius:12px;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">⚠️</span>
+        <div>
+          <div style="font-size:10px;color:#F59E0B;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1px">Sin clasificar</div>
+          <div style="font-size:11px;color:#7A5A18">Diff: G+J+Pagos ≠ Total facturado</div>
+        </div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F59E0B;flex-shrink:0">${mxn(diffCheck)}</div>
+    </div>`:''}`:''}
 
     <div style="display:flex;gap:6px">
       <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
