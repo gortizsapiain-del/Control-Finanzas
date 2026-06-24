@@ -241,12 +241,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
 
     <div class="field"><label>Descripción</label><input id="fDesc" placeholder="Ej. Nómina, Supermercado…"/></div>
-    <div class="field"><label>Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas()"/></div>
+    <!-- Campo UF (solo hipotecario) -->
+    <div class="field" id="fieldUF" style="display:none">
+      <label>Monto en UF</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="fMontoUF" type="number" placeholder="0.00" min="0" step="0.01" oninput="convertirUFaCLP()" style="flex:1"/>
+        <div style="font-size:12px;color:var(--muted);white-space:nowrap">× <span id="valorUFLabel" style="color:#93C5FD;font-weight:700">…</span></div>
+      </div>
+      <div id="ufPreviewCLP" style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right"></div>
+    </div>
+    <div class="field"><label id="labelMonto">Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas()"/></div>
 
     <!-- Categoría -->
     <div class="field" id="fieldCat">
       <label>Categoría</label>
-      <select id="fCat">
+      <select id="fCat" onchange="onCatChange()">
         <option value="cuotas_personales">💳 Cuotas Personales</option>
         <option value="cuotas_depto">🏠 Cuotas Depto</option>
         <option value="dividendo_depto">🏦 Dividendo Depto</option>
@@ -908,6 +917,7 @@ function renderCreditos() {
                   <div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div>
                   <div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
                     <span>${fecha}</span>
+                    ${t.monto_uf ? `<span style="color:#93C5FD;font-weight:700">${t.monto_uf} UF</span><span style="color:var(--dim)">× $${Math.round(t.valor_uf||0).toLocaleString('es-CL')}</span>` : ''}
                     ${tieneJavi ? `<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span>` : ''}
                   </div>
                 </div>
@@ -1218,6 +1228,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
   const tipoToggle = document.getElementById("tipoToggle");
 
   if (cuenta==="tc") {
+    mostrarCampoUF(false);
     fieldTipo.style.display = "none";
     fieldCat.style.display = "";
     // Ocultar opciones de crédito en selector de TC
@@ -1239,6 +1250,8 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("fieldMesFac").style.display = "";
     renderMesFacGrid();
     document.getElementById("fieldCuotas").style.display = "none";
+    // Mostrar/ocultar UF según categoría actual
+    onCatChange();
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -1282,6 +1295,20 @@ function actualizarOpcionesCat(cuenta) {
     select.value = "credito_consumo";
   } else if (cuenta !== "creditos" && CATS_CREDITOS.includes(select.value)) {
     select.value = "cuotas_personales";
+  }
+}
+
+function onCatChange() {
+  const cat = document.getElementById("fCat").value;
+  const cuenta = document.getElementById("fCuenta").value;
+  if (cuenta === "creditos" && cat === "credito_hipotecario") {
+    mostrarCampoUF(true);
+    // Cargar valor UF y mostrar en label
+    cargarValorUF().then(v => {
+      document.getElementById("valorUFLabel").textContent = "$" + Math.round(v).toLocaleString('es-CL');
+    });
+  } else {
+    mostrarCampoUF(false);
   }
 }
 
@@ -1475,6 +1502,7 @@ async function guardar() {
         mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
       } else {
         // Normal (incluye créditos)
+        const montoUFval = parseFloat(document.getElementById("fMontoUF").value) || null;
         const trans = {
           ...tranBase,
           desc,
@@ -1482,6 +1510,9 @@ async function guardar() {
           ...((cuenta==="tc" || cuenta==="creditos") ? { mes_facturacion: mesFac } : {}),
           ...((cuenta==="tc" || cuenta==="creditos") && monto_javi_calc > 0
             ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc }
+            : {}),
+          ...(cuenta==="creditos" && cat==="credito_hipotecario" && montoUFval
+            ? { monto_uf: montoUFval, valor_uf: valorUF }
             : {}),
         };
         await colUsuario().add(trans);
@@ -1558,6 +1589,52 @@ function mostrarToast(msg) {
   if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; document.body.appendChild(t); }
   t.textContent=msg; t.style.display="block";
   toastTimer=setTimeout(()=>{ t.style.display="none"; },2400);
+}
+
+/* ══════════════════════════════════════════════
+   UF — valor del día
+══════════════════════════════════════════════ */
+let valorUF = null; // se carga al abrir modal hipotecario
+
+async function cargarValorUF() {
+  if (valorUF) return valorUF; // ya cargado
+  try {
+    const hoy = new Date();
+    const dd = String(hoy.getDate()).padStart(2,'0');
+    const mm = String(hoy.getMonth()+1).padStart(2,'0');
+    const yyyy = hoy.getFullYear();
+    const url = `https://mindicador.cl/api/uf/${dd}-${mm}-${yyyy}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    valorUF = json.serie[0].valor;
+  } catch(e) {
+    // fallback: valor UF aproximado si falla la API
+    valorUF = 38500;
+  }
+  return valorUF;
+}
+
+function mostrarCampoUF(mostrar) {
+  document.getElementById("fieldUF").style.display = mostrar ? "" : "none";
+  document.getElementById("labelMonto").textContent = mostrar ? "Monto (CLP, calculado)" : "Monto (CLP)";
+  if (!mostrar) {
+    document.getElementById("fMontoUF").value = "";
+    document.getElementById("ufPreviewCLP").textContent = "";
+  }
+}
+
+async function convertirUFaCLP() {
+  const uf = parseFloat(document.getElementById("fMontoUF").value) || 0;
+  if (uf <= 0) {
+    document.getElementById("fMonto").value = "";
+    document.getElementById("ufPreviewCLP").textContent = "";
+    return;
+  }
+  const vuf = await cargarValorUF();
+  const clp = Math.round(uf * vuf);
+  document.getElementById("fMonto").value = clp;
+  document.getElementById("ufPreviewCLP").textContent = `${uf} UF × $${Math.round(vuf).toLocaleString('es-CL')} = ${mxn(clp)}`;
+  actualizarPreviewCuotas();
 }
 
 /* ── Teclado ── */
