@@ -1031,6 +1031,7 @@ function renderCreditos() {
             <button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos</button>
           </div>`;
         }).join('')}
+        <button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E60;color:#F87171;padding:8px 14px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS los créditos (${tieneRegistros.length} registros)</button>
       </div>
     </div>`;
   }
@@ -1704,6 +1705,23 @@ async function guardar() {
     }
   } catch(err) {
     mostrarToast("❌ Error al guardar: " + err.message);
+  }
+}
+
+async function eliminarTodosCreditos() {
+  const total = data.filter(t => t.cuenta === "creditos").length;
+  if (!confirm(`¿Eliminar TODOS los ${total} registros de créditos? Esta acción no se puede deshacer.`)) return;
+  try {
+    mostrarToast(`⏳ Eliminando ${total} registros…`);
+    const todos = data.filter(t => t.cuenta === "creditos");
+    for (let i = 0; i < todos.length; i += 499) {
+      const lote = db.batch();
+      todos.slice(i, i + 499).forEach(t => lote.delete(colUsuario().doc(t.id)));
+      await lote.commit();
+    }
+    mostrarToast(`✅ ${total} registros eliminados`);
+  } catch(err) {
+    mostrarToast("❌ Error: " + err.message);
   }
 }
 
