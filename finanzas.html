@@ -1610,6 +1610,16 @@ async function guardar() {
       } else if (cuenta === "tc") {
         const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===editandoId);
         if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
+      } else if (cuenta === "ahorros") {
+        const ccEspejo = data.find(t => t.cuenta==="cc" && t.ahorro_ref===editandoId);
+        const tipoCC = modalTipo === "deposito" ? "gasto" : "ingreso";
+        const descCC = modalTipo === "deposito" ? `Depósito ahorro: ${desc}` : `Retiro ahorro: ${desc}`;
+        const transCC = { desc: descCC, monto, fecha, cuenta:"cc", tipo: tipoCC, cat: null, ahorro_ref: editandoId };
+        if (ccEspejo) {
+          await colUsuario().doc(ccEspejo.id).update(transCC);
+        } else {
+          await colUsuario().add(transCC);
+        }
       }
 
       mostrarToast("✅ Transacción actualizada");
@@ -1621,6 +1631,22 @@ async function guardar() {
         await colUsuario().add({ desc: `Pago TC: ${desc}`, monto, fecha,
           cuenta:"cc", tipo:"gasto", cat:"pago", tc_pago_ref: docRef.id });
         mostrarToast("✅ Pago registrado y descontado de CC");
+      } else if (cuenta === "ahorros") {
+        // Depósito → gasto en CC; Retiro → ingreso en CC
+        const trans = { ...tranBase, desc, monto };
+        const docRef = await colUsuario().add(trans);
+        const tipoCC  = modalTipo === "deposito" ? "gasto" : "ingreso";
+        const descCC  = modalTipo === "deposito"
+          ? `Depósito ahorro: ${desc}`
+          : `Retiro ahorro: ${desc}`;
+        await colUsuario().add({
+          desc: descCC, monto, fecha,
+          cuenta: "cc", tipo: tipoCC, cat: null,
+          ahorro_ref: docRef.id
+        });
+        mostrarToast(modalTipo === "deposito"
+          ? "✅ Depósito registrado y descontado de CC"
+          : "✅ Retiro registrado e ingresado a CC");
       } else if (cuotas > 1) {
         const lote = db.batch();
         for (let i = 0; i < cuotas; i++) {
@@ -1748,6 +1774,10 @@ async function eliminar(id) {
     const trans = data.find(t=>t.id===id);
     if (trans && trans.cuenta==="tc" && trans.cat==="pago") {
       const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===id);
+      if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
+    }
+    if (trans && trans.cuenta==="ahorros") {
+      const ccEspejo = data.find(t => t.cuenta==="cc" && t.ahorro_ref===id);
       if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
     }
     await colUsuario().doc(id).delete();
