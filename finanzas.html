@@ -1018,26 +1018,21 @@ function renderCreditos() {
 
   // Panel de gestión siempre visible
   const tieneRegistros = data.filter(t => t.cuenta === "creditos");
-  if (tieneRegistros.length > 0) {
-    const porCatGestion = {};
-    tieneRegistros.forEach(t => {
-      if (!porCatGestion[t.cat]) porCatGestion[t.cat] = 0;
-      porCatGestion[t.cat]++;
-    });
-    html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">
-      <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${Object.entries(porCatGestion).map(([catId, count]) => {
-          const cat = CATS[catId] || {icon:"📦", label: catId};
-          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
-            <span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span>
-            <button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar</button>
-          </div>`;
-        }).join('')}
-        <button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E60;color:#F87171;padding:8px 14px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS (${tieneRegistros.length} registros)</button>
-      </div>
-    </div>`;
-  }
+  html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">
+    <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${tieneRegistros.length > 0 ? Object.entries(
+        tieneRegistros.reduce((acc, t) => { acc[t.cat||'sin_cat'] = (acc[t.cat||'sin_cat']||0)+1; return acc; }, {})
+      ).map(([catId, count]) => {
+        const cat = CATS[catId] || {icon:"📦", label: catId};
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+          <span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span>
+          <button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar</button>
+        </div>`;
+      }).join('') : '<div style="color:var(--dim);font-size:13px">No hay registros</div>'}
+      <button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E80;color:#F87171;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS los créditos ${tieneRegistros.length > 0 ? '('+tieneRegistros.length+' registros)' : ''}</button>
+    </div>
+  </div>`;
 
   document.getElementById("viewCreditos").innerHTML = html;
 }
