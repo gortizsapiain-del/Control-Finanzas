@@ -373,11 +373,19 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+// Manejar resultado del redirect de Google
+auth.getRedirectResult().catch(err => {
+  if (err.code !== 'auth/no-auth-event') {
+    document.getElementById("loginError").style.display = "";
+    document.getElementById("loginError").textContent = "Error: " + err.message;
+  }
+});
+
 function loginConGoogle() {
   const btn = document.getElementById("btnGoogle");
-  btn.disabled = true; btn.textContent = "Iniciando sesión…";
+  btn.disabled = true; btn.textContent = "Redirigiendo…";
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => {
+  auth.signInWithRedirect(provider).catch(err => {
     document.getElementById("loginError").style.display = "";
     document.getElementById("loginError").textContent = "Error: " + err.message;
     btn.disabled = false;
