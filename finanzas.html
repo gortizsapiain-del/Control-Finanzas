@@ -854,11 +854,12 @@ function renderCreditos() {
   const costoNetoGonzalo     = hipotecario.reduce((s,t)=>s+t.monto,0) - arriendoGonzalo;
   const costoNetoJavi        = hipotecario.reduce((s,t)=>s+(t.monto_javi||0),0) - arriendoJavi;
 
-  // Saldo acumulado (total histórico)
+  // Saldo acumulado (total histórico, sin arriendo)
   const hastaElMes = todos.filter(t => {
     const ref = t.mes_facturacion ? t.mes_facturacion + "-01" : t.fecha;
     const d = fechaLocal(ref);
-    return (d.getFullYear() < anio) || (d.getFullYear() === anio && d.getMonth() <= mes);
+    return t.cat !== "arriendo_oficina" &&
+      ((d.getFullYear() < anio) || (d.getFullYear() === anio && d.getMonth() <= mes));
   });
   const acumuladoTotal = hastaElMes.reduce((s,t) => s + (t.monto_total || t.monto), 0);
 
