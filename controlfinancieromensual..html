@@ -250,7 +250,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <div id="ufPreviewCLP" style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right"></div>
     </div>
-    <div class="field"><label id="labelMonto">Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas()"/></div>
+    <div class="field"><label id="labelMonto">Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas();calcularCuotaMensual()"/></div>
 
     <!-- Categoría -->
     <div class="field" id="fieldCat">
@@ -310,6 +310,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <button type="button" onclick="ajustarCuotas(1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;font-family:inherit">+</button>
       </div>
       <div id="cuotasPreview" style="margin-top:8px;font-size:12px;color:var(--dim);text-align:center"></div>
+    </div>
+
+    <!-- Cuotas crédito (solo para pestaña créditos) -->
+    <div class="field" id="fieldCuotasCredito" style="display:none">
+      <label>Cuotas del crédito</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Cuota actual (N°)</div>
+          <input id="fCuotaActual" type="number" placeholder="Ej: 3" min="1" step="1" oninput="calcularCuotaMensual()"/>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Total cuotas</div>
+          <input id="fCuotasTotal" type="number" placeholder="Ej: 240" min="1" step="1" oninput="calcularCuotaMensual()"/>
+        </div>
+      </div>
+      <div id="cuotaCreditoPreview" style="margin-top:6px;font-size:12px;color:var(--dim);text-align:center"></div>
     </div>
 
     <div class="modal-footer">
@@ -917,6 +933,7 @@ function renderCreditos() {
                   <div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div>
                   <div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
                     <span>${fecha}</span>
+                    ${t.cuota_actual && t.cuotas_total ? `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px">Cuota ${t.cuota_actual}/${t.cuotas_total}</span><span style="color:var(--dim)">${t.cuotas_total - t.cuota_actual} restantes</span>` : t.cuota_actual ? `<span style="color:#93C5FD">Cuota ${t.cuota_actual}</span>` : ''}
                     ${t.monto_uf ? `<span style="color:#93C5FD;font-weight:700">${t.monto_uf} UF</span><span style="color:var(--dim)">× $${Math.round(t.valor_uf||0).toLocaleString('es-CL')}</span>` : ''}
                     ${tieneJavi ? `<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span>` : ''}
                   </div>
@@ -1189,6 +1206,10 @@ function abrirModal(id=null) {
     document.getElementById("cuotasNum").textContent = "1";
     actualizarModalPorCuenta(t.cuenta);
     document.getElementById("fFecha").value = t.fecha;
+    // Cargar cuotas crédito si existe
+    document.getElementById("fCuotaActual").value = t.cuota_actual || "";
+    document.getElementById("fCuotasTotal").value  = t.cuotas_total || "";
+    calcularCuotaMensual();
     if (t.cuenta==="tc") {
       initMesFacPicker(t.mes_facturacion || t.fecha.slice(0,7));
     }
@@ -1210,10 +1231,20 @@ function abrirModal(id=null) {
     }
     numCuotas = 1;
     document.getElementById("cuotasNum").textContent = "1";
+    // Limpiar campos cuotas crédito
+    document.getElementById("fCuotaActual").value = "";
+    document.getElementById("fCuotasTotal").value  = "";
+    document.getElementById("cuotaCreditoPreview").textContent = "";
     actualizarModalPorCuenta(cuentaDefault);
     document.getElementById("fFecha").value = hoy;
-    if (cuentaDefault==="tc" || cuentaDefault==="creditos") {
+    if (cuentaDefault==="tc") {
       initMesFacPicker(hoy.slice(0,7));
+    } else if (cuentaDefault==="creditos") {
+      // Créditos: mes anterior (se paga con sueldo del mes previo)
+      const mesAnterior = new Date();
+      mesAnterior.setMonth(mesAnterior.getMonth() - 1);
+      const mm = String(mesAnterior.getMonth()+1).padStart(2,'0');
+      initMesFacPicker(`${mesAnterior.getFullYear()}-${mm}`);
     }
   }
 
@@ -1229,6 +1260,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
 
   if (cuenta==="tc") {
     mostrarCampoUF(false);
+    document.getElementById("fieldCuotasCredito").style.display = "none";
     fieldTipo.style.display = "none";
     fieldCat.style.display = "";
     // Ocultar opciones de crédito en selector de TC
@@ -1250,10 +1282,12 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("fieldMesFac").style.display = "";
     renderMesFacGrid();
     document.getElementById("fieldCuotas").style.display = "none";
+    document.getElementById("fieldCuotasCredito").style.display = "";
     // Mostrar/ocultar UF según categoría actual
     onCatChange();
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
+    document.getElementById("fieldCuotasCredito").style.display = "none";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
     fieldCat.style.display = modalTipo==="gasto" ? "" : "none";
     actualizarOpcionesCat("cc");
@@ -1296,6 +1330,26 @@ function actualizarOpcionesCat(cuenta) {
   } else if (cuenta !== "creditos" && CATS_CREDITOS.includes(select.value)) {
     select.value = "cuotas_personales";
   }
+}
+
+function calcularCuotaMensual() {
+  const actual  = parseInt(document.getElementById("fCuotaActual").value) || 0;
+  const total   = parseInt(document.getElementById("fCuotasTotal").value) || 0;
+  const monto   = parseFloat(document.getElementById("fMonto").value) || 0;
+  const preview = document.getElementById("cuotaCreditoPreview");
+  if (!preview) return;
+
+  let parts = [];
+  if (actual > 0 && total > 0) {
+    parts.push(`Cuota ${actual} de ${total}`);
+    const restantes = total - actual;
+    if (restantes >= 0) parts.push(`${restantes} cuota${restantes!==1?'s':''} restante${restantes!==1?'s':''}`);
+  }
+  if (monto > 0 && total > 0) {
+    const cuotaMensual = Math.round(monto / total);
+    parts.push(`Cuota mensual aprox: ${mxn(cuotaMensual)}`);
+  }
+  preview.textContent = parts.join(" · ");
 }
 
 function onCatChange() {
@@ -1502,7 +1556,9 @@ async function guardar() {
         mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
       } else {
         // Normal (incluye créditos)
-        const montoUFval = parseFloat(document.getElementById("fMontoUF").value) || null;
+        const montoUFval    = parseFloat(document.getElementById("fMontoUF").value) || null;
+        const cuotaActual   = parseInt(document.getElementById("fCuotaActual").value) || null;
+        const cuotasTotal   = parseInt(document.getElementById("fCuotasTotal").value) || null;
         const trans = {
           ...tranBase,
           desc,
@@ -1514,6 +1570,8 @@ async function guardar() {
           ...(cuenta==="creditos" && cat==="credito_hipotecario" && montoUFval
             ? { monto_uf: montoUFval, valor_uf: valorUF }
             : {}),
+          ...(cuenta==="creditos" && cuotaActual ? { cuota_actual: cuotaActual } : {}),
+          ...(cuenta==="creditos" && cuotasTotal ? { cuotas_total: cuotasTotal } : {}),
         };
         await colUsuario().add(trans);
         mostrarToast("✅ Transacción agregada");
