@@ -1425,12 +1425,14 @@ function calcularCuotaMensual() {
   let parts = [];
   if (actual > 0 && total > 0) {
     const restantes = total - actual + 1;
+    const mesBase = `${mesFacAnio}-${String(mesFacMes+1).padStart(2,'0')}`;
+    const ultimoMesFac = mesFacDeCuota(mesBase, restantes - 1);
+    const mesFinLabel = `${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
     parts.push(`Cuota ${actual} de ${total}`);
-    parts.push(`Se crearán ${restantes} cuota${restantes!==1?'s':''} automáticamente`);
+    parts.push(`Se crearán ${restantes} cuotas hasta ${mesFinLabel}`);
   }
-  if (monto > 0 && total > 0) {
-    const cuotaMensual = Math.round(monto / total);
-    parts.push(`Cuota mensual aprox: ${mxn(cuotaMensual)}`);
+  if (monto > 0) {
+    parts.push(`Monto por cuota: ${mxn(monto)}`);
   }
   preview.textContent = parts.join(" · ");
 }
@@ -1639,13 +1641,29 @@ async function guardar() {
         mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
       } else {
         // Normal (incluye créditos)
-        const montoUFval    = parseFloat(document.getElementById("fMontoUF").value) || null;
-        const cuotaActual   = parseInt(document.getElementById("fCuotaActual").value) || null;
-        const cuotasTotal   = parseInt(document.getElementById("fCuotasTotal").value) || null;
+        const montoUFval  = parseFloat(document.getElementById("fMontoUF").value) || null;
+        const cuotaActual = parseInt(document.getElementById("fCuotaActual").value) || null;
+        const cuotasTotal = parseInt(document.getElementById("fCuotasTotal").value) || null;
 
         // ── Auto-cuotas para créditos ──
         if (cuenta === "creditos" && cuotaActual && cuotasTotal && cuotaActual <= cuotasTotal) {
-          const cuotasRestantes = cuotasTotal - cuotaActual + 1; // desde la actual hasta el final
+          const cuotasRestantes = cuotasTotal - cuotaActual + 1;
+
+          // Calcular rango de fechas para mostrar en confirmación
+          const ultimoMesFac = mesFacDeCuota(mesFac, cuotasRestantes - 1);
+          const mesInicioLabel = `${MESES_CORTOS[parseInt(mesFac.slice(5,7))-1]} ${mesFac.slice(0,4)}`;
+          const mesFinLabel   = `${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
+          const cuotaMensual  = Math.round(monto_total_calc);
+
+          const confirmado = confirm(
+            `Se crearán ${cuotasRestantes} cuotas automáticamente:\n\n` +
+            `• Desde: cuota ${cuotaActual}/${cuotasTotal} (${mesInicioLabel})\n` +
+            `• Hasta: cuota ${cuotasTotal}/${cuotasTotal} (${mesFinLabel})\n` +
+            `• Monto por cuota: $${cuotaMensual.toLocaleString('es-CL')}\n\n` +
+            `¿Confirmas?`
+          );
+          if (!confirmado) { mostrarToast("❌ Cancelado"); return; }
+
           const lote = db.batch();
           for (let i = 0; i < cuotasRestantes; i++) {
             const ref = colUsuario().doc();
@@ -1663,7 +1681,7 @@ async function guardar() {
             lote.set(ref, t);
           }
           await lote.commit();
-          mostrarToast(`✅ ${cuotasRestantes} cuotas creadas automáticamente`);
+          mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
         } else {
           const trans = {
             ...tranBase,
