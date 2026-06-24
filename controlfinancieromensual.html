@@ -236,7 +236,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
 
     <div class="field"><label>Descripción</label><input id="fDesc" placeholder="Ej. Nómina, Supermercado…"/></div>
-    <div class="field"><label>Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1"/></div>
+    <div class="field"><label>Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas()"/></div>
 
     <!-- Categoría (solo gastos) -->
     <div class="field" id="fieldCat">
@@ -279,6 +279,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <button type="button" onclick="cambiarAnioMesFac(1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:14px;cursor:pointer">→</button>
       </div>
       <div id="mesFacGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
+
+    <div class="field" id="fieldCuotas" style="display:none">
+      <label>Número de cuotas</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" onclick="ajustarCuotas(-1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;font-family:inherit">−</button>
+        <div style="flex:1;text-align:center">
+          <span id="cuotasNum" style="font-size:22px;font-weight:700;color:#F0EEF8;font-family:'DM Mono',monospace">1</span>
+          <span style="font-size:13px;color:var(--muted);margin-left:4px">cuota(s)</span>
+        </div>
+        <button type="button" onclick="ajustarCuotas(1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer;font-family:inherit">+</button>
+      </div>
+      <div id="cuotasPreview" style="margin-top:8px;font-size:12px;color:var(--dim);text-align:center"></div>
     </div>
 
     <div class="modal-footer">
@@ -941,6 +954,8 @@ function abrirModal(id=null) {
     // Al editar, mostrar el monto_total si existe (para que el usuario vea el total, no solo la parte de Gonzalo)
     document.getElementById("fMonto").value = t.monto_total || t.monto;
     document.getElementById("fCat").value = t.cat || "otros";
+    numCuotas = 1;
+    document.getElementById("cuotasNum").textContent = "1";
     actualizarModalPorCuenta(t.cuenta);
     document.getElementById("fFecha").value = t.fecha;
     if (t.cuenta==="tc") {
@@ -952,6 +967,8 @@ function abrirModal(id=null) {
     document.getElementById("fDesc").value = "";
     document.getElementById("fMonto").value = "";
     document.getElementById("fCat").value = "cuotas_personales";
+    numCuotas = 1;
+    document.getElementById("cuotasNum").textContent = "1";
     actualizarModalPorCuenta(cuentaDefault);
     document.getElementById("fFecha").value = hoy;
     if (cuentaDefault==="tc") {
@@ -977,6 +994,8 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("fFecha").type = "date";
     document.getElementById("fieldMesFac").style.display = "";
     renderMesFacGrid();
+    document.getElementById("fieldCuotas").style.display = "";
+    actualizarPreviewCuotas();
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -988,6 +1007,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("labelFecha").textContent = "Fecha";
     document.getElementById("fFecha").type = "date";
     document.getElementById("fieldMesFac").style.display = "none";
+    document.getElementById("fieldCuotas").style.display = "none";
   } else {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -999,6 +1019,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("labelFecha").textContent = "Fecha";
     document.getElementById("fFecha").type = "date";
     document.getElementById("fieldMesFac").style.display = "none";
+    document.getElementById("fieldCuotas").style.display = "none";
   }
 }
 
@@ -1010,6 +1031,33 @@ function setTipo(t) {
 
 function cerrarModal() { document.getElementById("modalOverlay").style.display="none"; }
 function cerrarSiAfuera(e) { if(e.target===document.getElementById("modalOverlay")) cerrarModal(); }
+
+/* ══════════════════════════════════════════════
+   CUOTAS
+══════════════════════════════════════════════ */
+let numCuotas = 1;
+
+function ajustarCuotas(dir) {
+  numCuotas = Math.max(1, Math.min(48, numCuotas + dir));
+  document.getElementById("cuotasNum").textContent = numCuotas;
+  actualizarPreviewCuotas();
+}
+
+function actualizarPreviewCuotas() {
+  const preview = document.getElementById("cuotasPreview");
+  if (!preview) return;
+  const monto = parseFloat(document.getElementById("fMonto").value) || 0;
+  if (numCuotas <= 1 || monto === 0) {
+    preview.textContent = "";
+    return;
+  }
+  const cuota = Math.round(monto / numCuotas);
+  const mesI = mesFacMes;
+  const anioI = mesFacAnio;
+  const ultimoMes = (mesI + numCuotas - 1) % 12;
+  const ultimoAnio = anioI + Math.floor((mesI + numCuotas - 1) / 12);
+  preview.textContent = `$${cuota.toLocaleString('es-CL')} × ${numCuotas} meses · ${MESES_CORTOS[mesI]} ${anioI} → ${MESES_CORTOS[ultimoMes]} ${ultimoAnio}`;
+}
 
 /* ══════════════════════════════════════════════
    MES FACTURACIÓN PICKER
@@ -1091,24 +1139,40 @@ async function guardar() {
 
   const esPagoTC = (cuenta === "tc" && cat === "pago");
 
-  const trans = {
-    desc,
-    monto: monto_gonzalo,
+  // ── Cuotas: dividir monto en N meses ──
+  const cuotas = (cuenta === "tc" && !esPagoTC && numCuotas > 1) ? numCuotas : 1;
+  const montoCuota       = Math.round(monto_total_calc / cuotas);
+  const montoGonzaloCuota = Math.round(monto_gonzalo / cuotas);
+  const montoJaviCuota   = Math.round(monto_javi_calc / cuotas);
+
+  // Función para calcular mes_facturacion de cada cuota
+  function mesFacDeCuota(base, offset) {
+    const [anioB, mesB] = base.split('-').map(Number);
+    const total = (mesB - 1) + offset;
+    const anioR = anioB + Math.floor(total / 12);
+    const mesR  = (total % 12) + 1;
+    return `${anioR}-${String(mesR).padStart(2,'0')}`;
+  }
+
+  const tranBase = {
     fecha,
     cuenta,
     tipo: modalTipo,
     cat: (cuenta==="tc" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null,
-    ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}),
-    ...(cuenta==="tc" && monto_javi_calc > 0 ? {
-      monto_javi:  monto_javi_calc,
-      monto_total: monto_total_calc,
-    } : {}),
   };
 
   cerrarModal();
 
   try {
     if (editandoId) {
+      // Al editar, solo actualiza la transacción actual (sin crear cuotas extra)
+      const trans = {
+        ...tranBase,
+        desc,
+        monto: monto_gonzalo,
+        ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}),
+        ...(cuenta==="tc" && monto_javi_calc > 0 ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc } : {}),
+      };
       await colUsuario().doc(editandoId).update(trans);
 
       if (esPagoTC) {
@@ -1127,13 +1191,38 @@ async function guardar() {
 
       mostrarToast("✅ Transacción actualizada");
     } else {
-      const docRef = await colUsuario().add(trans);
-
       if (esPagoTC) {
+        // Pago TC: una sola transacción
+        const trans = { ...tranBase, desc, monto: monto_gonzalo,
+          ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}) };
+        const docRef = await colUsuario().add(trans);
         await colUsuario().add({ desc: `Pago TC: ${desc}`, monto, fecha,
           cuenta:"cc", tipo:"gasto", cat:"pago", tc_pago_ref: docRef.id });
         mostrarToast("✅ Pago registrado y descontado de CC");
+      } else if (cuotas > 1) {
+        // Múltiples cuotas: crear una transacción por mes
+        const lote = db.batch();
+        for (let i = 0; i < cuotas; i++) {
+          const ref = colUsuario().doc();
+          const mesCuota = mesFacDeCuota(mesFac, i);
+          const descCuota = `${desc} (cuota ${i+1}/${cuotas})`;
+          const t = {
+            ...tranBase,
+            desc: descCuota,
+            monto: montoGonzaloCuota,
+            mes_facturacion: mesCuota,
+            ...(montoJaviCuota > 0 ? { monto_javi: montoJaviCuota, monto_total: montoCuota } : {}),
+          };
+          lote.set(ref, t);
+        }
+        await lote.commit();
+        mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
       } else {
+        // Transacción normal
+        const trans = { ...tranBase, desc, monto: monto_gonzalo,
+          ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}),
+          ...(cuenta==="tc" && monto_javi_calc > 0 ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc } : {}) };
+        await colUsuario().add(trans);
         mostrarToast("✅ Transacción agregada");
       }
     }
