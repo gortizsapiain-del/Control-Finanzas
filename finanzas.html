@@ -920,7 +920,8 @@ function renderCreditos() {
       </div>
     </div>` : ''}`;
 
-  // ── Tarjeta Crédito Consumo ──
+  // ── Tarjetas por categoría ──
+  [
     { id: "credito_consumo",     items: consumo,     total: totalConsumo,     cat: CATS["credito_consumo"] },
     { id: "credito_hipotecario", items: hipotecario, total: totalHipotecario, cat: CATS["credito_hipotecario"] },
     { id: "arriendo_oficina",    items: arriendo,    total: totalArriendo,    cat: CATS["arriendo_oficina"],  esIngreso: true },
