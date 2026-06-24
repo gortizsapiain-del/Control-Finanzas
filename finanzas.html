@@ -965,9 +965,9 @@ function renderCreditos() {
           </div>
           <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta ? '▲' : '▼'}</div>
         </div>
-        ${abierta && items.length > 1 ? `
+        ${abierta ? `
         <div style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;justify-content:flex-end">
-          <button onclick="event.stopPropagation();eliminarTodasCuotas('${id}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todas las cuotas de ${c.label}</button>
+          <button onclick="event.stopPropagation();eliminarTodasCuotas('${id}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos los registros de ${c.label}</button>
         </div>` : ''}
 
         ${abierta ? `
@@ -1014,6 +1014,25 @@ function renderCreditos() {
 
   if (!gm.length) {
     html += emptyState("🏛️", "Sin créditos este mes", "Registra cuotas de consumo o hipotecarios");
+  }
+
+  // Panel de gestión siempre visible
+  const tieneRegistros = data.filter(t => t.cuenta === "creditos");
+  if (tieneRegistros.length > 0) {
+    html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">
+      <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${CATS_CREDITOS.map(catId => {
+          const cat = CATS[catId];
+          const count = data.filter(t => t.cuenta === "creditos" && t.cat === catId).length;
+          if (count === 0) return '';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+            <span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span>
+            <button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
   }
 
   document.getElementById("viewCreditos").innerHTML = html;
@@ -1673,14 +1692,17 @@ async function guardar() {
 async function eliminarTodasCuotas(catId) {
   const cat = CATS[catId];
   const nombre = cat ? cat.label : catId;
-  if (!confirm(`¿Eliminar TODAS las cuotas de "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  if (!confirm(`¿Eliminar TODOS los registros de "${nombre}"? Esta acción no se puede deshacer.`)) return;
   try {
     const todas = data.filter(t => t.cuenta === "creditos" && t.cat === catId);
-    mostrarToast(`⏳ Eliminando ${todas.length} cuotas…`);
-    const lote = db.batch();
-    todas.forEach(t => lote.delete(colUsuario().doc(t.id)));
-    await lote.commit();
-    mostrarToast(`✅ ${todas.length} cuotas eliminadas`);
+    mostrarToast(`⏳ Eliminando ${todas.length} registros…`);
+    // Firestore batch máximo 500
+    for (let i = 0; i < todas.length; i += 499) {
+      const lote = db.batch();
+      todas.slice(i, i + 499).forEach(t => lote.delete(colUsuario().doc(t.id)));
+      await lote.commit();
+    }
+    mostrarToast(`✅ ${todas.length} registros eliminados`);
   } catch(err) {
     mostrarToast("❌ Error: " + err.message);
   }
