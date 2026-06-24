@@ -266,12 +266,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <option value="javi">👤 Javi</option>
         <option value="chancheo">🐷 Chancheo</option>
         <option value="chancheo_salida">🐷 Chancheo Salida</option>
-        <option value="cafe">☕ Café</option>
       </select>
     </div>
 
     <div class="field" id="fieldFecha"><label id="labelFecha">Fecha de compra</label><input id="fFecha" type="date"/></div>
-    <div class="field" id="fieldMesFac" style="display:none"><label>Mes de facturación</label><input id="fMesFac" type="month"/></div>
+    <div class="field" id="fieldMesFac" style="display:none">
+      <label>Mes de facturación</label>
+      <input id="fMesFac" type="hidden"/>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <button type="button" onclick="cambiarAnioMesFac(-1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:14px;cursor:pointer">←</button>
+        <span id="mesFacAnioLabel" style="font-weight:700;color:#F0EEF8;font-size:15px"></span>
+        <button type="button" onclick="cambiarAnioMesFac(1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:14px;cursor:pointer">→</button>
+      </div>
+      <div id="mesFacGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
 
     <div class="modal-footer">
       <button class="btn-ghost" onclick="cerrarModal()">Cancelar</button>
@@ -376,7 +384,6 @@ const CATS = {
   javi:                 {label:"Javi",                  icon:"👤",color:"#64748B", regla:"javi",    pct_g:0,   pct_j:1},
   chancheo:             {label:"Chancheo",              icon:"🐷",color:"#F472B6", regla:"gonzalo", pct_g:1,   pct_j:0},
   chancheo_salida:      {label:"Chancheo Salida",       icon:"🐷",color:"#FB923C", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  cafe:                 {label:"Café",                  icon:"☕",color:"#A16207", regla:"gonzalo", pct_g:1,   pct_j:0},
 };
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -555,17 +562,9 @@ function renderTC() {
     return bb-ba;
   });
 
-  // totalFacturado: excluye pagos (son abonos, no gastos reales)
-  const totalFacturado   = gm.filter(t=>t.cat!=='pago').reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalJavi        = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const totalFacturado  = gm.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   const totalJavi_global = totalJavi;
-  // Pagos: monto bruto de los pagos (usando monto_total por consistencia con totalFacturado)
-  const totalPagos       = gm.filter(t=>t.cat && t.cat.toLowerCase()==="pago").reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  // Gonzalo bruto real = totalFacturado - Javi - Pagos
-  // total (Gonzalo) ya tiene los pagos restados, así que: total = gonzaloBruto - pagos
-  // => gonzaloBruto = total + pagos
-  // Verificación: total + totalPagos + totalJavi debería = totalFacturado
-  const diffCheck = totalFacturado - (total + totalPagos + totalJavi);
 
   let html = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -585,27 +584,6 @@ function renderTC() {
         <div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div>
       </div>
     </div>
-    ${totalPagos>0?`
-    <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #10B98150;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;border-radius:9px;background:#10B98120;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💸</div>
-        <div>
-          <div style="font-size:11px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px">Pagos Anticipados TC</div>
-          <div style="font-size:11px;color:#34794A">Restan del saldo de Gonzalo · ${totalFacturado>0?(totalPagos/totalFacturado*100).toFixed(0):'0'}% del total</div>
-        </div>
-      </div>
-      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:#6EE7B7;flex-shrink:0">-${mxn(totalPagos)}</div>
-    </div>
-    ${diffCheck>1?`<div style="background:#1E1008;border:1px solid #F59E0B40;border-radius:12px;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:16px">⚠️</span>
-        <div>
-          <div style="font-size:10px;color:#F59E0B;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1px">Sin clasificar</div>
-          <div style="font-size:11px;color:#7A5A18">Diff: G+J+Pagos ≠ Total facturado</div>
-        </div>
-      </div>
-      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F59E0B;flex-shrink:0">${mxn(diffCheck)}</div>
-    </div>`:''}`:''}
 
     <div style="display:flex;gap:6px">
       <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
@@ -966,7 +944,7 @@ function abrirModal(id=null) {
     actualizarModalPorCuenta(t.cuenta);
     document.getElementById("fFecha").value = t.fecha;
     if (t.cuenta==="tc") {
-      document.getElementById("fMesFac").value = (t.mes_facturacion || t.fecha.slice(0,7));
+      initMesFacPicker(t.mes_facturacion || t.fecha.slice(0,7));
     }
   } else {
     document.getElementById("modalTitulo").textContent = "Nueva transacción";
@@ -977,7 +955,7 @@ function abrirModal(id=null) {
     actualizarModalPorCuenta(cuentaDefault);
     document.getElementById("fFecha").value = hoy;
     if (cuentaDefault==="tc") {
-      document.getElementById("fMesFac").value = hoy.slice(0,7);
+      initMesFacPicker(hoy.slice(0,7));
     }
   }
 
@@ -998,6 +976,7 @@ function actualizarModalPorCuenta(cuentaForzada) {
     document.getElementById("labelFecha").textContent = "Fecha de compra";
     document.getElementById("fFecha").type = "date";
     document.getElementById("fieldMesFac").style.display = "";
+    renderMesFacGrid();
   } else if (cuenta==="cc") {
     fieldTipo.style.display = "";
     document.getElementById("labelTipo").textContent = "Tipo de movimiento";
@@ -1031,6 +1010,56 @@ function setTipo(t) {
 
 function cerrarModal() { document.getElementById("modalOverlay").style.display="none"; }
 function cerrarSiAfuera(e) { if(e.target===document.getElementById("modalOverlay")) cerrarModal(); }
+
+/* ══════════════════════════════════════════════
+   MES FACTURACIÓN PICKER
+══════════════════════════════════════════════ */
+let mesFacAnio = new Date().getFullYear();
+let mesFacMes  = new Date().getMonth(); // 0-indexed
+
+const MESES_CORTOS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+function renderMesFacGrid() {
+  const label = document.getElementById("mesFacAnioLabel");
+  const grid  = document.getElementById("mesFacGrid");
+  if (!label || !grid) return;
+  label.textContent = mesFacAnio;
+  grid.innerHTML = MESES_CORTOS.map((m, i) => {
+    const activo = (i === mesFacMes);
+    return `<button type="button" onclick="seleccionarMesFac(${i})" style="
+      padding:8px 4px;border-radius:9px;border:1px solid ${activo ? 'var(--accent)' : 'var(--border2)'};
+      background:${activo ? 'var(--accent)' : 'var(--surface2)'};
+      color:${activo ? '#fff' : 'var(--muted)'};
+      font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s"
+    >${m}</button>`;
+  }).join("");
+  // Sync hidden input
+  const mm = String(mesFacMes + 1).padStart(2, '0');
+  document.getElementById("fMesFac").value = `${mesFacAnio}-${mm}`;
+}
+
+function seleccionarMesFac(i) {
+  mesFacMes = i;
+  renderMesFacGrid();
+}
+
+function cambiarAnioMesFac(dir) {
+  mesFacAnio += dir;
+  renderMesFacGrid();
+}
+
+function initMesFacPicker(valorInicial) {
+  // valorInicial: "2026-06" o vacío
+  if (valorInicial && valorInicial.length === 7) {
+    mesFacAnio = parseInt(valorInicial.slice(0,4));
+    mesFacMes  = parseInt(valorInicial.slice(5,7)) - 1;
+  } else {
+    const hoy = new Date();
+    mesFacAnio = hoy.getFullYear();
+    mesFacMes  = hoy.getMonth();
+  }
+  renderMesFacGrid();
+}
 
 /* ══════════════════════════════════════════════
    GUARDAR — con cálculo de split por categoría
