@@ -411,7 +411,7 @@ const CATS = {
   reembolsables:        {label:"Reembolsables",         icon:"↩️",color:"#06B6D4", regla:"gonzalo", pct_g:1,   pct_j:0},
   seguros:              {label:"Seguros",               icon:"🛡️",color:"#6366F1", regla:"gonzalo", pct_g:1,   pct_j:0},
   salud_gonzalo:        {label:"Salud Gonzalo",         icon:"🏥",color:"#EC4899", regla:"gonzalo", pct_g:1,   pct_j:0},
-  gastos_depto:         {label:"Gastos Depto",          icon:"🏡",color:"#0EA5E9", regla:"60_40",   pct_g:0.6, pct_j:0.4},
+  gastos_depto:         {label:"Gastos Depto",          icon:"🏡",color:"#0EA5E9", regla:"70_30",   pct_g:0.7, pct_j:0.3},
   farmacia:             {label:"Farmacia",              icon:"💊",color:"#22C55E", regla:"60_40",   pct_g:0.6, pct_j:0.4},
   pago:                 {label:"Pago",                  icon:"💸",color:"#F43F5E", regla:"gonzalo", pct_g:1,   pct_j:0},
   javi:                 {label:"Javi",                  icon:"👤",color:"#64748B", regla:"javi",    pct_g:0,   pct_j:1},
@@ -654,6 +654,8 @@ function renderTC() {
         ? `<span style="background:#64748B20;border:1px solid #64748B60;color:#94A3B8;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Javi</span>`
         : c.regla==="50_50"
         ? `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`
+        : c.regla==="70_30"
+        ? `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">70% G · 30% J</span>`
         : `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">60% G · 40% J</span>`;
 
       const badgePago = c.id==="pago"
