@@ -364,6 +364,25 @@ function escucharDatos() {
   if (unsubscribeData) unsubscribeData();
   unsubscribeData = colUsuario().onSnapshot(snapshot => {
     data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Ir al mes del último gasto TC no-cuota, o mes actual si no hay
+    const gastosTCNoCuota = data.filter(t =>
+      t.cuenta === "tc" && t.tipo === "gasto" && t.cat !== "pago" &&
+      !((t.desc || "").match(/\(cuota \d+\/\d+\)$/))
+    );
+    if (gastosTCNoCuota.length > 0) {
+      // Buscar el gasto más reciente por fecha
+      const masReciente = gastosTCNoCuota.reduce((a, b) => {
+        const fa = a.mes_facturacion || a.fecha.slice(0,7);
+        const fb = b.mes_facturacion || b.fecha.slice(0,7);
+        return fb > fa ? b : a;
+      });
+      const ref = masReciente.mes_facturacion || masReciente.fecha.slice(0,7);
+      mes  = parseInt(ref.slice(5,7)) - 1;
+      anio = parseInt(ref.slice(0,4));
+    } else {
+      mes  = new Date().getMonth();
+      anio = new Date().getFullYear();
+    }
     render();
   }, err => {
     mostrarToast("⚠️ Error de conexión: " + err.message);
