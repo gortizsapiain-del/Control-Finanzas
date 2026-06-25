@@ -250,7 +250,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <div id="ufPreviewCLP" style="font-size:12px;color:var(--dim);margin-top:4px;text-align:right"></div>
     </div>
-    <div class="field"><label id="labelMonto">Monto (CLP)</label><input id="fMonto" type="number" placeholder="0" min="0" step="1" oninput="actualizarPreviewCuotas();calcularCuotaMensual()"/></div>
+    <div class="field"><label id="labelMonto">Monto (CLP)</label>
+      <input id="fMonto" type="text" placeholder="0" oninput="formatearMonto(this);actualizarPreviewCuotas();calcularCuotaMensual()"/>
+    </div>
 
     <!-- Categoría -->
     <div class="field" id="fieldCat">
@@ -547,12 +549,16 @@ function renderResumen() {
   const now = new Date();
   const m = now.getMonth(), a = now.getFullYear();
 
-  const tcM = data.filter(t => t.cuenta==="tc" && t.tipo==="gasto").filter(t => {
-    const d=fechaLocal(t.fecha); return d.getMonth()===m && d.getFullYear()===a;
+  // ── TC: solo gastos del mes por mes_facturacion ──
+  const tcM = data.filter(t => t.cuenta==="tc" && t.tipo==="gasto" && t.cat!=="pago").filter(t => {
+    const ref = t.mes_facturacion ? t.mes_facturacion+"-01" : t.fecha;
+    const d = fechaLocal(ref); return d.getMonth()===m && d.getFullYear()===a;
   });
-  const tcTotal         = tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const tcTotalGonzalo  = tcM.reduce((s,t)=>s+t.monto,0);
+  const tcTotal        = tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const tcGonzalo      = tcM.reduce((s,t)=>s+t.monto,0);
+  const tcJavi         = tcM.reduce((s,t)=>s+(t.monto_javi||0),0);
 
+  // ── CC del mes ──
   const ccM = data.filter(t => t.cuenta==="cc").filter(t => {
     const d=fechaLocal(t.fecha); return d.getMonth()===m && d.getFullYear()===a;
   });
@@ -560,74 +566,117 @@ function renderResumen() {
   const ccGastos   = ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
   const ccBalance  = ccIngresos - ccGastos;
 
+  // ── Ahorros acumulado ──
   const ahTotal = data.filter(t=>t.cuenta==="ahorros").reduce((s,t)=>{
     return t.tipo==="deposito" ? s+t.monto : s-t.monto;
   },0);
 
-  // Créditos del mes actual
-  const creditosM = data.filter(t => t.cuenta==="creditos").filter(t => {
+  // ── Créditos del mes ──
+  const creditosM = data.filter(t => t.cuenta==="creditos" && t.cat!=="arriendo_oficina").filter(t => {
     const ref = t.mes_facturacion ? t.mes_facturacion+"-01" : t.fecha;
     const d = fechaLocal(ref); return d.getMonth()===m && d.getFullYear()===a;
   });
-  const creditosTotalMes = creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const creditosGonzaloMes = creditosM.reduce((s,t)=>s+t.monto,0);
+  const creditosTotal   = creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const creditosGonzalo = creditosM.reduce((s,t)=>s+t.monto,0);
+  const creditosJavi    = creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
+
+  // ── Totales consolidados del mes ──
+  const totalGastosGonzalo = tcGonzalo + ccGastos + creditosGonzalo;
+  const totalGastosJavi    = tcJavi + creditosJavi;
+  const totalGastos        = tcTotal + ccGastos + creditosTotal;
 
   const mesLabel = MESES[m] + " " + a;
 
   document.getElementById("viewResumen").innerHTML = `
-    <div style="text-align:center;padding:8px 0 4px">
-      <div style="font-size:12px;color:var(--dim);font-weight:600">${mesLabel}</div>
+    <div style="text-align:center;padding:4px 0">
+      <div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${mesLabel}</div>
     </div>
 
-    <div class="summary-grid-3">
-      <div class="summary-card purple">
-        <div class="s-label" style="color:#A78BFA">TC Facturado</div>
-        <div class="s-amount" style="color:#F0EEF8">${mxn(tcTotal)}</div>
-        <div class="s-sub" style="color:#A78BFA">Gonzalo: ${mxn(tcTotalGonzalo)}</div>
-      </div>
-      <div class="summary-card ${ccBalance>=0?'green':'neutral'}" style="${ccBalance<0?'border-color:#F43F5E40':''}">
-        <div class="s-label" style="color:${ccBalance>=0?'#6EE7B7':'#F87171'}">CC Balance</div>
-        <div class="s-amount" style="color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
-        <div class="s-sub" style="color:${ccBalance>=0?'#34794A':'#7A3040'}">${ccM.length} movs.</div>
-      </div>
-      <div class="summary-card gold">
-        <div class="s-label" style="color:#FCD34D">Saldo Ahorros</div>
-        <div class="s-amount" style="color:#FCD34D">${mxn(ahTotal)}</div>
-        <div class="s-sub" style="color:#7A5A18">Acumulado total</div>
+    <!-- GRAN TOTAL DEL MES -->
+    <div style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:20px 22px">
+      <div style="font-size:10px;color:#A78BFA;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Total gastos — ${mesLabel}</div>
+      <div style="font-size:34px;font-weight:700;font-family:'DM Mono',monospace;color:#F0EEF8;margin-bottom:14px">${mxn(totalGastos)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div>
+          <div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div>
+        </div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
+          <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
+        </div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#FCD34D;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Ahorros</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(ahTotal)}</div>
+          <div style="font-size:10px;color:#7A5A18;margin-top:2px">acumulado</div>
+        </div>
       </div>
     </div>
 
-    ${creditosTotalMes > 0 ? `
-    <div class="summary-card orange" style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div class="s-label" style="color:#FDB579">Créditos del mes</div>
-        <div class="s-amount" style="color:#FDB579">${mxn(creditosTotalMes)}</div>
-        <div class="s-sub" style="color:#7A3A10">Gonzalo: ${mxn(creditosGonzaloMes)}</div>
-      </div>
-      <div style="font-size:28px;opacity:.4">🏛️</div>
-    </div>` : ''}
+    <!-- DESGLOSE POR CUENTA -->
+    <div style="display:flex;flex-direction:column;gap:10px">
 
-    <div class="card">
-      <div class="section-head">
-        <div class="section-label">Cuenta Corriente — ${mesLabel}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <div style="background:var(--surface2);border-radius:12px;padding:14px;border:1px solid #0D4030">
-          <div style="font-size:10px;color:var(--green);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px">Ingresos</div>
-          <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)">${mxn(ccIngresos)}</div>
+      <!-- TC -->
+      <div style="background:var(--surface);border:1px solid #3D1880;border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;color:#A78BFA;font-weight:700;letter-spacing:.08em;text-transform:uppercase">💳 Tarjeta de crédito</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F0EEF8">${mxn(tcTotal)}</div>
         </div>
-        <div style="background:var(--surface2);border-radius:12px;padding:14px;border:1px solid #4A1020">
-          <div style="font-size:10px;color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px">Gastos</div>
-          <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--red)">${mxn(ccGastos)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#8B5CF610;border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630">
+            <div style="font-size:10px;color:#C4B5FD;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gonzalo</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#F0EEF8">${mxn(tcGonzalo)}</div>
+          </div>
+          <div style="background:#64748B10;border-radius:9px;padding:8px 10px;border:1px solid #64748B30">
+            <div style="font-size:10px;color:#94A3B8;font-weight:700;text-transform:uppercase;margin-bottom:2px">Javi</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#94A3B8">${mxn(tcJavi)}</div>
+          </div>
         </div>
       </div>
-      <div style="background:${ccBalance>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border-radius:12px;padding:16px 18px;border:1px solid ${ccBalance>=0?'#0D4030':'#4A1020'};display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:10px;color:${ccBalance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">Saldo real del mes</div>
-          <div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
+
+      <!-- CC -->
+      <div style="background:var(--surface);border:1px solid ${ccBalance>=0?'#0D4030':'#4A1020'};border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;color:${ccBalance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
         </div>
-        <div style="font-size:28px;opacity:.35">${ccBalance>=0?'✅':'🔴'}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130">
+            <div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div>
+          </div>
+          <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30">
+            <div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div>
+          </div>
+          <div style="background:${ccBalance>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccBalance>=0?'#10B98130':'#F43F5E30'}">
+            <div style="font-size:10px;color:${ccBalance>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
+          </div>
+        </div>
       </div>
+
+      ${creditosTotal > 0 ? `
+      <!-- Créditos -->
+      <div style="background:var(--surface);border:1px solid #4A2010;border-radius:14px;padding:14px 16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;color:#FDB579;font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏛️ Créditos</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FDB579">${mxn(creditosTotal)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#F9731610;border-radius:9px;padding:8px 10px;border:1px solid #F9731630">
+            <div style="font-size:10px;color:#FDB579;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gonzalo</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#FDB579">${mxn(creditosGonzalo)}</div>
+          </div>
+          <div style="background:#64748B10;border-radius:9px;padding:8px 10px;border:1px solid #64748B30">
+            <div style="font-size:10px;color:#94A3B8;font-weight:700;text-transform:uppercase;margin-bottom:2px">Javi</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#94A3B8">${mxn(creditosJavi)}</div>
+          </div>
+        </div>
+      </div>` : ''}
+
     </div>
 
     <div class="actions-bar">
@@ -1282,7 +1331,7 @@ function abrirModal(id=null) {
     document.getElementById("fCuenta").value = t.cuenta;
     modalTipo = t.tipo;
     document.getElementById("fDesc").value = t.desc;
-    document.getElementById("fMonto").value = t.monto_total || t.monto;
+    document.getElementById("fMonto").value = (t.monto_total || t.monto).toLocaleString("es-CL");
     document.getElementById("fCat").value = t.cat || "otros";
     numCuotas = 1;
     document.getElementById("cuotasNum").textContent = "1";
@@ -1417,7 +1466,7 @@ function actualizarOpcionesCat(cuenta) {
 function calcularCuotaMensual() {
   const actual  = parseInt(document.getElementById("fCuotaActual").value) || 0;
   const total   = parseInt(document.getElementById("fCuotasTotal").value) || 0;
-  const monto   = parseFloat(document.getElementById("fMonto").value) || 0;
+  const monto   = leerMonto() || 0;
   const preview = document.getElementById("cuotaCreditoPreview");
   if (!preview) return;
 
@@ -1434,6 +1483,19 @@ function calcularCuotaMensual() {
     parts.push(`Monto por cuota: ${mxn(monto)}`);
   }
   preview.textContent = parts.join(" · ");
+}
+
+function formatearMonto(input) {
+  // Guardar posición del cursor
+  const raw = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+  if (raw === '') { input.value = ''; return; }
+  const num = parseInt(raw);
+  input.value = num.toLocaleString('es-CL');
+}
+
+function leerMonto() {
+  const val = document.getElementById("fMonto").value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  return parseFloat(val) || 0;
 }
 
 function onCatChange() {
@@ -1473,7 +1535,7 @@ function ajustarCuotas(dir) {
 function actualizarPreviewCuotas() {
   const preview = document.getElementById("cuotasPreview");
   if (!preview) return;
-  const monto = parseFloat(document.getElementById("fMonto").value) || 0;
+  const monto = leerMonto() || 0;
   if (numCuotas <= 1 || monto === 0) {
     preview.textContent = "";
     return;
@@ -1539,7 +1601,7 @@ function initMesFacPicker(valorInicial) {
 ══════════════════════════════════════════════ */
 async function guardar() {
   const desc   = document.getElementById("fDesc").value.trim();
-  const monto  = parseFloat(document.getElementById("fMonto").value);
+  const monto  = leerMonto();
   const fecha  = document.getElementById("fFecha").value;
   const cuenta = document.getElementById("fCuenta").value;
   const cat    = document.getElementById("fCat").value;
