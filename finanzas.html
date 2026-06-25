@@ -573,6 +573,12 @@ function renderResumen() {
   const ccGastos   = ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
   const ccBalance  = ccIngresos - ccGastos;
 
+  // Saldo acumulado CC hasta el mes seleccionado
+  const ccSaldoAcumulado = data.filter(t => t.cuenta==="cc").filter(t => {
+    const d=fechaLocal(t.fecha);
+    return (d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);
+  }).reduce((s,t)=> t.tipo==="ingreso" ? s+t.monto : s-t.monto, 0);
+
   // ── Ahorros acumulado hasta este mes ──
   const ahTotal = data.filter(t=>t.cuenta==="ahorros").filter(t=>{
     const d=fechaLocal(t.fecha);
@@ -643,23 +649,23 @@ function renderResumen() {
     </div>
 
     <!-- CC desglose -->
-    <div style="background:var(--surface);border:1px solid ${ccBalance>=0?'#0D4030':'#4A1020'};border-radius:14px;padding:14px 16px">
+    <div style="background:var(--surface);border:1px solid ${ccSaldoAcumulado>=0?'#0D4030':'#4A1020'};border-radius:14px;padding:14px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:11px;color:${ccBalance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
+        <div style="font-size:11px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div>
+        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130">
-          <div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos</div>
+          <div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos mes</div>
           <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div>
         </div>
         <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30">
-          <div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos</div>
+          <div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div>
           <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div>
         </div>
-        <div style="background:${ccBalance>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccBalance>=0?'#10B98130':'#F43F5E30'}">
-          <div style="font-size:10px;color:${ccBalance>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccBalance>=0?'#6EE7B7':'#F87171'}">${mxn(ccBalance)}</div>
+        <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}">
+          <div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div>
         </div>
       </div>
     </div>
