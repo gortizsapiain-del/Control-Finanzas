@@ -428,10 +428,15 @@ function renderResumen(){
   const ccM=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return d.getMonth()===m&&d.getFullYear()===a;});
   const ccIngresos=ccM.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
   // ccGastos: todos (para saldo real CC); ccGastosReales: excluye traspasos (pago_tc, ahorros)
-  const ccGastos=ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  // ccGastos para panel CC: excluir pago_tc (no es gasto real, es pago de deuda TC ya contabilizada)
+  const ccGastos=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc").reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const ccGastosReales=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref).reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  // Saldo CC real: incluye pago_tc y ahorros (sí salen/entran de la cuenta)
-  const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
+  // Saldo CC: excluir pago_tc (ya está contabilizado en TC, no es gasto real de CC)
+  const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>{
+    if(t.tipo==="ingreso")return s+t.monto;
+    if(t.cat==="pago_tc")return s;
+    return s-(t.monto_total||t.monto);
+  },0);
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const creditosTotal=creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0),creditosGonzalo=creditosM.reduce((s,t)=>s+t.monto,0),creditosJavi=creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
@@ -563,11 +568,16 @@ function toggleCat(id){catExpandida=catExpandida===id?null:id;renderTC();}
 function renderCC(){
   const todos=data.filter(t=>t.cuenta==="cc");
   const hastaElMes=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
-  // Saldo real CC: pago_tc sí descuenta (plata que salió de la cuenta)
-  const saldoAcumulado=hastaElMes.reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
+  // Saldo CC: excluir pago_tc (ya contabilizado en TC)
+  const saldoAcumulado=hastaElMes.reduce((s,t)=>{
+    if(t.tipo==="ingreso")return s+t.monto;
+    if(t.cat==="pago_tc")return s;
+    return s-(t.monto_total||t.monto);
+  },0);
   const gm=delMes(todos);
   const ingresos=gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
-  const gastos=gm.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  // Gastos reales CC del mes: excluir pago_tc
+  const gastos=gm.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc").reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const balance=ingresos-gastos;
   const porCat=Object.keys(CATS).map(id=>({id,...CATS[id],total:gm.filter(t=>t.cat===id&&t.tipo==="gasto").reduce((s,t)=>s+t.monto,0)})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
   const filtrados=(filtroCC==="todas"?gm:filtroCC==="ingresos"?gm.filter(t=>t.tipo==="ingreso"):filtroCC==="gastos"?gm.filter(t=>t.tipo==="gasto"):gm.filter(t=>t.cat===filtroCC&&t.tipo==="gasto")).sort((a,b)=>b.fecha.localeCompare(a.fecha));
