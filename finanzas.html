@@ -414,20 +414,23 @@ function render(){
 function renderResumen(){
   const m=mes,a=anio;
   const mesStr=`${a}-${String(m+1).padStart(2,'0')}`;
-  // Gastos TC del mes
+  // Gastos TC del mes navegado
   const tcM=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat!=="pago"&&t.cat!=="pago_tc").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const tcTotal=tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0),tcGonzalo=tcM.reduce((s,t)=>s+t.monto,0),tcJavi=tcM.reduce((s,t)=>s+(t.monto_javi||0),0);
-  // ¿Existe un Pago TC que cubre este mes?
+  // ¿Existe un pago TC para el mes navegado? (el pago_tc en CC tiene tc_mes_pagado = mes TC pagado)
   const pagoTCEsteMes=data.find(t=>t.cuenta==="cc"&&t.cat==="pago_tc"&&t.tc_mes_pagado===mesStr);
-  // Si ya se pagó la TC de este mes, no la sumamos al total (evitar doble conteo)
-  const tcParaTotal=pagoTCEsteMes?0:tcTotal;
-  const tcGonzaloParaTotal=pagoTCEsteMes?0:tcGonzalo;
+  // TC para el total: 0 si ya fue pagada, sino el saldo pendiente (facturado - pagos parciales)
+  const pagosParciales=data.filter(t=>t.cuenta==="tc"&&t.cat==="pago").filter(t=>{const ref=t.mes_facturacion||t.fecha.slice(0,7);return ref===mesStr;}).reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const tcSaldoPendiente=Math.max(0,tcTotal-pagosParciales);
+  const tcParaTotal=pagoTCEsteMes?0:tcSaldoPendiente;
+  const tcGonzaloParaTotal=pagoTCEsteMes?0:tcGonzalo-data.filter(t=>t.cuenta==="tc"&&t.cat==="pago"&&(t.mes_facturacion||t.fecha.slice(0,7))===mesStr).reduce((s,t)=>s+t.monto,0);
   const tcJaviParaTotal=pagoTCEsteMes?0:tcJavi;
   const ccM=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return d.getMonth()===m&&d.getFullYear()===a;});
   const ccIngresos=ccM.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
   // ccGastos: todos (para saldo real CC); ccGastosReales: excluye traspasos (pago_tc, ahorros)
   const ccGastos=ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const ccGastosReales=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref).reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  // Saldo CC real: incluye pago_tc y ahorros (sí salen/entran de la cuenta)
   const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
@@ -461,7 +464,7 @@ function renderResumen(){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130"><div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div></div>
-        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30"><div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastosReales)}</div></div>
+        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30"><div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div></div>
         <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}"><div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       </div>
     </div>
@@ -560,6 +563,7 @@ function toggleCat(id){catExpandida=catExpandida===id?null:id;renderTC();}
 function renderCC(){
   const todos=data.filter(t=>t.cuenta==="cc");
   const hastaElMes=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
+  // Saldo real CC: pago_tc sí descuenta (plata que salió de la cuenta)
   const saldoAcumulado=hastaElMes.reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const gm=delMes(todos);
   const ingresos=gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
