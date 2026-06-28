@@ -417,12 +417,15 @@ function renderResumen(){
   const tcTotal=tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0),tcGonzalo=tcM.reduce((s,t)=>s+t.monto,0),tcJavi=tcM.reduce((s,t)=>s+(t.monto_javi||0),0);
   const ccM=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return d.getMonth()===m&&d.getFullYear()===a;});
   const ccIngresos=ccM.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
+  // ccGastos: todos los gastos CC para saldo real; ccGastosReales: excluye pago_tc y ahorros (traspasos)
   const ccGastos=ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const ccGastosReales=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref).reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const creditosTotal=creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0),creditosGonzalo=creditosM.reduce((s,t)=>s+t.monto,0),creditosJavi=creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
-  const totalGastos=tcTotal+ccGastos+creditosTotal,totalGastosGonzalo=tcGonzalo+ccGastos+creditosGonzalo,totalGastosJavi=tcJavi+creditosJavi;
+  // Total real: TC + gastos CC reales (sin pago_tc) + créditos
+  const totalGastos=tcTotal+ccGastosReales+creditosTotal,totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzalo,totalGastosJavi=tcJavi+creditosJavi;
   const mesLabel=MESES[m]+" "+a;
   document.getElementById("viewResumen").innerHTML=`
     <div style="text-align:center;padding:4px 0"><div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${mesLabel}</div></div>
@@ -436,7 +439,7 @@ function renderResumen(){
       </div>
       <div style="border-top:1px solid #ffffff20;padding-top:12px;display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#C4B5FD">💳 Tarjeta de crédito</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(tcTotal)}</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#6EE7B7">🏦 Gastos CC</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(ccGastos)}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#6EE7B7">🏦 Gastos CC</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(ccGastosReales)}</span></div>
         ${creditosTotal>0?`<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#FDB579">🏛️ Créditos</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(creditosTotal)}</span></div>`:''}
         <div style="border-top:1px solid #ffffff20;margin-top:4px;padding-top:8px;display:flex;justify-content:space-between;align-items:center"><span style="color:#A78BFA;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">Total</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F0EEF8">${mxn(totalGastos)}</span></div>
       </div>
@@ -445,7 +448,7 @@ function renderResumen(){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
         <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130"><div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div></div>
-        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30"><div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div></div>
+        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30"><div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastosReales)}</div></div>
         <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}"><div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       </div>
     </div>
