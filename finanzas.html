@@ -854,10 +854,25 @@ async function guardar(){
     if(totalGeneral===0){mostrarToast("⚠️ Primero calcula el total TC del mes");return;}
     cerrarModal();
     try{
-      const trans={fecha,cuenta:"cc",tipo:"gasto",cat:"pago_tc",desc,
+      // Registro en CC (gasto)
+      const transCC={fecha,cuenta:"cc",tipo:"gasto",cat:"pago_tc",desc,
         monto:totalGonzalo,monto_javi:totalJavi,monto_total:totalGeneral,tc_mes_pagado:mesStr};
-      if(editandoId){await colUsuario().doc(editandoId).update(trans);mostrarToast("✅ Pago TC actualizado");}
-      else{await colUsuario().add(trans);mostrarToast(`✅ Pago TC: ${mxn(totalGeneral)} (G:${mxn(totalGonzalo)} / J:${mxn(totalJavi)})`);}
+      // Registro en TC (pago) — reduce saldo pendiente del mes TC
+      const transTC={fecha,cuenta:"tc",tipo:"gasto",cat:"pago",desc,
+        monto:totalGeneral,mes_facturacion:mesStr,pago_tc_ref:true};
+      if(editandoId){
+        // Actualizar CC
+        await colUsuario().doc(editandoId).update(transCC);
+        // Actualizar o crear espejo TC
+        const tcEspejo=data.find(t=>t.cuenta==="tc"&&t.cat==="pago"&&t.pago_tc_cc_ref===editandoId);
+        if(tcEspejo)await colUsuario().doc(tcEspejo.id).update({...transTC,pago_tc_cc_ref:editandoId});
+        else await colUsuario().add({...transTC,pago_tc_cc_ref:editandoId});
+        mostrarToast("✅ Pago TC actualizado");
+      }else{
+        const docCC=await colUsuario().add(transCC);
+        await colUsuario().add({...transTC,pago_tc_cc_ref:docCC.id});
+        mostrarToast(`✅ Pago TC: ${mxn(totalGeneral)} (G:${mxn(totalGonzalo)} / J:${mxn(totalJavi)})`);
+      }
     }catch(err){mostrarToast("❌ Error: "+err.message);}
     return;
   }
@@ -958,6 +973,7 @@ async function eliminar(id){
   try{
     const trans=data.find(t=>t.id===id);
     if(trans&&trans.cuenta==="tc"&&trans.cat==="pago"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
+    if(trans&&trans.cuenta==="cc"&&trans.cat==="pago_tc"){const tcEspejo=data.find(t=>t.cuenta==="tc"&&t.cat==="pago"&&t.pago_tc_cc_ref===id);if(tcEspejo)await colUsuario().doc(tcEspejo.id).delete();}
     if(trans&&trans.cuenta==="ahorros"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.ahorro_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
     await colUsuario().doc(id).delete();mostrarToast("🗑️ Eliminado");
   }catch(err){mostrarToast("❌ Error al eliminar: "+err.message);}
