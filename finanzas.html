@@ -356,6 +356,7 @@ const CATS={
   arriendo_oficina:{label:"Arriendo Oficina",icon:"🏢",color:"#10B981",regla:"50_50",pct_g:0.5,pct_j:0.5,es_ingreso:true},
 };
 const CATS_CREDITOS=["credito_consumo","credito_hipotecario","arriendo_oficina"];
+const SALDO_INICIAL_CC=59737; // Saldo CC al inicio del registro (antes de Julio 2026)
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
@@ -431,12 +432,8 @@ function renderResumen(){
   // ccGastos para panel CC: excluir pago_tc (no es gasto real, es pago de deuda TC ya contabilizada)
   const ccGastos=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc").reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const ccGastosReales=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref).reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  // Saldo CC: excluir pago_tc (ya está contabilizado en TC, no es gasto real de CC)
-  const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>{
-    if(t.tipo==="ingreso")return s+t.monto;
-    if(t.cat==="pago_tc")return s;
-    return s-(t.monto_total||t.monto);
-  },0);
+  // Saldo CC acumulado real: incluir pago_tc + saldo inicial pre-registro
+  const ccSaldoAcumulado=SALDO_INICIAL_CC+data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const creditosTotal=creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0),creditosGonzalo=creditosM.reduce((s,t)=>s+t.monto,0),creditosJavi=creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
@@ -568,12 +565,8 @@ function toggleCat(id){catExpandida=catExpandida===id?null:id;renderTC();}
 function renderCC(){
   const todos=data.filter(t=>t.cuenta==="cc");
   const hastaElMes=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
-  // Saldo CC: excluir pago_tc (ya contabilizado en TC)
-  const saldoAcumulado=hastaElMes.reduce((s,t)=>{
-    if(t.tipo==="ingreso")return s+t.monto;
-    if(t.cat==="pago_tc")return s;
-    return s-(t.monto_total||t.monto);
-  },0);
+  // Saldo CC acumulado real: incluir pago_tc + saldo inicial pre-registro
+  const saldoAcumulado=SALDO_INICIAL_CC+hastaElMes.reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const gm=delMes(todos);
   const ingresos=gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
   // Gastos reales CC del mes: excluir pago_tc
