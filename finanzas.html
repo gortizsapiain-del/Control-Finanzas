@@ -6,7 +6,6 @@
 <title>Control Financiero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -25,41 +24,26 @@
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:#3A3A4A;border-radius:4px}
-
-/* ── Header ── */
 .header{background:linear-gradient(135deg,#12121A,#1A1020);border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:0;z-index:50}
 .header-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .header-label{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
 .header-title{font-size:18px;font-weight:700;color:#F0EEF8}
-
-/* ── Tabs ── */
 .tabs{display:flex;gap:4px;background:var(--surface2);border-radius:12px;padding:4px;border:1px solid var(--border)}
 .tab{padding:7px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s;font-family:inherit;white-space:nowrap}
 .tab.active{background:var(--accent);color:#fff}
 .tab:hover:not(.active){color:var(--text)}
-
-/* ── Layout ── */
 .container{max-width:720px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:18px}
-
-/* ── Buttons ── */
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
 .btn-primary:hover{opacity:.85}
 .btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
-.btn-green:hover{opacity:.85}
 .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:7px 12px;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s}
 .btn-ghost:hover{border-color:#5A5A7A;color:var(--text)}
 .btn-icon{background:transparent;border:none;cursor:pointer;font-size:15px;opacity:.4;transition:opacity .2s;padding:3px}
 .btn-icon:hover{opacity:1}
-
-/* ── Cards ── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 18px}
-
-/* ── Month nav ── */
 .month-nav{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px}
 .month-name{font-weight:700;font-size:16px;color:#F0EEF8;text-align:center}
 .month-year{font-size:12px;color:var(--dim);text-align:center;margin-top:1px}
-
-/* ── Summary grids ── */
 .summary-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .summary-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .summary-card{border-radius:14px;padding:16px}
@@ -72,19 +56,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .s-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
 .s-amount{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;line-height:1.1}
 .s-sub{font-size:11px;margin-top:3px}
-
-/* ── Category bars ── */
 .cat-row{margin-bottom:10px}.cat-row:last-child{margin-bottom:0}
 .cat-meta{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
 .cat-bar-bg{background:var(--surface2);border-radius:3px;height:5px}
 .cat-bar{height:5px;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-
-/* ── Chips ── */
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);transition:all .2s;font-family:inherit}
 .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
-
-/* ── Transaction rows ── */
 .expense-list{display:flex;flex-direction:column;gap:7px}
 .expense-row{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;background:var(--surface);border:1px solid var(--border);transition:border-color .2s;animation:fadeUp .3s ease both}
 .expense-row:hover{border-color:var(--border2)}
@@ -92,32 +70,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .expense-desc{font-weight:600;font-size:14px;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .expense-meta{font-size:11px;color:var(--dim);margin-top:2px}
 .expense-amount{font-family:'DM Mono',monospace;font-weight:700;font-size:14px;flex-shrink:0}
-.amount-gasto{color:#F0EEF8}
-.amount-ingreso{color:var(--green)}
-.amount-retiro{color:var(--red)}
-.amount-deposito{color:var(--green)}
+.amount-gasto{color:#F0EEF8}.amount-ingreso{color:var(--green)}.amount-retiro{color:var(--red)}.amount-deposito{color:var(--green)}
 .badge{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-left:4px}
-.badge-ingreso{background:#10B98120;color:var(--green)}
-.badge-gasto{background:#F43F5E18;color:var(--red)}
-.badge-deposito{background:#10B98120;color:var(--green)}
-.badge-retiro{background:#F43F5E18;color:var(--red)}
-
-/* ── Empty state ── */
+.badge-ingreso{background:#10B98120;color:var(--green)}.badge-gasto{background:#F43F5E18;color:var(--red)}
+.badge-deposito{background:#10B98120;color:var(--green)}.badge-retiro{background:#F43F5E18;color:var(--red)}
 .empty{text-align:center;padding:40px 20px;color:#3A3A52}
 .empty-icon{font-size:36px;margin-bottom:10px}
 .empty-title{font-size:14px;font-weight:600;color:#4A4A62}
 .empty-sub{font-size:12px;margin-top:3px}
-
-/* ── Actions bar ── */
 .actions-bar{display:flex;gap:8px;justify-content:flex-end}
-
-/* ── Resumen section headers ── */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-
-/* ── Modal ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(6px)}
-.modal{background:#16161E;border:1px solid var(--border2);border-radius:20px;padding:26px;width:100%;max-width:420px;animation:fadeUp .25s ease}
+.modal{background:#16161E;border:1px solid var(--border2);border-radius:20px;padding:26px;width:100%;max-width:420px;animation:fadeUp .25s ease;max-height:90vh;overflow-y:auto}
 .modal-title{font-weight:700;font-size:17px;color:#F0EEF8;margin-bottom:20px}
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .field label{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
@@ -131,35 +96,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .tipo-btn.selected-deposito{background:#10B98120;border-color:var(--green);color:var(--green)}
 .tipo-btn.selected-retiro{background:#F43F5E18;border-color:var(--red);color:var(--red)}
 .modal-footer{display:flex;gap:10px;margin-top:6px}
-.modal-footer .btn-ghost{flex:1}
-.modal-footer .btn-primary{flex:2}
-
-/* ── Toast ── */
+.modal-footer .btn-ghost{flex:1}.modal-footer .btn-primary{flex:2}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E2830;border:1px solid #2A4040;color:#7FFFB8;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;animation:fadeUp .3s ease;pointer-events:none}
-
+.pago-tc-banner{background:linear-gradient(135deg,#0A1E10,#0F2A18);border:1px solid #1A4A28;border-radius:12px;padding:14px 16px;margin-bottom:14px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-@media(max-width:520px){
-  .summary-grid-3{grid-template-columns:1fr 1fr}
-  .s-amount{font-size:16px}
-  .tab{padding:6px 10px;font-size:12px}
-  .tabs{gap:2px}
-}
-@media(max-width:380px){
-  .summary-grid-3{grid-template-columns:1fr}
-  .tabs{gap:1px}
-  .tab{padding:5px 8px;font-size:11px}
-}
+@media(max-width:520px){.summary-grid-3{grid-template-columns:1fr 1fr}.s-amount{font-size:16px}.tab{padding:6px 10px;font-size:12px}.tabs{gap:2px}}
+@media(max-width:380px){.summary-grid-3{grid-template-columns:1fr}.tabs{gap:1px}.tab{padding:5px 8px;font-size:11px}}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-inner">
-    <div>
-      <div class="header-label">💰 Finanzas</div>
-      <div class="header-title">Control Financiero</div>
-    </div>
+    <div><div class="header-label">💰 Finanzas</div><div class="header-title">Control Financiero</div></div>
     <div style="display:flex;align-items:center;gap:10px">
       <div id="userInfo" style="display:none;align-items:center;gap:8px">
         <img id="userAvatar" src="" alt="" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);object-fit:cover"/>
@@ -169,8 +117,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
 </div>
-
-<!-- Tabs -->
 <div style="background:#12121A;border-bottom:1px solid var(--border);padding:10px 20px">
   <div style="max-width:720px;margin:0 auto">
     <div class="tabs">
@@ -182,28 +128,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
 </div>
-
 <div class="container">
-
-  <!-- Mes nav (oculto en resumen) -->
   <div class="month-nav" id="monthNav">
     <button class="btn-ghost" onclick="cambiarMes(-1)">← Anterior</button>
-    <div>
-      <div class="month-name" id="mesNombre"></div>
-      <div class="month-year" id="anioNum"></div>
-    </div>
+    <div><div class="month-name" id="mesNombre"></div><div class="month-year" id="anioNum"></div></div>
     <button class="btn-ghost" onclick="cambiarMes(1)">Siguiente →</button>
   </div>
-
-  <!-- Contenido de tabs -->
   <div id="viewResumen"></div>
   <div id="viewTC" style="display:none"></div>
   <div id="viewCC" style="display:none"></div>
   <div id="viewAhorros" style="display:none"></div>
   <div id="viewCreditos" style="display:none"></div>
-
 </div>
-
 <!-- Login overlay -->
 <div class="overlay" id="loginOverlay" style="display:flex">
   <div class="modal" style="text-align:center;max-width:340px;padding:36px 28px">
@@ -217,13 +153,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div id="loginError" style="margin-top:14px;color:var(--red);font-size:13px;display:none"></div>
   </div>
 </div>
-
 <!-- Modal -->
 <div class="overlay" id="modalOverlay" style="display:none" onclick="cerrarSiAfuera(event)">
   <div class="modal">
     <div class="modal-title" id="modalTitulo">Nueva transacción</div>
-
-    <!-- Selector de cuenta (solo en resumen) -->
     <div class="field" id="fieldCuenta" style="display:none">
       <label>Cuenta</label>
       <select id="fCuenta" onchange="actualizarModalPorCuenta()">
@@ -233,15 +166,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <option value="creditos">🏛️ Créditos</option>
       </select>
     </div>
-
-    <!-- Tipo (ingreso/gasto o depósito/retiro) -->
     <div class="field" id="fieldTipo" style="display:none">
       <label id="labelTipo">Tipo</label>
       <div class="tipo-toggle" id="tipoToggle"></div>
     </div>
-
     <div class="field"><label>Descripción</label><input id="fDesc" placeholder="Ej. Nómina, Supermercado…"/></div>
-    <!-- Campo UF (solo hipotecario) -->
     <div class="field" id="fieldUF" style="display:none">
       <label>Monto en UF</label>
       <div style="display:flex;gap:8px;align-items:center">
@@ -253,8 +182,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="field"><label id="labelMonto">Monto (CLP)</label>
       <input id="fMonto" type="text" placeholder="0" oninput="formatearMonto(this);actualizarPreviewCuotas();calcularCuotaMensual()"/>
     </div>
-
-    <!-- Categoría -->
+    <!-- Banner Pago TC -->
+    <div id="pagoTCBanner" style="display:none" class="pago-tc-banner">
+      <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">💳 Detalle del pago TC</div>
+      <div id="pagoTCDetalle"></div>
+    </div>
     <div class="field" id="fieldCat">
       <label>Categoría</label>
       <select id="fCat" onchange="onCatChange()">
@@ -279,18 +211,28 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <option value="gastos_depto">🏡 Gastos Depto</option>
         <option value="farmacia">💊 Farmacia</option>
         <option value="pago">💸 Pago</option>
+        <option value="pago_tc">💳 Pago TC</option>
         <option value="javi">👤 Javi</option>
         <option value="chancheo">🐷 Chancheo</option>
         <option value="chancheo_salida">🐷 Chancheo Salida</option>
         <option value="cafe">☕ Café</option>
         <option value="skin_lux">💆‍♀️ Skin Lux</option>
-        <!-- Categorías Créditos -->
         <option value="credito_consumo">💼 Crédito Consumo</option>
         <option value="credito_hipotecario">🏠 Crédito Hipotecario</option>
         <option value="arriendo_oficina">🏢 Arriendo Oficina</option>
       </select>
     </div>
-
+    <!-- Picker mes TC a pagar -->
+    <div class="field" id="fieldMesPagoTC" style="display:none">
+      <label>Mes TC a pagar</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <button type="button" onclick="cambiarAnioMesPagoTC(-1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:14px;cursor:pointer">←</button>
+        <span id="mesPagoTCLabel" style="font-weight:700;color:#F0EEF8;font-size:15px"></span>
+        <button type="button" onclick="cambiarAnioMesPagoTC(1)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:14px;cursor:pointer">→</button>
+      </div>
+      <div id="mesPagoTCGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+      <button type="button" onclick="calcularTotalTCMes()" style="margin-top:10px;width:100%;padding:9px;border-radius:10px;background:linear-gradient(135deg,#0A1E10,#0F2A18);border:1px solid #1A4A28;color:#6EE7B7;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">🔄 Calcular total TC del mes</button>
+    </div>
     <div class="field" id="fieldFecha"><label id="labelFecha">Fecha de compra</label><input id="fFecha" type="date"/></div>
     <div class="field" id="fieldMesFac" style="display:none">
       <label>Mes de facturación</label>
@@ -302,7 +244,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <div id="mesFacGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
     </div>
-
     <div class="field" id="fieldCuotas" style="display:none">
       <label>Número de cuotas</label>
       <div style="display:flex;gap:8px;align-items:center">
@@ -315,8 +256,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <div id="cuotasPreview" style="margin-top:8px;font-size:12px;color:var(--dim);text-align:center"></div>
     </div>
-
-    <!-- Cuotas crédito (solo para pestaña créditos) -->
     <div class="field" id="fieldCuotasCredito" style="display:none">
       <label>Cuotas del crédito</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -331,1619 +270,822 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <div id="cuotaCreditoPreview" style="margin-top:6px;font-size:12px;color:var(--dim);text-align:center"></div>
     </div>
-
     <div class="modal-footer">
       <button class="btn-ghost" onclick="cerrarModal()">Cancelar</button>
       <button class="btn-primary" onclick="guardar()" id="btnGuardar">Agregar</button>
     </div>
   </div>
 </div>
-
 <script>
-/* ══════════════════════════════════════════════
-   FIREBASE
-══════════════════════════════════════════════ */
-const firebaseConfig = {
-  apiKey: "AIzaSyBoBOVQ4yE3HVT0_JX6t7GtnAg5xXGt7X0",
-  authDomain: "control-financiero-9409a.firebaseapp.com",
-  projectId: "control-financiero-9409a",
-  storageBucket: "control-financiero-9409a.firebasestorage.app",
-  messagingSenderId: "272320737217",
-  appId: "1:272320737217:web:687367a43cd321a7d4c940",
-  measurementId: "G-YQYNDNP1KP"
-};
+const firebaseConfig={apiKey:"AIzaSyBoBOVQ4yE3HVT0_JX6t7GtnAg5xXGt7X0",authDomain:"control-financiero-9409a.firebaseapp.com",projectId:"control-financiero-9409a",storageBucket:"control-financiero-9409a.firebasestorage.app",messagingSenderId:"272320737217",appId:"1:272320737217:web:687367a43cd321a7d4c940",measurementId:"G-YQYNDNP1KP"};
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
-
-let currentUser     = null;
-let unsubscribeData = null;
-
-auth.onAuthStateChanged(user => {
-  currentUser = user;
-  if (user) {
-    document.getElementById("loginOverlay").style.display  = "none";
-    document.getElementById("userInfo").style.display      = "flex";
-    document.getElementById("btnAgregar").style.display    = "";
-    document.getElementById("userAvatar").src = user.photoURL || "";
+const auth=firebase.auth(),db=firebase.firestore();
+let currentUser=null,unsubscribeData=null;
+auth.onAuthStateChanged(user=>{
+  currentUser=user;
+  if(user){
+    document.getElementById("loginOverlay").style.display="none";
+    document.getElementById("userInfo").style.display="flex";
+    document.getElementById("btnAgregar").style.display="";
+    document.getElementById("userAvatar").src=user.photoURL||"";
     escucharDatos();
-  } else {
-    if (unsubscribeData) { unsubscribeData(); unsubscribeData = null; }
-    data = [];
-    document.getElementById("loginOverlay").style.display  = "flex";
-    document.getElementById("userInfo").style.display      = "none";
-    document.getElementById("btnAgregar").style.display    = "none";
+  }else{
+    if(unsubscribeData){unsubscribeData();unsubscribeData=null;}
+    data=[];
+    document.getElementById("loginOverlay").style.display="flex";
+    document.getElementById("userInfo").style.display="none";
+    document.getElementById("btnAgregar").style.display="none";
   }
 });
-
-// Manejar resultado del redirect de Google
-auth.getRedirectResult().catch(err => {
-  if (err.code !== 'auth/no-auth-event') {
-    document.getElementById("loginError").style.display = "";
-    document.getElementById("loginError").textContent = "Error: " + err.message;
-  }
-});
-
-function loginConGoogle() {
-  const btn = document.getElementById("btnGoogle");
-  btn.disabled = true; btn.textContent = "Iniciando sesión…";
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(() => { btn.disabled = false; })
-    .catch(err => {
-      // Si popup falla, intentar redirect
-      if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-        btn.textContent = "Redirigiendo…";
-        auth.signInWithRedirect(provider);
-      } else {
-        document.getElementById("loginError").style.display = "";
-        document.getElementById("loginError").textContent = "Error: " + err.message;
-        btn.disabled = false;
-        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg> Continuar con Google`;
-      }
-    });
+auth.getRedirectResult().catch(err=>{if(err.code!=='auth/no-auth-event'){document.getElementById("loginError").style.display="";document.getElementById("loginError").textContent="Error: "+err.message;}});
+function loginConGoogle(){
+  const btn=document.getElementById("btnGoogle");btn.disabled=true;btn.textContent="Iniciando sesión…";
+  const provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(()=>{btn.disabled=false;}).catch(err=>{
+    if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(err.code)){btn.textContent="Redirigiendo…";auth.signInWithRedirect(provider);}
+    else{document.getElementById("loginError").style.display="";document.getElementById("loginError").textContent="Error: "+err.message;btn.disabled=false;btn.innerHTML='<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg> Continuar con Google';}
+  });
 }
-
-function logout() {
-  if (unsubscribeData) { unsubscribeData(); unsubscribeData = null; }
-  auth.signOut();
-}
-
-function colUsuario() {
-  return db.collection(`usuarios/${currentUser.uid}/transacciones`);
-}
-
-function escucharDatos() {
-  if (unsubscribeData) unsubscribeData();
-  unsubscribeData = colUsuario().onSnapshot(snapshot => {
-    data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const gastosTCNoCuota = data.filter(t =>
-      t.cuenta === "tc" && t.tipo === "gasto" && t.cat !== "pago" &&
-      !((t.desc || "").match(/\(cuota \d+\/\d+\)$/))
-    );
-    if (gastosTCNoCuota.length > 0) {
-      const masReciente = gastosTCNoCuota.reduce((a, b) => {
-        const fa = a.mes_facturacion || a.fecha.slice(0,7);
-        const fb = b.mes_facturacion || b.fecha.slice(0,7);
-        return fb > fa ? b : a;
-      });
-      const ref = masReciente.mes_facturacion || masReciente.fecha.slice(0,7);
-      mes  = parseInt(ref.slice(5,7)) - 1;
-      anio = parseInt(ref.slice(0,4));
-    } else {
-      mes  = new Date().getMonth();
-      anio = new Date().getFullYear();
-    }
+function logout(){if(unsubscribeData){unsubscribeData();unsubscribeData=null;}auth.signOut();}
+function colUsuario(){return db.collection(`usuarios/${currentUser.uid}/transacciones`);}
+function escucharDatos(){
+  if(unsubscribeData)unsubscribeData();
+  unsubscribeData=colUsuario().onSnapshot(snapshot=>{
+    data=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+    const gastosTCNoCuota=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat!=="pago"&&!((t.desc||"").match(/\(cuota \d+\/\d+\)$/)));
+    if(gastosTCNoCuota.length>0){
+      const masReciente=gastosTCNoCuota.reduce((a,b)=>{const fa=a.mes_facturacion||a.fecha.slice(0,7);const fb=b.mes_facturacion||b.fecha.slice(0,7);return fb>fa?b:a;});
+      const ref=masReciente.mes_facturacion||masReciente.fecha.slice(0,7);
+      mes=parseInt(ref.slice(5,7))-1;anio=parseInt(ref.slice(0,4));
+    }else{mes=new Date().getMonth();anio=new Date().getFullYear();}
     render();
-  }, err => {
-    mostrarToast("⚠️ Error de conexión: " + err.message);
-  });
+  },err=>mostrarToast("⚠️ Error de conexión: "+err.message));
 }
 
-/* ══════════════════════════════════════════════
-   CONSTANTES
-══════════════════════════════════════════════ */
-const CATS = {
-  cuotas_personales:     {label:"Cuotas Personales",     icon:"💳",color:"#8B5CF6", regla:"gonzalo", pct_g:1,   pct_j:0},
-  cuotas_depto:          {label:"Cuotas Depto",           icon:"🏠",color:"#3B82F6", regla:"50_50",   pct_g:0.5, pct_j:0.5},
-  dividendo_depto:       {label:"Dividendo Depto",        icon:"🏦",color:"#F59E0B", regla:"50_50",   pct_g:0.5, pct_j:0.5},
-  gastos_comunes_depto:  {label:"Gastos Comunes Depto",   icon:"🔧",color:"#06B6D4", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  gastos_comunes_oficina:{label:"Gastos Comunes Ofic.",   icon:"🏢",color:"#14B8A6", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  varios_gonzalo:        {label:"Varios Gonzalo",         icon:"🧾",color:"#A855F7", regla:"gonzalo", pct_g:1,   pct_j:0},
-  gastos_varios:         {label:"Gastos Varios",          icon:"📦",color:"#6B7280", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  salidas:               {label:"Salidas",                icon:"🍽️",color:"#F97316", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  mercaderia:            {label:"Mercadería",             icon:"🛒",color:"#10B981", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  plataformas:           {label:"Plataformas Digitales",  icon:"📱",color:"#EC4899", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  combustible:           {label:"Combustible",            icon:"⛽",color:"#EF4444", regla:"gonzalo", pct_g:1,   pct_j:0},
-  uber:                  {label:"Uber",                   icon:"🚗",color:"#1D9BF0", regla:"gonzalo", pct_g:1,   pct_j:0},
-  almuerzo_trabajo:      {label:"Almuerzo Trabajo",       icon:"🥗",color:"#F97316", regla:"gonzalo", pct_g:1,   pct_j:0},
-  deporte:               {label:"Deporte",                icon:"🏋️",color:"#84CC16", regla:"gonzalo", pct_g:1,   pct_j:0},
-  extras_oficina:        {label:"Extras Oficina",         icon:"🏢",color:"#F59E0B", regla:"gonzalo", pct_g:1,   pct_j:0},
-  reembolsables:         {label:"Reembolsables",          icon:"↩️",color:"#06B6D4", regla:"gonzalo", pct_g:1,   pct_j:0},
-  seguros:               {label:"Seguros",                icon:"🛡️",color:"#6366F1", regla:"gonzalo", pct_g:1,   pct_j:0},
-  salud_gonzalo:         {label:"Salud Gonzalo",          icon:"🏥",color:"#EC4899", regla:"gonzalo", pct_g:1,   pct_j:0},
-  gastos_depto:          {label:"Gastos Depto",           icon:"🏡",color:"#0EA5E9", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  farmacia:              {label:"Farmacia",               icon:"💊",color:"#22C55E", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  pago:                  {label:"Pago",                   icon:"💸",color:"#F43F5E", regla:"gonzalo", pct_g:1,   pct_j:0},
-  javi:                  {label:"Javi",                   icon:"👱‍♀️",color:"#64748B", regla:"javi",    pct_g:0,   pct_j:1},
-  chancheo:              {label:"Chancheo",               icon:"🐷",color:"#F472B6", regla:"gonzalo", pct_g:1,   pct_j:0},
-  chancheo_salida:       {label:"Chancheo Salida",        icon:"🐷",color:"#FB923C", regla:"60_40",   pct_g:0.6, pct_j:0.4},
-  cafe:                  {label:"Café",                   icon:"☕",color:"#A16207", regla:"gonzalo", pct_g:1,   pct_j:0},
-  skin_lux:              {label:"Skin Lux",               icon:"💆‍♀️",color:"#EC4899", regla:"javi",    pct_g:0,   pct_j:1},
-  // ── Créditos ──
-  credito_consumo:       {label:"Crédito Consumo",        icon:"💼",color:"#F97316", regla:"gonzalo", pct_g:1,   pct_j:0},
-  credito_hipotecario:   {label:"Crédito Hipotecario",    icon:"🏠",color:"#3B82F6", regla:"50_50",   pct_g:0.5, pct_j:0.5},
-  arriendo_oficina:      {label:"Arriendo Oficina",        icon:"🏢",color:"#10B981", regla:"50_50",   pct_g:0.5, pct_j:0.5, es_ingreso:true},
+/* CONSTANTES */
+const CATS={
+  cuotas_personales:{label:"Cuotas Personales",icon:"💳",color:"#8B5CF6",regla:"gonzalo",pct_g:1,pct_j:0},
+  cuotas_depto:{label:"Cuotas Depto",icon:"🏠",color:"#3B82F6",regla:"50_50",pct_g:0.5,pct_j:0.5},
+  dividendo_depto:{label:"Dividendo Depto",icon:"🏦",color:"#F59E0B",regla:"50_50",pct_g:0.5,pct_j:0.5},
+  gastos_comunes_depto:{label:"Gastos Comunes Depto",icon:"🔧",color:"#06B6D4",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  gastos_comunes_oficina:{label:"Gastos Comunes Ofic.",icon:"🏢",color:"#14B8A6",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  varios_gonzalo:{label:"Varios Gonzalo",icon:"🧾",color:"#A855F7",regla:"gonzalo",pct_g:1,pct_j:0},
+  gastos_varios:{label:"Gastos Varios",icon:"📦",color:"#6B7280",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  salidas:{label:"Salidas",icon:"🍽️",color:"#F97316",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  mercaderia:{label:"Mercadería",icon:"🛒",color:"#10B981",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  plataformas:{label:"Plataformas Digitales",icon:"📱",color:"#EC4899",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  combustible:{label:"Combustible",icon:"⛽",color:"#EF4444",regla:"gonzalo",pct_g:1,pct_j:0},
+  uber:{label:"Uber",icon:"🚗",color:"#1D9BF0",regla:"gonzalo",pct_g:1,pct_j:0},
+  almuerzo_trabajo:{label:"Almuerzo Trabajo",icon:"🥗",color:"#F97316",regla:"gonzalo",pct_g:1,pct_j:0},
+  deporte:{label:"Deporte",icon:"🏋️",color:"#84CC16",regla:"gonzalo",pct_g:1,pct_j:0},
+  extras_oficina:{label:"Extras Oficina",icon:"🏢",color:"#F59E0B",regla:"gonzalo",pct_g:1,pct_j:0},
+  reembolsables:{label:"Reembolsables",icon:"↩️",color:"#06B6D4",regla:"gonzalo",pct_g:1,pct_j:0},
+  seguros:{label:"Seguros",icon:"🛡️",color:"#6366F1",regla:"gonzalo",pct_g:1,pct_j:0},
+  salud_gonzalo:{label:"Salud Gonzalo",icon:"🏥",color:"#EC4899",regla:"gonzalo",pct_g:1,pct_j:0},
+  gastos_depto:{label:"Gastos Depto",icon:"🏡",color:"#0EA5E9",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  farmacia:{label:"Farmacia",icon:"💊",color:"#22C55E",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  pago:{label:"Pago",icon:"💸",color:"#F43F5E",regla:"gonzalo",pct_g:1,pct_j:0},
+  pago_tc:{label:"Pago TC",icon:"💳",color:"#10B981",regla:"total",pct_g:1,pct_j:0,es_pago_tc:true},
+  javi:{label:"Javi",icon:"👱‍♀️",color:"#64748B",regla:"javi",pct_g:0,pct_j:1},
+  chancheo:{label:"Chancheo",icon:"🐷",color:"#F472B6",regla:"gonzalo",pct_g:1,pct_j:0},
+  chancheo_salida:{label:"Chancheo Salida",icon:"🐷",color:"#FB923C",regla:"60_40",pct_g:0.6,pct_j:0.4},
+  cafe:{label:"Café",icon:"☕",color:"#A16207",regla:"gonzalo",pct_g:1,pct_j:0},
+  skin_lux:{label:"Skin Lux",icon:"💆‍♀️",color:"#EC4899",regla:"javi",pct_g:0,pct_j:1},
+  credito_consumo:{label:"Crédito Consumo",icon:"💼",color:"#F97316",regla:"gonzalo",pct_g:1,pct_j:0},
+  credito_hipotecario:{label:"Crédito Hipotecario",icon:"🏠",color:"#3B82F6",regla:"50_50",pct_g:0.5,pct_j:0.5},
+  arriendo_oficina:{label:"Arriendo Oficina",icon:"🏢",color:"#10B981",regla:"50_50",pct_g:0.5,pct_j:0.5,es_ingreso:true},
 };
-
-const CATS_CREDITOS = ["credito_consumo","credito_hipotecario","arriendo_oficina"];
-
+const CATS_CREDITOS=["credito_consumo","credito_hipotecario","arriendo_oficina"];
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
-/* ══════════════════════════════════════════════
-   ESTADO
-══════════════════════════════════════════════ */
-let data = [];
-let mes = new Date().getMonth();
-let anio = new Date().getFullYear();
-let tabActual = "resumen";
-let filtroTC = "todas";
-let filtroCC = "todas";
-let filtroPersonaTC = "todas";
-let vistaTC = "categorias";
-let catExpandida = null;
-let catExpandidaCredito = null;
-let editandoId = null;
-let modalTipo = "gasto";
-let toastTimer = null;
+/* ESTADO */
+let data=[],mes=new Date().getMonth(),anio=new Date().getFullYear();
+let tabActual="resumen",filtroTC="todas",filtroCC="todas",filtroPersonaTC="todas";
+let vistaTC="categorias",catExpandida=null,catExpandidaCredito=null;
+let editandoId=null,modalTipo="gasto",toastTimer=null;
+let numCuotas=1,mesFacAnio=new Date().getFullYear(),mesFacMes=new Date().getMonth();
+let mesPagoTCAnio=new Date().getFullYear(),mesPagoTCMes=new Date().getMonth();
+let valorUF=null;
 
-/* ══════════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════════ */
-function mxn(n) {
-  const int = Math.round(Math.abs(n)).toString();
-  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return (n < 0 ? "-$" : "$") + grouped;
-}
-function fechaLocal(str) { return new Date(str + "T12:00:00"); }
-function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+/* HELPERS */
+function mxn(n){const int=Math.round(Math.abs(n)).toString();const g=int.replace(/\B(?=(\d{3})+(?!\d))/g,".");return(n<0?"-$":"$")+g;}
+function fechaLocal(str){return new Date(str+"T12:00:00");}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function delMes(lista){return lista.filter(t=>{const ref=((t.cuenta==="tc"||t.cuenta==="creditos")&&t.mes_facturacion)?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===mes&&d.getFullYear()===anio;});}
+function mesFacDeCuota(base,offset){const[anioB,mesB]=base.split('-').map(Number);const total=(mesB-1)+offset;return`${anioB+Math.floor(total/12)}-${String((total%12)+1).padStart(2,'0')}`;}
+function emptyState(icon,title,sub){return`<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;}
 
-function delMes(lista) {
-  return lista.filter(t => {
-    const ref = ((t.cuenta==="tc" || t.cuenta==="creditos") && t.mes_facturacion)
-      ? t.mes_facturacion+"-01"
-      : t.fecha;
-    const d = fechaLocal(ref);
-    return d.getMonth()===mes && d.getFullYear()===anio;
+function calcularTotalTCDeMes(mesStr){
+  const[anioTC,mesTC]=mesStr.split('-').map(Number);
+  const gastos=data.filter(t=>{
+    if(t.cuenta!=="tc"||t.tipo!=="gasto"||t.cat==="pago"||t.cat==="pago_tc")return false;
+    const ref=t.mes_facturacion||t.fecha.slice(0,7);
+    const[a,m]=ref.split('-').map(Number);return a===anioTC&&m===mesTC;
   });
+  return{totalGeneral:gastos.reduce((s,t)=>s+(t.monto_total||t.monto),0),totalGonzalo:gastos.reduce((s,t)=>s+t.monto,0),totalJavi:gastos.reduce((s,t)=>s+(t.monto_javi||0),0)};
 }
 
-/* ══════════════════════════════════════════════
-   TABS
-══════════════════════════════════════════════ */
-function setTab(t) {
-  tabActual = t;
-  const tabs = ["resumen","tc","cc","ahorros","creditos"];
-  document.querySelectorAll(".tab").forEach((el,i)=>{
-    el.classList.toggle("active", tabs[i]===t);
-  });
-  document.getElementById("monthNav").style.display = "";
-  document.getElementById("btnAgregar").style.display = (t==="resumen" || !currentUser) ? "none" : "";
+/* TABS */
+function setTab(t){
+  tabActual=t;
+  const tabs=["resumen","tc","cc","ahorros","creditos"];
+  document.querySelectorAll(".tab").forEach((el,i)=>el.classList.toggle("active",tabs[i]===t));
+  document.getElementById("monthNav").style.display="";
+  document.getElementById("btnAgregar").style.display=(t==="resumen"||!currentUser)?"none":"";
   render();
 }
-
-/* ══════════════════════════════════════════════
-   RENDER PRINCIPAL
-══════════════════════════════════════════════ */
-function render() {
-  document.getElementById("mesNombre").textContent = MESES[mes];
-  document.getElementById("anioNum").textContent = anio;
-
-  document.getElementById("viewResumen").style.display  = tabActual==="resumen"  ? "" : "none";
-  document.getElementById("viewTC").style.display       = tabActual==="tc"       ? "" : "none";
-  document.getElementById("viewCC").style.display       = tabActual==="cc"       ? "" : "none";
-  document.getElementById("viewAhorros").style.display  = tabActual==="ahorros"  ? "" : "none";
-  document.getElementById("viewCreditos").style.display = tabActual==="creditos" ? "" : "none";
-
-  if (tabActual==="resumen")  renderResumen();
-  if (tabActual==="tc")       renderTC();
-  if (tabActual==="cc")       renderCC();
-  if (tabActual==="ahorros")  renderAhorros();
-  if (tabActual==="creditos") renderCreditos();
+function render(){
+  document.getElementById("mesNombre").textContent=MESES[mes];
+  document.getElementById("anioNum").textContent=anio;
+  document.getElementById("viewResumen").style.display=tabActual==="resumen"?"":"none";
+  document.getElementById("viewTC").style.display=tabActual==="tc"?"":"none";
+  document.getElementById("viewCC").style.display=tabActual==="cc"?"":"none";
+  document.getElementById("viewAhorros").style.display=tabActual==="ahorros"?"":"none";
+  document.getElementById("viewCreditos").style.display=tabActual==="creditos"?"":"none";
+  if(tabActual==="resumen")renderResumen();
+  if(tabActual==="tc")renderTC();
+  if(tabActual==="cc")renderCC();
+  if(tabActual==="ahorros")renderAhorros();
+  if(tabActual==="creditos")renderCreditos();
 }
 
-/* ══════════════════════════════════════════════
-   RESUMEN
-══════════════════════════════════════════════ */
-function renderResumen() {
-  const m = mes, a = anio;
-
-  // ── TC: solo gastos del mes por mes_facturacion ──
-  const tcM = data.filter(t => t.cuenta==="tc" && t.tipo==="gasto" && t.cat!=="pago").filter(t => {
-    const ref = t.mes_facturacion ? t.mes_facturacion+"-01" : t.fecha;
-    const d = fechaLocal(ref); return d.getMonth()===m && d.getFullYear()===a;
-  });
-  const tcTotal   = tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const tcGonzalo = tcM.reduce((s,t)=>s+t.monto,0);
-  const tcJavi    = tcM.reduce((s,t)=>s+(t.monto_javi||0),0);
-
-  // ── CC del mes ──
-  const ccM = data.filter(t => t.cuenta==="cc").filter(t => {
-    const d=fechaLocal(t.fecha); return d.getMonth()===m && d.getFullYear()===a;
-  });
-  const ccIngresos = ccM.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
-  const ccGastos   = ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
-  const ccBalance  = ccIngresos - ccGastos;
-
-  // Saldo acumulado CC hasta el mes seleccionado
-  const ccSaldoAcumulado = data.filter(t => t.cuenta==="cc").filter(t => {
-    const d=fechaLocal(t.fecha);
-    return (d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);
-  }).reduce((s,t)=> t.tipo==="ingreso" ? s+t.monto : s-t.monto, 0);
-
-  // ── Ahorros acumulado hasta este mes ──
-  const ahTotal = data.filter(t=>t.cuenta==="ahorros").filter(t=>{
-    const d=fechaLocal(t.fecha);
-    return (d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);
-  }).reduce((s,t)=> t.tipo==="deposito" ? s+t.monto : s-t.monto, 0);
-
-  // ── Créditos del mes ──
-  const creditosM = data.filter(t => t.cuenta==="creditos" && t.cat!=="arriendo_oficina").filter(t => {
-    const ref = t.mes_facturacion ? t.mes_facturacion+"-01" : t.fecha;
-    const d = fechaLocal(ref); return d.getMonth()===m && d.getFullYear()===a;
-  });
-  const creditosTotal   = creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const creditosGonzalo = creditosM.reduce((s,t)=>s+t.monto,0);
-  const creditosJavi    = creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
-
-  // ── Totales consolidados ──
-  const totalGastos        = tcTotal + ccGastos + creditosTotal;
-  const totalGastosGonzalo = tcGonzalo + ccGastos + creditosGonzalo;
-  const totalGastosJavi    = tcJavi + creditosJavi;
-
-  const mesLabel = MESES[m] + " " + a;
-
-  document.getElementById("viewResumen").innerHTML = `
-    <div style="text-align:center;padding:4px 0">
-      <div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${mesLabel}</div>
-    </div>
-
-    <!-- GRAN TOTAL DEL MES -->
+/* RESUMEN */
+function renderResumen(){
+  const m=mes,a=anio;
+  const tcM=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat!=="pago"&&t.cat!=="pago_tc").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
+  const tcTotal=tcM.reduce((s,t)=>s+(t.monto_total||t.monto),0),tcGonzalo=tcM.reduce((s,t)=>s+t.monto,0),tcJavi=tcM.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const ccM=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return d.getMonth()===m&&d.getFullYear()===a;});
+  const ccIngresos=ccM.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
+  const ccGastos=ccM.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const ccSaldoAcumulado=data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
+  const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
+  const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
+  const creditosTotal=creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0),creditosGonzalo=creditosM.reduce((s,t)=>s+t.monto,0),creditosJavi=creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const totalGastos=tcTotal+ccGastos+creditosTotal,totalGastosGonzalo=tcGonzalo+ccGastos+creditosGonzalo,totalGastosJavi=tcJavi+creditosJavi;
+  const mesLabel=MESES[m]+" "+a;
+  document.getElementById("viewResumen").innerHTML=`
+    <div style="text-align:center;padding:4px 0"><div style="font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">${mesLabel}</div></div>
     <div style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:20px 22px">
       <div style="font-size:10px;color:#A78BFA;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Total gastos — ${mesLabel}</div>
       <div style="font-size:34px;font-weight:700;font-family:'DM Mono',monospace;color:#F0EEF8;margin-bottom:14px">${mxn(totalGastos)}</div>
-
-      <!-- Split Gonzalo / Javi / Ahorros -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-          <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div>
-          <div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div>
-        </div>
-        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-          <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
-          <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
-        </div>
-        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-          <div style="font-size:10px;color:#FCD34D;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Ahorros</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FCD34D">${mxn(ahTotal)}</div>
-          <div style="font-size:10px;color:#7A5A18;margin-top:2px">acumulado</div>
-        </div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div><div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div></div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div><div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div></div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px"><div style="font-size:10px;color:#FCD34D;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Ahorros</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FCD34D">${mxn(ahTotal)}</div><div style="font-size:10px;color:#7A5A18;margin-top:2px">acumulado</div></div>
       </div>
-
-      <!-- Desglose por cuenta -->
       <div style="border-top:1px solid #ffffff20;padding-top:12px;display:flex;flex-direction:column;gap:6px">
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
-          <span style="color:#C4B5FD">💳 Tarjeta de crédito</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(tcTotal)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
-          <span style="color:#6EE7B7">🏦 Gastos CC</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(ccGastos)}</span>
-        </div>
-        ${creditosTotal > 0 ? '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#FDB579">🏛️ Créditos</span><span style="font-family:\'DM Mono\',monospace;font-weight:700;color:#F0EEF8">' + mxn(creditosTotal) + '</span></div>' : ''}
-        <div style="border-top:1px solid #ffffff20;margin-top:4px;padding-top:8px;display:flex;justify-content:space-between;align-items:center">
-          <span style="color:#A78BFA;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">Total</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F0EEF8">${mxn(totalGastos)}</span>
-        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#C4B5FD">💳 Tarjeta de crédito</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(tcTotal)}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#6EE7B7">🏦 Gastos CC</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(ccGastos)}</span></div>
+        ${creditosTotal>0?`<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span style="color:#FDB579">🏛️ Créditos</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F0EEF8">${mxn(creditosTotal)}</span></div>`:''}
+        <div style="border-top:1px solid #ffffff20;margin-top:4px;padding-top:8px;display:flex;justify-content:space-between;align-items:center"><span style="color:#A78BFA;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">Total</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F0EEF8">${mxn(totalGastos)}</span></div>
       </div>
     </div>
-
-    <!-- CC desglose -->
     <div style="background:var(--surface);border:1px solid ${ccSaldoAcumulado>=0?'#0D4030':'#4A1020'};border-radius:14px;padding:14px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:11px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div>
-      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase">🏦 Cuenta corriente</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130">
-          <div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos mes</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div>
-        </div>
-        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30">
-          <div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div>
-        </div>
-        <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}">
-          <div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div>
-        </div>
+        <div style="background:#10B98110;border-radius:9px;padding:8px 10px;border:1px solid #10B98130"><div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:2px">Ingresos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7">${mxn(ccIngresos)}</div></div>
+        <div style="background:#F43F5E10;border-radius:9px;padding:8px 10px;border:1px solid #F43F5E30"><div style="font-size:10px;color:#F87171;font-weight:700;text-transform:uppercase;margin-bottom:2px">Gastos mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171">${mxn(ccGastos)}</div></div>
+        <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}"><div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       </div>
     </div>
-
-    <div class="actions-bar">
-      <button class="btn-ghost" onclick="exportarJSON()">⬇ Exportar</button>
-      <label class="btn-ghost" style="cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importarJSON(event)"/></label>
-    </div>
-  `;
+    <div class="actions-bar"><button class="btn-ghost" onclick="exportarJSON()">⬇ Exportar</button><label class="btn-ghost" style="cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importarJSON(event)"/></label></div>`;
 }
 
-
-/* ══════════════════════════════════════════════
-   TC
-══════════════════════════════════════════════ */
-function renderTC() {
-  const todos = data.filter(t=>t.cuenta==="tc" && t.tipo==="gasto");
-  const gm = delMes(todos);
-
-  const total = gm.reduce((s,t)=> t.cat==="pago" ? s-t.monto : s+t.monto, 0);
-
-  const porCat = Object.keys(CATS).filter(id => !CATS_CREDITOS.includes(id)).map(id=>{
-    const items = gm.filter(t=>t.cat===id).sort((a,b)=>b.monto-a.monto);
-    const rawTotal = items.reduce((s,t)=>s+t.monto,0);
-    const catTotal = id==="pago" ? -rawTotal : rawTotal;
-    return { id, ...CATS[id], total: catTotal, rawTotal, items };
+/* TC */
+function renderTC(){
+  const todos=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto");
+  const gm=delMes(todos);
+  const total=gm.reduce((s,t)=>t.cat==="pago"?s-t.monto:s+t.monto,0);
+  const porCat=Object.keys(CATS).filter(id=>!CATS_CREDITOS.includes(id)&&id!=="pago_tc").map(id=>{
+    const items=gm.filter(t=>t.cat===id).sort((a,b)=>b.monto-a.monto);
+    const rawTotal=items.reduce((s,t)=>s+t.monto,0);
+    const catTotal=id==="pago"?-rawTotal:rawTotal;
+    return{id,...CATS[id],total:catTotal,rawTotal,items};
   }).filter(c=>{
-    if (filtroPersonaTC==='javi') return c.items.some(t=>(t.monto_javi||0)>0);
+    if(filtroPersonaTC==='javi')return c.items.some(t=>(t.monto_javi||0)>0);
     return c.rawTotal>0;
   }).sort((a,b)=>{
-    if (filtroPersonaTC==='javi') {
-      const ja = a.items.reduce((s,t)=>s+(t.monto_javi||0),0);
-      const jb = b.items.reduce((s,t)=>s+(t.monto_javi||0),0);
-      return jb-ja;
-    }
-    if (filtroPersonaTC==='gonzalo') return b.total-a.total;
-    const ba = a.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-    const bb = b.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-    return bb-ba;
+    if(filtroPersonaTC==='javi'){const ja=a.items.reduce((s,t)=>s+(t.monto_javi||0),0);const jb=b.items.reduce((s,t)=>s+(t.monto_javi||0),0);return jb-ja;}
+    if(filtroPersonaTC==='gonzalo')return b.total-a.total;
+    const ba=a.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);const bb=b.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);return bb-ba;
   });
-
-  const totalFacturado  = gm.filter(t=>t.cat!=='pago').reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalPagos      = gm.filter(t=>t.cat==='pago').reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const saldoPendiente  = totalFacturado - totalPagos;
-  const totalJavi       = gm.reduce((s,t)=>s+(t.monto_javi||0),0);
-  const totalJavi_global = totalJavi;
-
-  let html = `
+  const totalFacturado=gm.filter(t=>t.cat!=='pago').reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalPagos=gm.filter(t=>t.cat==='pago').reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const saldoPendiente=totalFacturado-totalPagos;
+  const totalJavi=gm.reduce((s,t)=>s+(t.monto_javi||0),0);
+  let html=`
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div class="summary-card neutral" onclick="setFiltroPersonaTC('todas')" style="cursor:pointer;transition:all .15s;${filtroPersonaTC==='todas'?'outline:2px solid #A78BFA;outline-offset:2px;opacity:1':'opacity:.65'}">
-        <div class="s-label" style="color:var(--muted)">Total facturado</div>
-        <div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(totalFacturado)}</div>
-        <div class="s-sub" style="color:var(--dim)">${gm.length} movimientos</div>
-      </div>
-      <div class="summary-card purple" onclick="setFiltroPersonaTC('gonzalo')" style="cursor:pointer;transition:all .15s;${filtroPersonaTC==='gonzalo'?'outline:2px solid #A78BFA;outline-offset:2px;opacity:1':'opacity:.65'}">
-        <div class="s-label" style="color:#A78BFA">Gonzalo</div>
-        <div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(total)}</div>
-        <div class="s-sub" style="color:#7060A0">${totalFacturado>0?(total/totalFacturado*100).toFixed(0):'0'}% del total</div>
-      </div>
-      <div class="summary-card neutral" onclick="setFiltroPersonaTC('javi')" style="cursor:pointer;transition:all .15s;border-color:#64748B40;${filtroPersonaTC==='javi'?'outline:2px solid #94A3B8;outline-offset:2px;opacity:1':'opacity:.65'}">
-        <div class="s-label" style="color:#94A3B8">Javi</div>
-        <div class="s-amount" style="color:#94A3B8;font-size:17px">${mxn(totalJavi)}</div>
-        <div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div>
-      </div>
+      <div class="summary-card neutral" onclick="setFiltroPersonaTC('todas')" style="cursor:pointer;${filtroPersonaTC==='todas'?'outline:2px solid #A78BFA;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:var(--muted)">Total facturado</div><div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(totalFacturado)}</div><div class="s-sub" style="color:var(--dim)">${gm.length} movimientos</div></div>
+      <div class="summary-card purple" onclick="setFiltroPersonaTC('gonzalo')" style="cursor:pointer;${filtroPersonaTC==='gonzalo'?'outline:2px solid #A78BFA;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:#A78BFA">Gonzalo</div><div class="s-amount" style="color:#F0EEF8;font-size:17px">${mxn(total)}</div><div class="s-sub" style="color:#7060A0">${totalFacturado>0?(total/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
+      <div class="summary-card neutral" onclick="setFiltroPersonaTC('javi')" style="cursor:pointer;border-color:#64748B40;${filtroPersonaTC==='javi'?'outline:2px solid #94A3B8;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:#94A3B8">Javi</div><div class="s-amount" style="color:#94A3B8;font-size:17px">${mxn(totalJavi)}</div><div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
     </div>
-
-    ${totalFacturado > 0 ? `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total facturado</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalFacturado)}</div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Pagos realizados</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">${mxn(totalPagos)}</div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Saldo pendiente</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'}">${mxn(saldoPendiente)}</div>
-      </div>
-    </div>
-    <div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden">
-      <div style="height:6px;border-radius:6px;background:linear-gradient(90deg,var(--green),#059669);width:${totalFacturado>0?Math.min(totalPagos/totalFacturado*100,100).toFixed(1):0}%;transition:width .6s ease"></div>
-    </div>` : ''}
-
+    ${totalFacturado>0?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total facturado</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalFacturado)}</div></div><div><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Pagos realizados</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">${mxn(totalPagos)}</div></div><div><div style="font-size:10px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Saldo pendiente</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'}">${mxn(saldoPendiente)}</div></div></div><div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;border-radius:6px;background:linear-gradient(90deg,var(--green),#059669);width:${totalFacturado>0?Math.min(totalPagos/totalFacturado*100,100).toFixed(1):0}%;transition:width .6s ease"></div></div>`:''}
     <div style="display:flex;gap:6px">
       <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
       <button onclick="setVistaTC('lista')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='lista'?'var(--accent)':'var(--border2)'};background:${vistaTC==='lista'?'#3D1880':'var(--surface2)'};color:${vistaTC==='lista'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📋 Lista completa</button>
     </div>`;
-
-  if (!porCat.length) {
-    html += emptyState("💳","Sin gastos este mes","Agrega tu primer gasto con el botón de arriba");
-    document.getElementById("viewTC").innerHTML = html;
-    return;
-  }
-
-  if (vistaTC === "categorias") {
-    html += porCat.map(c => {
-      const abierta = catExpandida === c.id;
-      const totalJavi = c.items.reduce((s,t)=>s+(t.monto_javi||0),0);
-      const totalBruto = c.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-
-      const montoVisible = filtroPersonaTC==='javi'
-        ? totalJavi
-        : filtroPersonaTC==='gonzalo'
-          ? c.total
-          : totalBruto;
-
-      const baseTotal = filtroPersonaTC==='javi' ? totalJavi_global
-        : filtroPersonaTC==='gonzalo' ? total
-        : totalFacturado;
-
-      const pct = (baseTotal!==0 ? Math.abs(montoVisible)/Math.abs(baseTotal)*100 : 0).toFixed(1);
-
-      const badgeRegla = c.regla==="gonzalo"
-        ? `<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`
-        : c.regla==="javi"
-        ? `<span style="background:#64748B20;border:1px solid #64748B60;color:#94A3B8;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Javi</span>`
-        : c.regla==="50_50"
-        ? `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`
-        : `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">60% G · 40% J</span>`;
-
-      const badgePago = c.id==="pago"
-        ? `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">↓ Resta de Gonzalo</span>`
-        : '';
-
-      const montoColor = (c.id==="pago" && filtroPersonaTC!=='javi') ? '#6EE7B7' : '#F0EEF8';
-
-      return `
-        <div style="background:var(--surface);border:1px solid ${abierta?c.color+'60':'var(--border)'};border-radius:14px;overflow:hidden;transition:border-color .2s">
-          <div onclick="toggleCat('${c.id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer">
-            <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
-            <div style="flex:1;min-width:0">
-              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-                <span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>
-                ${badgeRegla}${badgePago}
-              </div>
-              <div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px">
-                <div style="height:4px;border-radius:3px;width:${Math.min(parseFloat(pct),100)}%;background:${c.id==='pago'?'#10B981':c.color};box-shadow:0 0 6px ${c.id==='pago'?'#10B98160':c.color+'60'}"></div>
-              </div>
-            </div>
-            <div style="text-align:right;flex-shrink:0;margin-left:8px">
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${mxn(montoVisible)}</div>
-              <div style="font-size:11px;color:${c.id==='pago'?'#10B981':c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div>
-            </div>
-            <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
+  if(!porCat.length){html+=emptyState("💳","Sin gastos este mes","Agrega tu primer gasto con el botón de arriba");document.getElementById("viewTC").innerHTML=html;return;}
+  if(vistaTC==="categorias"){
+    html+=porCat.map(c=>{
+      const abierta=catExpandida===c.id;
+      const totalJaviCat=c.items.reduce((s,t)=>s+(t.monto_javi||0),0);
+      const totalBruto=c.items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+      const montoVisible=filtroPersonaTC==='javi'?totalJaviCat:filtroPersonaTC==='gonzalo'?c.total:totalBruto;
+      const baseTotal=filtroPersonaTC==='javi'?totalJavi:filtroPersonaTC==='gonzalo'?total:totalFacturado;
+      const pct=(baseTotal!==0?Math.abs(montoVisible)/Math.abs(baseTotal)*100:0).toFixed(1);
+      const badgeRegla=c.regla==="gonzalo"?`<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`:c.regla==="javi"?`<span style="background:#64748B20;border:1px solid #64748B60;color:#94A3B8;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Javi</span>`:c.regla==="50_50"?`<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`:`<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">60% G · 40% J</span>`;
+      const badgePago=c.id==="pago"?`<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">↓ Resta de Gonzalo</span>`:'';
+      const montoColor=(c.id==="pago"&&filtroPersonaTC!=='javi')?'#6EE7B7':'#F0EEF8';
+      return`<div style="background:var(--surface);border:1px solid ${abierta?c.color+'60':'var(--border)'};border-radius:14px;overflow:hidden;transition:border-color .2s">
+        <div onclick="toggleCat('${c.id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer">
+          <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px"><span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>${badgeRegla}${badgePago}</div>
+            <div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px"><div style="height:4px;border-radius:3px;width:${Math.min(parseFloat(pct),100)}%;background:${c.id==='pago'?'#10B981':c.color};box-shadow:0 0 6px ${c.id==='pago'?'#10B98160':c.color+'60'}"></div></div>
           </div>
-
-          ${abierta ? `<div style="border-top:1px solid var(--border2);background:var(--surface2)">
-            <div style="padding:10px 14px 8px;display:grid;grid-template-columns:1fr 1fr${totalJavi>0?' 1fr':''};gap:8px;border-bottom:1px solid var(--border)">
-              <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid ${c.id==='pago'?'#10B98130':'#8B5CF630'}">
-                <div style="font-size:10px;color:${c.id==='pago'?'#6EE7B7':'#C4B5FD'};font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div>
-                <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${c.id==='pago'?'#6EE7B7':'#F0EEF8'}">${mxn(c.total)}</div>
-              </div>
-              ${totalJavi>0?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #64748B30">
-                <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div>
-                <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#F0EEF8">${mxn(totalJavi)}</div>
-              </div>`:''}
-              ${totalBruto>c.rawTotal?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid var(--border2)">
-                <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Total bruto</div>
-                <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:var(--muted)">${mxn(totalBruto)}</div>
-              </div>`:''}
-            </div>
-            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
+          <div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${mxn(montoVisible)}</div><div style="font-size:11px;color:${c.id==='pago'?'#10B981':c.color};font-weight:600">${pct}% · ${c.items.length} mov.</div></div>
+          <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
+        </div>
+        ${abierta?`<div style="border-top:1px solid var(--border2);background:var(--surface2)">
+          <div style="padding:10px 14px 8px;display:grid;grid-template-columns:1fr 1fr${totalJaviCat>0?' 1fr':''};gap:8px;border-bottom:1px solid var(--border)">
+            <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid ${c.id==='pago'?'#10B98130':'#8B5CF630'}"><div style="font-size:10px;color:${c.id==='pago'?'#6EE7B7':'#C4B5FD'};font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${c.id==='pago'?'#6EE7B7':'#F0EEF8'}">${mxn(c.total)}</div></div>
+            ${totalJaviCat>0?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #64748B30"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#F0EEF8">${mxn(totalJaviCat)}</div></div>`:''}
+            ${totalBruto>c.rawTotal?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid var(--border2)"><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Total bruto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:var(--muted)">${mxn(totalBruto)}</div></div>`:''}
+          </div>
+          <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
             ${c.items.map(t=>{
-              const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
-              const tieneJavi = (t.monto_javi||0) > 0;
-              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border)">
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div>
-                  <div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
-                    <span>${fecha}</span>
-                    ${tieneJavi?`<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span><span style="color:var(--dim)">Total: ${mxn(t.monto_total||t.monto+t.monto_javi)}</span>`:''}
-                  </div>
-                </div>
+              const fecha=fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
+              const tieneJavi=(t.monto_javi||0)>0;
+              return`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border)">
+                <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div>
+                <div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap"><span>${fecha}</span>${tieneJavi?`<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span><span style="color:var(--dim)">Total: ${mxn(t.monto_total||t.monto+t.monto_javi)}</span>`:''}</div></div>
                 <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F0EEF8;flex-shrink:0">${mxn(t.monto)}</div>
                 <button class="btn-icon" onclick="event.stopPropagation();abrirModal('${t.id}')" title="Editar">✏️</button>
                 <button class="btn-icon" onclick="event.stopPropagation();eliminar('${t.id}')" title="Eliminar">🗑️</button>
               </div>`;
             }).join("")}
-            </div>
-          </div>` : ''}
-        </div>`;
+          </div>
+        </div>`:''}
+      </div>`;
     }).join("");
   }
-
-  if (vistaTC === "lista") {
-    html += `<div class="chips">
-      <button class="chip ${filtroTC==="todas"?"active":""}" onclick="setFiltroTC('todas')">Todas</button>
-      ${porCat.map(c=>`<button class="chip ${filtroTC===c.id?"active":""}" onclick="setFiltroTC('${c.id}')" style="${filtroTC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("")}
-    </div>`;
-    const filtrados = (filtroTC==="todas" ? gm : gm.filter(t=>t.cat===filtroTC))
-      .sort((a,b)=>b.fecha.localeCompare(a.fecha));
-    html += `<div class="expense-list">${filtrados.map((t,i)=>filaTransaccionTC(t,i)).join("")}</div>`;
+  if(vistaTC==="lista"){
+    html+=`<div class="chips"><button class="chip ${filtroTC==="todas"?"active":""}" onclick="setFiltroTC('todas')">Todas</button>${porCat.map(c=>`<button class="chip ${filtroTC===c.id?"active":""}" onclick="setFiltroTC('${c.id}')" style="${filtroTC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("")}</div>`;
+    const filtrados=(filtroTC==="todas"?gm:gm.filter(t=>t.cat===filtroTC)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    html+=`<div class="expense-list">${filtrados.map((t,i)=>filaTransaccionTC(t,i)).join("")}</div>`;
   }
-
-  document.getElementById("viewTC").innerHTML = html;
+  document.getElementById("viewTC").innerHTML=html;
 }
+function setVistaTC(v){vistaTC=v;catExpandida=null;renderTC();}
+function toggleCat(id){catExpandida=catExpandida===id?null:id;renderTC();}
 
-function setVistaTC(v) { vistaTC=v; catExpandida=null; renderTC(); }
-function toggleCat(id) { catExpandida = catExpandida===id ? null : id; renderTC(); }
-
-/* ══════════════════════════════════════════════
-   CRÉDITOS
-══════════════════════════════════════════════ */
-function renderCreditos() {
-  const todos = data.filter(t => t.cuenta === "creditos");
-  const gm    = delMes(todos);
-
-  // Totales del mes por tipo
-  const consumo     = gm.filter(t => t.cat === "credito_consumo");
-  const hipotecario = gm.filter(t => t.cat === "credito_hipotecario");
-  const arriendo    = gm.filter(t => t.cat === "arriendo_oficina");
-
-  const totalMes          = gm.filter(t=>t.cat!=="arriendo_oficina").reduce((s,t) => s + (t.monto_total || t.monto), 0);
-  const totalGonzaloMes   = gm.filter(t=>t.cat!=="arriendo_oficina").reduce((s,t) => s + t.monto, 0);
-  const totalJaviMes      = gm.filter(t=>t.cat!=="arriendo_oficina").reduce((s,t) => s + (t.monto_javi || 0), 0);
-
-  const totalConsumo      = consumo.reduce((s,t) => s + (t.monto_total || t.monto), 0);
-  const totalHipotecario  = hipotecario.reduce((s,t) => s + (t.monto_total || t.monto), 0);
-  const totalArriendo     = arriendo.reduce((s,t) => s + (t.monto_total || t.monto), 0);
-  const arriendoGonzalo   = arriendo.reduce((s,t) => s + t.monto, 0);
-  const arriendoJavi      = arriendo.reduce((s,t) => s + (t.monto_javi||0), 0);
-
-  // Costo neto hipotecario oficina = cuotas hipotecarias - arriendo recibido
-  const costoNetoHipotecario = totalHipotecario - totalArriendo;
-  const costoNetoGonzalo     = hipotecario.reduce((s,t)=>s+t.monto,0) - arriendoGonzalo;
-  const costoNetoJavi        = hipotecario.reduce((s,t)=>s+(t.monto_javi||0),0) - arriendoJavi;
-
-  // Saldo acumulado (total histórico, sin arriendo)
-  const hastaElMes = todos.filter(t => {
-    const ref = t.mes_facturacion ? t.mes_facturacion + "-01" : t.fecha;
-    const d = fechaLocal(ref);
-    return t.cat !== "arriendo_oficina" &&
-      ((d.getFullYear() < anio) || (d.getFullYear() === anio && d.getMonth() <= mes));
-  });
-  const acumuladoTotal = hastaElMes.reduce((s,t) => s + (t.monto_total || t.monto), 0);
-
-  let html = `
-    <!-- Banner total acumulado -->
-    <div style="background:linear-gradient(135deg,#1E0E04,#2A1508);border:1px solid #4A2010;border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:10px;color:#FDB579;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Pagado acumulado hasta ${MESES[mes]} ${anio}</div>
-        <div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:#FDB579">${mxn(acumuladoTotal)}</div>
-      </div>
-      <div style="font-size:36px;opacity:.4">🏛️</div>
-    </div>
-
-    <!-- Cards resumen del mes -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div style="background:linear-gradient(135deg,#1E0E04,#2A1508);border:1px solid #3A2010;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#FDB579;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total créditos</div>
-        <div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#FDB579">${mxn(totalMes)}</div>
-        <div style="font-size:10px;color:#7A3A10;margin-top:3px">sin arriendo</div>
-      </div>
-      <div style="background:linear-gradient(135deg,#1D0E38,#2D1060);border:1px solid #3D1880;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Gonzalo neto</div>
-        <div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#C4B5FD">${mxn(costoNetoGonzalo)}</div>
-        <div style="font-size:10px;color:#7060A0;margin-top:3px">créditos - arriendo</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid #64748B30;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Javi neto</div>
-        <div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#94A3B8">${mxn(costoNetoJavi)}</div>
-        <div style="font-size:10px;color:#475569;margin-top:3px">créditos - arriendo</div>
-      </div>
-    </div>
-
-    ${totalHipotecario > 0 || totalArriendo > 0 ? `
-    <!-- Panel costo neto oficina -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">
-        Oficina — Costo neto del mes
-      </div>
-      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px;color:var(--muted)">🏠 Crédito hipotecario</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171">-${mxn(totalHipotecario)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px;color:var(--muted)">🏢 Arriendo recibido</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;color:#6EE7B7">+${mxn(totalArriendo)}</span>
-        </div>
-        <div style="border-top:1px solid var(--border2);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:13px;font-weight:700;color:#F0EEF8">Costo neto</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${costoNetoHipotecario<=0?'#6EE7B7':'#F87171'}">${costoNetoHipotecario<=0?'+':''}${mxn(Math.abs(costoNetoHipotecario))}</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px">
-          <div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630;text-align:center">
-            <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo neto</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoGonzalo<=0?'#6EE7B7':'#F87171'}">${costoNetoGonzalo<=0?'+':''}${mxn(Math.abs(costoNetoGonzalo))}</div>
-          </div>
-          <div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #64748B30;text-align:center">
-            <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi neto</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoJavi<=0?'#6EE7B7':'#F87171'}">${costoNetoJavi<=0?'+':''}${mxn(Math.abs(costoNetoJavi))}</div>
-          </div>
-        </div>
-      </div>
-    </div>` : ''}`;
-
-  // ── Tarjetas por categoría ──
-  [
-    { id: "credito_consumo",     items: consumo,     total: totalConsumo,     cat: CATS["credito_consumo"] },
-    { id: "credito_hipotecario", items: hipotecario, total: totalHipotecario, cat: CATS["credito_hipotecario"] },
-    { id: "arriendo_oficina",    items: arriendo,    total: totalArriendo,    cat: CATS["arriendo_oficina"],  esIngreso: true },
-  ].filter(x => x.items.length > 0 || x.total > 0).forEach(({ id, items, total: catTotal, cat: c, esIngreso }) => {
-    const abierta = catExpandidaCredito === id;
-    const gonzaloTotal = items.reduce((s,t) => s + t.monto, 0);
-    const javiTotal    = items.reduce((s,t) => s + (t.monto_javi || 0), 0);
-    const pct = acumuladoTotal > 0 ? (catTotal / acumuladoTotal * 100).toFixed(1) : "0.0";
-
-    const badgeRegla = c.regla === "gonzalo"
-      ? `<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`
-      : `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`;
-
-    const badgeIngreso = esIngreso
-      ? `<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">↑ Ingreso</span>`
-      : '';
-
-    const montoColor   = esIngreso ? '#6EE7B7' : '#F0EEF8';
-    const montoSigno   = esIngreso ? '+' : '';
-
-    html += `
-      <div style="background:var(--surface);border:1px solid ${abierta ? c.color+'60' : 'var(--border)'};border-radius:14px;overflow:hidden;transition:border-color .2s">
-        <div onclick="toggleCatCredito('${id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer">
-          <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-              <span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>
-              ${badgeRegla}${badgeIngreso}
-            </div>
-            <div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px">
-              <div style="height:4px;border-radius:3px;width:${Math.min(parseFloat(pct), 100)}%;background:${c.color};box-shadow:0 0 6px ${c.color}60"></div>
-            </div>
-          </div>
-          <div style="text-align:right;flex-shrink:0;margin-left:8px">
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${montoSigno}${mxn(catTotal)}</div>
-            <div style="font-size:11px;color:${c.color};font-weight:600">${items.length} mov. este mes</div>
-          </div>
-          <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta ? '▲' : '▼'}</div>
-        </div>
-        ${abierta ? `
-        <div style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;justify-content:flex-end">
-          <button onclick="event.stopPropagation();eliminarTodasCuotas('${id}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos los registros de ${c.label}</button>
-        </div>` : ''}
-
-        ${abierta ? `
-        <div style="border-top:1px solid var(--border2);background:var(--surface2)">
-          <div style="padding:10px 14px 8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-bottom:1px solid var(--border)">
-            <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630">
-              <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(gonzaloTotal)}</div>
-            </div>
-            ${c.regla === "50_50" ? `
-            <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #64748B30">
-              <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(javiTotal)}</div>
-            </div>` : '<div></div>'}
-            <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid var(--border2)">
-              <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Total mes</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(catTotal)}</div>
-            </div>
-          </div>
-          <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
-            ${items.length ? items.sort((a,b) => b.fecha.localeCompare(a.fecha)).map(t => {
-              const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
-              const tieneJavi = (t.monto_javi || 0) > 0;
-              const montoMostrar = t.monto_total || t.monto;
-              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border)">
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div>
-                  <div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
-                    <span>${fecha}</span>
-                    ${t.cuota_actual && t.cuotas_total ? `<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px">Cuota ${t.cuota_actual}/${t.cuotas_total}</span>` : ''}
-                    ${t.monto_uf ? `<span style="color:#93C5FD;font-weight:700">${t.monto_uf} UF</span>` : ''}
-                    ${tieneJavi ? `<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span>` : ''}
-                  </div>
-                </div>
-                <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${montoColor};flex-shrink:0">${montoSigno}${mxn(montoMostrar)}</div>
-                <button class="btn-icon" onclick="event.stopPropagation();abrirModal('${t.id}')" title="Editar">✏️</button>
-                <button class="btn-icon" onclick="event.stopPropagation();eliminar('${t.id}')" title="Eliminar">🗑️</button>
-              </div>`;
-            }).join("") : `<div style="text-align:center;padding:16px;color:var(--dim);font-size:13px">Sin movimientos este mes</div>`}
-          </div>
-        </div>` : ''}
-      </div>`;
-  });
-
-  if (!gm.length) {
-    html += emptyState("🏛️", "Sin créditos este mes", "Registra cuotas de consumo o hipotecarios");
-  }
-
-  // Panel de gestión siempre visible
-  const tieneRegistros = data.filter(t => t.cuenta === "creditos");
-  html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px">
-    <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      ${tieneRegistros.length > 0 ? Object.entries(
-        tieneRegistros.reduce((acc, t) => { acc[t.cat||'sin_cat'] = (acc[t.cat||'sin_cat']||0)+1; return acc; }, {})
-      ).map(([catId, count]) => {
-        const cat = CATS[catId] || {icon:"📦", label: catId};
-        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
-          <span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span>
-          <button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar</button>
-        </div>`;
-      }).join('') : '<div style="color:var(--dim);font-size:13px">No hay registros</div>'}
-      <button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E80;color:#F87171;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS los créditos ${tieneRegistros.length > 0 ? '('+tieneRegistros.length+' registros)' : ''}</button>
-    </div>
-  </div>`;
-
-  document.getElementById("viewCreditos").innerHTML = html;
-}
-
-function toggleCatCredito(id) {
-  catExpandidaCredito = catExpandidaCredito === id ? null : id;
-  renderCreditos();
-}
-
-/* ══════════════════════════════════════════════
-   CUENTA CORRIENTE
-══════════════════════════════════════════════ */
-function renderCC() {
-  const todos = data.filter(t=>t.cuenta==="cc");
-
-  const hastaElMes = todos.filter(t => {
-    const d = fechaLocal(t.fecha);
-    return (d.getFullYear() < anio) || (d.getFullYear()===anio && d.getMonth()<=mes);
-  });
-  const saldoAcumulado = hastaElMes.reduce((s,t)=>
-    t.tipo==="ingreso" ? s+t.monto : s-t.monto, 0);
-
-  const gm = delMes(todos);
-  const ingresos = gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
-  const gastos   = gm.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+t.monto,0);
-  const balance  = ingresos - gastos;
-
-  const porCat = Object.keys(CATS).map(id=>({
-    id,...CATS[id],
-    total: gm.filter(t=>t.cat===id && t.tipo==="gasto").reduce((s,t)=>s+t.monto,0)
-  })).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
-
-  const filtrados = (filtroCC==="todas" ? gm
-    : filtroCC==="ingresos" ? gm.filter(t=>t.tipo==="ingreso")
-    : filtroCC==="gastos"   ? gm.filter(t=>t.tipo==="gasto")
-    : gm.filter(t=>t.cat===filtroCC && t.tipo==="gasto"))
-    .sort((a,b)=>b.fecha.localeCompare(a.fecha));
-
-  let html = `
+/* CC */
+function renderCC(){
+  const todos=data.filter(t=>t.cuenta==="cc");
+  const hastaElMes=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
+  const saldoAcumulado=hastaElMes.reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
+  const gm=delMes(todos);
+  const ingresos=gm.filter(t=>t.tipo==="ingreso").reduce((s,t)=>s+t.monto,0);
+  const gastos=gm.filter(t=>t.tipo==="gasto").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const balance=ingresos-gastos;
+  const porCat=Object.keys(CATS).map(id=>({id,...CATS[id],total:gm.filter(t=>t.cat===id&&t.tipo==="gasto").reduce((s,t)=>s+t.monto,0)})).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
+  const filtrados=(filtroCC==="todas"?gm:filtroCC==="ingresos"?gm.filter(t=>t.tipo==="ingreso"):filtroCC==="gastos"?gm.filter(t=>t.tipo==="gasto"):gm.filter(t=>t.cat===filtroCC&&t.tipo==="gasto")).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  let html=`
     <div style="background:${saldoAcumulado>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${saldoAcumulado>=0?'#0D4030':'#4A1020'};border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div>
-        <div style="font-size:10px;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Saldo actual</div>
-        <div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(saldoAcumulado)}</div>
-        <div style="font-size:11px;color:${saldoAcumulado>=0?'#34794A':'#7A3040'};margin-top:3px">Acumulado hasta ${MESES[mes]} ${anio}</div>
-      </div>
+      <div><div style="font-size:10px;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Saldo actual</div><div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:${saldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(saldoAcumulado)}</div><div style="font-size:11px;color:${saldoAcumulado>=0?'#34794A':'#7A3040'};margin-top:3px">Acumulado hasta ${MESES[mes]} ${anio}</div></div>
       <div style="font-size:36px;opacity:.4">${saldoAcumulado>=0?'🏦':'⚠️'}</div>
     </div>
-
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-      <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ingresos</div>
-        <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7">${mxn(ingresos)}</div>
-      </div>
-      <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Gastos</div>
-        <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171">${mxn(gastos)}</div>
-      </div>
-      <div style="background:${balance>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${balance>=0?'#0D4030':'#4A1020'};border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:${balance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Mes</div>
-        <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:${balance>=0?'#6EE7B7':'#F87171'}">${mxn(balance)}</div>
-      </div>
+      <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px"><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ingresos</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7">${mxn(ingresos)}</div></div>
+      <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px"><div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Gastos</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171">${mxn(gastos)}</div></div>
+      <div style="background:${balance>=0?'linear-gradient(135deg,#062318,#0A3020)':'linear-gradient(135deg,#200A0C,#2A0F12)'};border:1px solid ${balance>=0?'#0D4030':'#4A1020'};border-radius:12px;padding:14px"><div style="font-size:10px;color:${balance>=0?'#6EE7B7':'#F87171'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Mes</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:${balance>=0?'#6EE7B7':'#F87171'}">${mxn(balance)}</div></div>
     </div>`;
-
-  if (porCat.length && gastos > 0) {
-    html += `<div class="card">
-      <div class="section-label" style="margin-bottom:14px">Gastos por categoría</div>
-      ${porCat.map(c=>`
-        <div class="cat-row">
-          <div class="cat-meta">
-            <span>${c.icon} ${c.label}</span>
-            <span style="font-family:'DM Mono',monospace;font-weight:600;color:#C0B8D8">${mxn(c.total)}</span>
-          </div>
-          <div class="cat-bar-bg"><div class="cat-bar" style="width:${(c.total/gastos*100).toFixed(1)}%;background:${c.color};box-shadow:0 0 8px ${c.color}60"></div></div>
-        </div>`).join("")}
-    </div>`;
+  if(porCat.length&&gastos>0){
+    html+=`<div class="card"><div class="section-label" style="margin-bottom:14px">Gastos por categoría</div>${porCat.map(c=>`<div class="cat-row"><div class="cat-meta"><span>${c.icon} ${c.label}</span><span style="font-family:'DM Mono',monospace;font-weight:600;color:#C0B8D8">${mxn(c.total)}</span></div><div class="cat-bar-bg"><div class="cat-bar" style="width:${(c.total/gastos*100).toFixed(1)}%;background:${c.color};box-shadow:0 0 8px ${c.color}60"></div></div></div>`).join("")}</div>`;
   }
-
-  const catChips = porCat.map(c=>`<button class="chip ${filtroCC===c.id?"active":""}" onclick="setFiltroCC('${c.id}')" style="${filtroCC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("");
-  html += `<div class="chips">
-    <button class="chip ${filtroCC==="todas"?"active":""}" onclick="setFiltroCC('todas')">Todos</button>
-    <button class="chip ${filtroCC==="ingresos"?"active":""}" onclick="setFiltroCC('ingresos')" style="${filtroCC==="ingresos"?"background:#10B98120;border-color:var(--green);color:var(--green)":""}">✅ Ingresos</button>
-    <button class="chip ${filtroCC==="gastos"?"active":""}" onclick="setFiltroCC('gastos')" style="${filtroCC==="gastos"?"background:#F43F5E18;border-color:var(--red);color:var(--red)":""}">🔴 Gastos</button>
-    ${catChips}
-  </div>`;
-
-  html += `<div class="expense-list">${filtrados.length
-    ? filtrados.map((t,i)=>filaTransaccion(t,i)).join("")
-    : emptyState("🏦","Sin movimientos este mes","Agrega ingresos o gastos con el botón de arriba")}
-  </div>`;
-
-  document.getElementById("viewCC").innerHTML = html;
+  const catChips=porCat.map(c=>`<button class="chip ${filtroCC===c.id?"active":""}" onclick="setFiltroCC('${c.id}')" style="${filtroCC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("");
+  html+=`<div class="chips"><button class="chip ${filtroCC==="todas"?"active":""}" onclick="setFiltroCC('todas')">Todos</button><button class="chip ${filtroCC==="ingresos"?"active":""}" onclick="setFiltroCC('ingresos')" style="${filtroCC==="ingresos"?"background:#10B98120;border-color:var(--green);color:var(--green)":""}">✅ Ingresos</button><button class="chip ${filtroCC==="gastos"?"active":""}" onclick="setFiltroCC('gastos')" style="${filtroCC==="gastos"?"background:#F43F5E18;border-color:var(--red);color:var(--red)":""}">🔴 Gastos</button>${catChips}</div>`;
+  html+=`<div class="expense-list">${filtrados.length?filtrados.map((t,i)=>filaTransaccion(t,i)).join(""):emptyState("🏦","Sin movimientos este mes","Agrega ingresos o gastos con el botón de arriba")}</div>`;
+  document.getElementById("viewCC").innerHTML=html;
 }
 
-/* ══════════════════════════════════════════════
-   AHORROS
-══════════════════════════════════════════════ */
-function renderAhorros() {
-  const todos = data.filter(t=>t.cuenta==="ahorros");
-
-  const hastaHoy = todos.filter(t => {
-    const d = fechaLocal(t.fecha);
-    return (d.getFullYear() < anio) || (d.getFullYear()===anio && d.getMonth()<=mes);
-  });
-  const saldo = hastaHoy.reduce((s,t)=> t.tipo==="deposito" ? s+t.monto : s-t.monto, 0);
-
-  const gm = delMes(todos);
-  const depositos = gm.filter(t=>t.tipo==="deposito").reduce((s,t)=>s+t.monto,0);
-  const retiros   = gm.filter(t=>t.tipo==="retiro").reduce((s,t)=>s+t.monto,0);
-
-  const filtrados = gm.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-
-  let html = `
-    <div class="summary-card gold" style="padding:20px 18px;border-radius:16px">
-      <div class="s-label" style="color:#FCD34D">Saldo acumulado</div>
-      <div style="font-size:32px;font-weight:700;font-family:'DM Mono',monospace;color:#FCD34D;margin:6px 0 4px">${mxn(saldo)}</div>
-      <div style="font-size:12px;color:#7A5A18">Hasta ${MESES[mes]} ${anio}</div>
-    </div>
-
+/* AHORROS */
+function renderAhorros(){
+  const todos=data.filter(t=>t.cuenta==="ahorros");
+  const hastaHoy=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
+  const saldo=hastaHoy.reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
+  const gm=delMes(todos);
+  const depositos=gm.filter(t=>t.tipo==="deposito").reduce((s,t)=>s+t.monto,0);
+  const retiros=gm.filter(t=>t.tipo==="retiro").reduce((s,t)=>s+t.monto,0);
+  const filtrados=gm.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  let html=`
+    <div class="summary-card gold" style="padding:20px 18px;border-radius:16px"><div class="s-label" style="color:#FCD34D">Saldo acumulado</div><div style="font-size:32px;font-weight:700;font-family:'DM Mono',monospace;color:#FCD34D;margin:6px 0 4px">${mxn(saldo)}</div><div style="font-size:12px;color:#7A5A18">Hasta ${MESES[mes]} ${anio}</div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Depósitos del mes</div>
-        <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7">+${mxn(depositos)}</div>
-      </div>
-      <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px">
-        <div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Retiros del mes</div>
-        <div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171">-${mxn(retiros)}</div>
-      </div>
+      <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px"><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Depósitos del mes</div><div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7">+${mxn(depositos)}</div></div>
+      <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px"><div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Retiros del mes</div><div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171">-${mxn(retiros)}</div></div>
     </div>`;
-
-  html += `<div class="expense-list">${filtrados.length
-    ? filtrados.map((t,i)=>filaTransaccion(t,i)).join("")
-    : emptyState("💎","Sin movimientos este mes","Registra depósitos o retiros de tus ahorros")}
-  </div>`;
-
-  document.getElementById("viewAhorros").innerHTML = html;
+  html+=`<div class="expense-list">${filtrados.length?filtrados.map((t,i)=>filaTransaccion(t,i)).join(""):emptyState("💎","Sin movimientos este mes","Registra depósitos o retiros de tus ahorros")}</div>`;
+  document.getElementById("viewAhorros").innerHTML=html;
 }
 
-/* ══════════════════════════════════════════════
-   FILA DE TRANSACCIÓN
-══════════════════════════════════════════════ */
-function filaTransaccion(t, i) {
-  const c = CATS[t.cat] || {icon:"📦",color:"#6B7280",label:"Otros"};
-  const fecha = fechaLocal(t.fecha).toLocaleDateString("es-MX",{day:"numeric",month:"short"});
-
-  let iconBg, icon, amountClass, signo, badge;
-
-  if (t.cuenta==="tc") {
-    iconBg = c.color+"22"; icon = c.icon; amountClass = "amount-gasto"; signo = "-";
-    badge = "";
-  } else if (t.cuenta==="cc") {
-    if (t.tipo==="ingreso") {
-      iconBg = "#10B98120"; icon = "💵"; amountClass = "amount-ingreso"; signo = "+";
-      badge = `<span class="badge badge-ingreso">Ingreso</span>`;
-    } else {
-      iconBg = c.color+"22"; icon = c.icon; amountClass = "amount-gasto"; signo = "-";
-      badge = `<span class="badge badge-gasto">Gasto</span>`;
-    }
-  } else if (t.cuenta==="creditos") {
-    iconBg = c.color+"22"; icon = c.icon; amountClass = "amount-gasto"; signo = "-";
-    badge = "";
-  } else {
-    if (t.tipo==="deposito") {
-      iconBg = "#10B98120"; icon = "💰"; amountClass = "amount-deposito"; signo = "+";
-      badge = `<span class="badge badge-deposito">Depósito</span>`;
-    } else {
-      iconBg = "#F43F5E18"; icon = "💸"; amountClass = "amount-retiro"; signo = "-";
-      badge = `<span class="badge badge-retiro">Retiro</span>`;
-    }
-  }
-
-  const metaLabel = t.cuenta==="cc" && t.tipo==="gasto" ? `${c.label} · ${fecha}`
-    : t.cuenta==="tc" ? `${c.label} · ${fecha}`
-    : t.cuenta==="creditos" ? `${c.label} · ${fecha}`
-    : fecha;
-
-  return `<div class="expense-row" style="animation-delay:${i*35}ms">
+/* FILAS */
+function filaTransaccion(t,i){
+  const c=CATS[t.cat]||{icon:"📦",color:"#6B7280",label:"Otros"};
+  const fecha=fechaLocal(t.fecha).toLocaleDateString("es-MX",{day:"numeric",month:"short"});
+  let iconBg,icon,amountClass,signo,badge;
+  if(t.cuenta==="tc"){iconBg=c.color+"22";icon=c.icon;amountClass="amount-gasto";signo="-";badge="";}
+  else if(t.cuenta==="cc"){
+    if(t.tipo==="ingreso"){iconBg="#10B98120";icon="💵";amountClass="amount-ingreso";signo="+";badge=`<span class="badge badge-ingreso">Ingreso</span>`;}
+    else{iconBg=c.color+"22";icon=c.icon;amountClass="amount-gasto";signo="-";badge=`<span class="badge badge-gasto">Gasto</span>`;}
+  }else if(t.cuenta==="creditos"){iconBg=c.color+"22";icon=c.icon;amountClass="amount-gasto";signo="-";badge="";}
+  else{if(t.tipo==="deposito"){iconBg="#10B98120";icon="💰";amountClass="amount-deposito";signo="+";badge=`<span class="badge badge-deposito">Depósito</span>`;}else{iconBg="#F43F5E18";icon="💸";amountClass="amount-retiro";signo="-";badge=`<span class="badge badge-retiro">Retiro</span>`;}}
+  const metaLabel=t.cuenta==="cc"&&t.tipo==="gasto"?`${c.label} · ${fecha}`:t.cuenta==="tc"?`${c.label} · ${fecha}`:t.cuenta==="creditos"?`${c.label} · ${fecha}`:fecha;
+  const extraMeta=(t.cat==="pago_tc"&&t.tc_mes_pagado)?` · TC ${MESES_CORTOS[parseInt(t.tc_mes_pagado.slice(5,7))-1]} ${t.tc_mes_pagado.slice(0,4)}`:'';
+  const montoMostrar=t.monto_total||t.monto;
+  return`<div class="expense-row" style="animation-delay:${i*35}ms">
     <div class="expense-icon" style="background:${iconBg}">${icon}</div>
     <div style="flex:1;min-width:0">
       <div class="expense-desc">${esc(t.desc)}${badge}</div>
-      <div class="expense-meta">${metaLabel}</div>
+      <div class="expense-meta">${metaLabel}${extraMeta}</div>
+      ${t.cat==="pago_tc"&&t.monto_javi?`<div style="font-size:11px;color:var(--dim);margin-top:2px"><span style="color:#C4B5FD">G: ${mxn(t.monto)}</span> <span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span></div>`:''}
     </div>
-    <div class="expense-amount ${amountClass}">${signo}${mxn(t.monto)}</div>
+    <div class="expense-amount ${amountClass}">${signo}${mxn(montoMostrar)}</div>
     <div style="display:flex;gap:2px;flex-shrink:0">
       <button class="btn-icon" onclick="abrirModal('${t.id}')" title="Editar">✏️</button>
       <button class="btn-icon" onclick="eliminar('${t.id}')" title="Eliminar">🗑️</button>
     </div>
   </div>`;
 }
-
-function filaTransaccionTC(t, i) {
-  const c = CATS[t.cat] || {icon:"📦",color:"#6B7280",label:"Otros"};
-  const fecha = fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
-  const montoTotal = t.monto_total || t.monto;
-  const tieneJavi = (t.monto_javi||0) > 0;
-
-  return `<div class="expense-row" style="animation-delay:${i*35}ms">
+function filaTransaccionTC(t,i){
+  const c=CATS[t.cat]||{icon:"📦",color:"#6B7280",label:"Otros"};
+  const fecha=fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
+  const montoTotal=t.monto_total||t.monto;const tieneJavi=(t.monto_javi||0)>0;
+  return`<div class="expense-row" style="animation-delay:${i*35}ms">
     <div class="expense-icon" style="background:${c.color}22">${c.icon}</div>
-    <div style="flex:1;min-width:0">
-      <div class="expense-desc">${esc(t.desc)}</div>
-      <div class="expense-meta">${c.label} · ${fecha}${tieneJavi?` · <span style="color:#C4B5FD">G:${mxn(t.monto)}</span> <span style="color:#94A3B8">J:${mxn(t.monto_javi)}</span>`:''}</div>
-    </div>
+    <div style="flex:1;min-width:0"><div class="expense-desc">${esc(t.desc)}</div><div class="expense-meta">${c.label} · ${fecha}${tieneJavi?` · <span style="color:#C4B5FD">G:${mxn(t.monto)}</span> <span style="color:#94A3B8">J:${mxn(t.monto_javi)}</span>`:''}</div></div>
     <div class="expense-amount amount-gasto">-${mxn(montoTotal)}</div>
-    <div style="display:flex;gap:2px;flex-shrink:0">
-      <button class="btn-icon" onclick="abrirModal('${t.id}')" title="Editar">✏️</button>
-      <button class="btn-icon" onclick="eliminar('${t.id}')" title="Eliminar">🗑️</button>
-    </div>
+    <div style="display:flex;gap:2px;flex-shrink:0"><button class="btn-icon" onclick="abrirModal('${t.id}')" title="Editar">✏️</button><button class="btn-icon" onclick="eliminar('${t.id}')" title="Eliminar">🗑️</button></div>
   </div>`;
 }
 
-function emptyState(icon, title, sub) {
-  return `<div class="empty"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
+/* FILTROS Y MES */
+function setFiltroTC(f){filtroTC=f;renderTC();}
+function setFiltroCC(f){filtroCC=f;renderCC();}
+function setFiltroPersonaTC(p){filtroPersonaTC=p;catExpandida=null;renderTC();}
+function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";render();}
+
+/* PICKER MES PAGO TC */
+function renderMesPagoTCGrid(){
+  const label=document.getElementById("mesPagoTCLabel");const grid=document.getElementById("mesPagoTCGrid");
+  if(!label||!grid)return;
+  label.textContent=mesPagoTCAnio;
+  grid.innerHTML=MESES_CORTOS.map((m,i)=>{const activo=i===mesPagoTCMes;return`<button type="button" onclick="seleccionarMesPagoTC(${i})" style="padding:8px 4px;border-radius:9px;border:1px solid ${activo?'#10B981':'var(--border2)'};background:${activo?'#0A3020':'var(--surface2)'};color:${activo?'#6EE7B7':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">${m}</button>`;}).join("");
+}
+function seleccionarMesPagoTC(i){mesPagoTCMes=i;renderMesPagoTCGrid();}
+function cambiarAnioMesPagoTC(dir){mesPagoTCAnio+=dir;renderMesPagoTCGrid();}
+
+function calcularTotalTCMes(){
+  const mesStr=`${mesPagoTCAnio}-${String(mesPagoTCMes+1).padStart(2,'0')}`;
+  const{totalGeneral,totalGonzalo,totalJavi}=calcularTotalTCDeMes(mesStr);
+  if(totalGeneral===0){mostrarToast(`⚠️ Sin gastos TC en ${MESES_CORTOS[mesPagoTCMes]} ${mesPagoTCAnio}`);document.getElementById("pagoTCBanner").style.display="none";return;}
+  document.getElementById("fMonto").value=totalGeneral.toLocaleString('es-CL');
+  document.getElementById("pagoTCDetalle").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div style="background:#ffffff08;border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:#6EE7B7;font-weight:700;text-transform:uppercase;margin-bottom:3px">Total TC</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#6EE7B7">${mxn(totalGeneral)}</div></div>
+      <div style="background:#ffffff08;border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:#C4B5FD;font-weight:700;text-transform:uppercase;margin-bottom:3px">Gonzalo</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#C4B5FD">${mxn(totalGonzalo)}</div></div>
+      <div style="background:#ffffff08;border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:#94A3B8;font-weight:700;text-transform:uppercase;margin-bottom:3px">Javi</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#94A3B8">${mxn(totalJavi)}</div></div>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:#6EE7B7;opacity:.7">Mes TC: ${MESES[mesPagoTCMes]} ${mesPagoTCAnio} · Descuenta ${mxn(totalGeneral)} de CC</div>`;
+  document.getElementById("pagoTCBanner").style.display="";
+  mostrarToast(`✅ TC ${MESES_CORTOS[mesPagoTCMes]} ${mesPagoTCAnio}: ${mxn(totalGeneral)}`);
 }
 
-/* ══════════════════════════════════════════════
-   FILTROS
-══════════════════════════════════════════════ */
-function setFiltroTC(f) { filtroTC=f; renderTC(); }
-function setFiltroCC(f) { filtroCC=f; renderCC(); }
-function setFiltroPersonaTC(p) { filtroPersonaTC=p; catExpandida=null; renderTC(); }
-
-function cambiarMes(dir) {
-  mes+=dir;
-  if(mes<0){mes=11;anio--;}
-  if(mes>11){mes=0;anio++;}
-  filtroTC="todas"; filtroCC="todas"; filtroPersonaTC="todas";
-  render();
-}
-
-/* ══════════════════════════════════════════════
-   MODAL
-══════════════════════════════════════════════ */
-function abrirModal(id=null) {
-  editandoId = id;
-  const hoy = new Date().toISOString().slice(0,10);
-
-  const cuentaDefault = tabActual==="resumen" ? "tc"
-    : tabActual==="creditos" ? "creditos"
-    : tabActual;
-  const enResumen = tabActual==="resumen";
-
-  document.getElementById("fieldCuenta").style.display = enResumen ? "" : "none";
-  document.getElementById("fCuenta").value = cuentaDefault;
-
-  if (id) {
-    const t = data.find(x=>x.id===id);
-    document.getElementById("modalTitulo").textContent = "Editar transacción";
-    document.getElementById("fCuenta").value = t.cuenta;
-    modalTipo = t.tipo;
-    document.getElementById("fDesc").value = t.desc;
-    document.getElementById("fMonto").value = (t.monto_total || t.monto).toLocaleString("es-CL");
-    document.getElementById("fCat").value = t.cat || "otros";
-    numCuotas = 1;
-    document.getElementById("cuotasNum").textContent = "1";
+/* MODAL */
+function abrirModal(id=null){
+  editandoId=id;
+  const hoy=new Date().toISOString().slice(0,10);
+  const cuentaDefault=tabActual==="resumen"?"tc":tabActual==="creditos"?"creditos":tabActual;
+  const enResumen=tabActual==="resumen";
+  document.getElementById("fieldCuenta").style.display=enResumen?"":"none";
+  document.getElementById("fCuenta").value=cuentaDefault;
+  document.getElementById("pagoTCBanner").style.display="none";
+  document.getElementById("fieldMesPagoTC").style.display="none";
+  if(id){
+    const t=data.find(x=>x.id===id);
+    document.getElementById("modalTitulo").textContent="Editar transacción";
+    document.getElementById("fCuenta").value=t.cuenta;
+    modalTipo=t.tipo;
+    document.getElementById("fDesc").value=t.desc;
+    document.getElementById("fMonto").value=(t.monto_total||t.monto).toLocaleString("es-CL");
+    document.getElementById("fCat").value=t.cat||"otros";
+    numCuotas=1;document.getElementById("cuotasNum").textContent="1";
     actualizarModalPorCuenta(t.cuenta);
-    document.getElementById("fFecha").value = t.fecha;
-    // Cargar cuotas crédito si existe
-    document.getElementById("fCuotaActual").value = t.cuota_actual || "";
-    document.getElementById("fCuotasTotal").value  = t.cuotas_total || "";
+    document.getElementById("fFecha").value=t.fecha;
+    document.getElementById("fCuotaActual").value=t.cuota_actual||"";
+    document.getElementById("fCuotasTotal").value=t.cuotas_total||"";
     calcularCuotaMensual();
-    if (t.cuenta==="tc") {
-      initMesFacPicker(t.mes_facturacion || t.fecha.slice(0,7));
+    if(t.cuenta==="tc")initMesFacPicker(t.mes_facturacion||t.fecha.slice(0,7));
+    if(t.cuenta==="creditos")initMesFacPicker(t.mes_facturacion||t.fecha.slice(0,7));
+    if(t.cuenta==="cc"&&t.cat==="pago_tc"&&t.tc_mes_pagado){
+      const[y,m]=t.tc_mes_pagado.split('-').map(Number);
+      mesPagoTCAnio=y;mesPagoTCMes=m-1;
+      document.getElementById("fieldMesPagoTC").style.display="";
+      renderMesPagoTCGrid();
     }
-    if (t.cuenta==="creditos") {
-      initMesFacPicker(t.mes_facturacion || t.fecha.slice(0,7));
-    }
-  } else {
-    document.getElementById("modalTitulo").textContent = "Nueva transacción";
-    modalTipo = tabActual==="ahorros" ? "deposito"
-      : tabActual==="cc" ? "ingreso"
-      : "gasto";
-    document.getElementById("fDesc").value = "";
-    document.getElementById("fMonto").value = "";
-    // Categoría por defecto según tab
-    if (tabActual === "creditos") {
-      document.getElementById("fCat").value = "credito_consumo";
-    } else {
-      document.getElementById("fCat").value = "cuotas_personales";
-    }
-    numCuotas = 1;
-    document.getElementById("cuotasNum").textContent = "1";
-    // Limpiar campos cuotas crédito
-    document.getElementById("fCuotaActual").value = "";
-    document.getElementById("fCuotasTotal").value  = "";
-    document.getElementById("cuotaCreditoPreview").textContent = "";
+  }else{
+    document.getElementById("modalTitulo").textContent="Nueva transacción";
+    modalTipo=tabActual==="ahorros"?"deposito":tabActual==="cc"?"ingreso":"gasto";
+    document.getElementById("fDesc").value="";document.getElementById("fMonto").value="";
+    if(tabActual==="creditos")document.getElementById("fCat").value="credito_consumo";
+    else document.getElementById("fCat").value="cuotas_personales";
+    numCuotas=1;document.getElementById("cuotasNum").textContent="1";
+    document.getElementById("fCuotaActual").value="";document.getElementById("fCuotasTotal").value="";
+    document.getElementById("cuotaCreditoPreview").textContent="";
     actualizarModalPorCuenta(cuentaDefault);
-    document.getElementById("fFecha").value = hoy;
-    if (cuentaDefault==="tc") {
-      initMesFacPicker(hoy.slice(0,7));
-    } else if (cuentaDefault==="creditos") {
-      // Créditos: mes anterior (se paga con sueldo del mes previo)
-      const mesAnterior = new Date();
-      mesAnterior.setMonth(mesAnterior.getMonth() - 1);
-      const mm = String(mesAnterior.getMonth()+1).padStart(2,'0');
-      initMesFacPicker(`${mesAnterior.getFullYear()}-${mm}`);
-    }
+    document.getElementById("fFecha").value=hoy;
+    if(cuentaDefault==="tc")initMesFacPicker(hoy.slice(0,7));
+    else if(cuentaDefault==="creditos"){const ma=new Date();ma.setMonth(ma.getMonth()-1);initMesFacPicker(`${ma.getFullYear()}-${String(ma.getMonth()+1).padStart(2,'0')}`);}
   }
-
-  document.getElementById("modalOverlay").style.display = "flex";
+  document.getElementById("modalOverlay").style.display="flex";
   setTimeout(()=>document.getElementById("fDesc").focus(),100);
 }
 
-function actualizarModalPorCuenta(cuentaForzada) {
-  const cuenta = cuentaForzada || document.getElementById("fCuenta").value;
-  const fieldTipo  = document.getElementById("fieldTipo");
-  const fieldCat   = document.getElementById("fieldCat");
-  const tipoToggle = document.getElementById("tipoToggle");
-
-  if (cuenta==="tc") {
+function actualizarModalPorCuenta(cuentaForzada){
+  const cuenta=cuentaForzada||document.getElementById("fCuenta").value;
+  const fieldTipo=document.getElementById("fieldTipo");
+  const fieldCat=document.getElementById("fieldCat");
+  const tipoToggle=document.getElementById("tipoToggle");
+  document.getElementById("pagoTCBanner").style.display="none";
+  document.getElementById("fieldMesPagoTC").style.display="none";
+  if(cuenta==="tc"){
     mostrarCampoUF(false);
-    document.getElementById("fieldCuotasCredito").style.display = "none";
-    fieldTipo.style.display = "none";
-    fieldCat.style.display = "";
-    // Ocultar opciones de crédito en selector de TC
-    actualizarOpcionesCat("tc");
-    modalTipo = "gasto";
-    document.getElementById("labelFecha").textContent = "Fecha de compra";
-    document.getElementById("fFecha").type = "date";
-    document.getElementById("fieldMesFac").style.display = "";
-    renderMesFacGrid();
-    document.getElementById("fieldCuotas").style.display = "";
-    actualizarPreviewCuotas();
-  } else if (cuenta==="creditos") {
-    fieldTipo.style.display = "none";
-    fieldCat.style.display = "";
-    actualizarOpcionesCat("creditos");
-    modalTipo = "gasto";
-    document.getElementById("labelFecha").textContent = "Fecha de pago";
-    document.getElementById("fFecha").type = "date";
-    document.getElementById("fieldMesFac").style.display = "";
-    renderMesFacGrid();
-    document.getElementById("fieldCuotas").style.display = "none";
-    document.getElementById("fieldCuotasCredito").style.display = "";
-    // Mostrar/ocultar UF según categoría actual
-    onCatChange();
-  } else if (cuenta==="cc") {
-    fieldTipo.style.display = "";
-    document.getElementById("fieldCuotasCredito").style.display = "none";
-    document.getElementById("labelTipo").textContent = "Tipo de movimiento";
-    fieldCat.style.display = modalTipo==="gasto" ? "" : "none";
+    document.getElementById("fieldCuotasCredito").style.display="none";
+    fieldTipo.style.display="none";fieldCat.style.display="";
+    actualizarOpcionesCat("tc");modalTipo="gasto";
+    document.getElementById("labelFecha").textContent="Fecha de compra";
+    document.getElementById("fFecha").type="date";
+    document.getElementById("fieldMesFac").style.display="";renderMesFacGrid();
+    document.getElementById("fieldCuotas").style.display="";actualizarPreviewCuotas();
+  }else if(cuenta==="creditos"){
+    fieldTipo.style.display="none";fieldCat.style.display="";
+    actualizarOpcionesCat("creditos");modalTipo="gasto";
+    document.getElementById("labelFecha").textContent="Fecha de pago";
+    document.getElementById("fFecha").type="date";
+    document.getElementById("fieldMesFac").style.display="";renderMesFacGrid();
+    document.getElementById("fieldCuotas").style.display="none";
+    document.getElementById("fieldCuotasCredito").style.display="";onCatChange();
+  }else if(cuenta==="cc"){
+    fieldTipo.style.display="";
+    document.getElementById("fieldCuotasCredito").style.display="none";
+    document.getElementById("labelTipo").textContent="Tipo de movimiento";
+    fieldCat.style.display=modalTipo==="gasto"?"":"none";
     actualizarOpcionesCat("cc");
-    if (!["ingreso","gasto"].includes(modalTipo)) modalTipo = "ingreso";
-    tipoToggle.innerHTML = `
-      <button class="tipo-btn ${modalTipo==="ingreso"?"selected-ingreso":""}" onclick="setTipo('ingreso')">✅ Ingreso</button>
-      <button class="tipo-btn ${modalTipo==="gasto"?"selected-gasto":""}" onclick="setTipo('gasto')">🔴 Gasto</button>`;
-    document.getElementById("labelFecha").textContent = "Fecha";
-    document.getElementById("fFecha").type = "date";
-    document.getElementById("fieldMesFac").style.display = "none";
-    document.getElementById("fieldCuotas").style.display = "none";
-  } else {
-    fieldTipo.style.display = "";
-    document.getElementById("labelTipo").textContent = "Tipo de movimiento";
-    fieldCat.style.display = "none";
-    if (!["deposito","retiro"].includes(modalTipo)) modalTipo = "deposito";
-    tipoToggle.innerHTML = `
-      <button class="tipo-btn ${modalTipo==="deposito"?"selected-deposito":""}" onclick="setTipo('deposito')">💰 Depósito</button>
-      <button class="tipo-btn ${modalTipo==="retiro"?"selected-retiro":""}" onclick="setTipo('retiro')">💸 Retiro</button>`;
-    document.getElementById("labelFecha").textContent = "Fecha";
-    document.getElementById("fFecha").type = "date";
-    document.getElementById("fieldMesFac").style.display = "none";
-    document.getElementById("fieldCuotas").style.display = "none";
-  }
-}
-
-function actualizarOpcionesCat(cuenta) {
-  const select = document.getElementById("fCat");
-  const valorActual = select.value;
-  Array.from(select.options).forEach(opt => {
-    if (cuenta === "creditos") {
-      opt.style.display = CATS_CREDITOS.includes(opt.value) ? "" : "none";
-    } else {
-      opt.style.display = CATS_CREDITOS.includes(opt.value) ? "none" : "";
+    if(!["ingreso","gasto"].includes(modalTipo))modalTipo="ingreso";
+    tipoToggle.innerHTML=`<button class="tipo-btn ${modalTipo==="ingreso"?"selected-ingreso":""}" onclick="setTipo('ingreso')">✅ Ingreso</button><button class="tipo-btn ${modalTipo==="gasto"?"selected-gasto":""}" onclick="setTipo('gasto')">🔴 Gasto</button>`;
+    document.getElementById("labelFecha").textContent="Fecha";
+    document.getElementById("fFecha").type="date";
+    document.getElementById("fieldMesFac").style.display="none";
+    document.getElementById("fieldCuotas").style.display="none";
+    if(document.getElementById("fCat").value==="pago_tc"&&modalTipo==="gasto"){
+      document.getElementById("fieldMesPagoTC").style.display="";
+      const hoy=new Date();hoy.setMonth(hoy.getMonth()-1);
+      mesPagoTCAnio=hoy.getFullYear();mesPagoTCMes=hoy.getMonth();
+      renderMesPagoTCGrid();
     }
+  }else{
+    fieldTipo.style.display="";
+    document.getElementById("labelTipo").textContent="Tipo de movimiento";
+    fieldCat.style.display="none";
+    if(!["deposito","retiro"].includes(modalTipo))modalTipo="deposito";
+    tipoToggle.innerHTML=`<button class="tipo-btn ${modalTipo==="deposito"?"selected-deposito":""}" onclick="setTipo('deposito')">💰 Depósito</button><button class="tipo-btn ${modalTipo==="retiro"?"selected-retiro":""}" onclick="setTipo('retiro')">💸 Retiro</button>`;
+    document.getElementById("labelFecha").textContent="Fecha";
+    document.getElementById("fFecha").type="date";
+    document.getElementById("fieldMesFac").style.display="none";
+    document.getElementById("fieldCuotas").style.display="none";
+  }
+}
+
+function actualizarOpcionesCat(cuenta){
+  const select=document.getElementById("fCat");
+  Array.from(select.options).forEach(opt=>{
+    if(cuenta==="creditos"){opt.style.display=CATS_CREDITOS.includes(opt.value)?"":"none";}
+    else if(cuenta==="cc"){opt.style.display=CATS_CREDITOS.includes(opt.value)?"none":"";}
+    else{opt.style.display=(CATS_CREDITOS.includes(opt.value)||opt.value==="pago_tc")?"none":"";}
   });
-  // Ajustar valor seleccionado si quedó oculto
-  if (cuenta === "creditos" && !CATS_CREDITOS.includes(select.value)) {
-    select.value = "credito_consumo";
-  } else if (cuenta !== "creditos" && CATS_CREDITOS.includes(select.value)) {
-    select.value = "cuotas_personales";
+  if(cuenta==="creditos"&&!CATS_CREDITOS.includes(select.value))select.value="credito_consumo";
+  else if(cuenta!=="creditos"&&CATS_CREDITOS.includes(select.value))select.value=cuenta==="cc"?"pago_tc":"cuotas_personales";
+}
+
+function onCatChange(){
+  const cat=document.getElementById("fCat").value;
+  const cuenta=document.getElementById("fCuenta").value;
+  if(cuenta==="creditos"&&cat==="credito_hipotecario"){mostrarCampoUF(true);cargarValorUF().then(v=>{document.getElementById("valorUFLabel").textContent="$"+Math.round(v).toLocaleString('es-CL');});}
+  else{mostrarCampoUF(false);}
+  if(cuenta==="cc"&&cat==="pago_tc"&&modalTipo==="gasto"){
+    document.getElementById("fieldMesPagoTC").style.display="";
+    const hoy=new Date();hoy.setMonth(hoy.getMonth()-1);
+    mesPagoTCAnio=hoy.getFullYear();mesPagoTCMes=hoy.getMonth();
+    renderMesPagoTCGrid();
+    if(!document.getElementById("fDesc").value)document.getElementById("fDesc").value="Pago TC";
+  }else{
+    document.getElementById("fieldMesPagoTC").style.display="none";
+    document.getElementById("pagoTCBanner").style.display="none";
   }
 }
 
-function calcularCuotaMensual() {
-  const actual  = parseInt(document.getElementById("fCuotaActual").value) || 0;
-  const total   = parseInt(document.getElementById("fCuotasTotal").value) || 0;
-  const monto   = leerMonto() || 0;
-  const preview = document.getElementById("cuotaCreditoPreview");
-  if (!preview) return;
+function calcularCuotaMensual(){
+  const actual=parseInt(document.getElementById("fCuotaActual").value)||0;
+  const total=parseInt(document.getElementById("fCuotasTotal").value)||0;
+  const monto=leerMonto()||0;
+  const preview=document.getElementById("cuotaCreditoPreview");if(!preview)return;
+  let parts=[];
+  if(actual>0&&total>0){const restantes=total-actual+1;const mesBase=`${mesFacAnio}-${String(mesFacMes+1).padStart(2,'0')}`;const ultimoMesFac=mesFacDeCuota(mesBase,restantes-1);const mesFinLabel=`${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;parts.push(`Cuota ${actual} de ${total}`);parts.push(`Se crearán ${restantes} cuotas hasta ${mesFinLabel}`);}
+  if(monto>0)parts.push(`Monto por cuota: ${mxn(monto)}`);
+  preview.textContent=parts.join(" · ");
+}
+function formatearMonto(input){const raw=input.value.replace(/\./g,'').replace(/[^0-9]/g,'');if(raw===''){input.value='';return;}input.value=parseInt(raw).toLocaleString('es-CL');}
+function leerMonto(){const val=document.getElementById("fMonto").value.replace(/\./g,'').replace(/[^0-9]/g,'');return parseFloat(val)||0;}
+function setTipo(t){modalTipo=t;const cuenta=document.getElementById("fCuenta").value;actualizarModalPorCuenta(cuenta);}
+function cerrarModal(){document.getElementById("modalOverlay").style.display="none";}
+function cerrarSiAfuera(e){if(e.target===document.getElementById("modalOverlay"))cerrarModal();}
 
-  let parts = [];
-  if (actual > 0 && total > 0) {
-    const restantes = total - actual + 1;
-    const mesBase = `${mesFacAnio}-${String(mesFacMes+1).padStart(2,'0')}`;
-    const ultimoMesFac = mesFacDeCuota(mesBase, restantes - 1);
-    const mesFinLabel = `${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
-    parts.push(`Cuota ${actual} de ${total}`);
-    parts.push(`Se crearán ${restantes} cuotas hasta ${mesFinLabel}`);
-  }
-  if (monto > 0) {
-    parts.push(`Monto por cuota: ${mxn(monto)}`);
-  }
-  preview.textContent = parts.join(" · ");
+/* CUOTAS */
+function ajustarCuotas(dir){numCuotas=Math.max(1,Math.min(48,numCuotas+dir));document.getElementById("cuotasNum").textContent=numCuotas;actualizarPreviewCuotas();}
+function actualizarPreviewCuotas(){
+  const preview=document.getElementById("cuotasPreview");if(!preview)return;
+  const monto=leerMonto()||0;
+  if(numCuotas<=1||monto===0){preview.textContent="";return;}
+  const cuota=Math.round(monto/numCuotas);
+  const ultimoMes=(mesFacMes+numCuotas-1)%12;const ultimoAnio=mesFacAnio+Math.floor((mesFacMes+numCuotas-1)/12);
+  preview.textContent=`$${cuota.toLocaleString('es-CL')} × ${numCuotas} meses · ${MESES_CORTOS[mesFacMes]} ${mesFacAnio} → ${MESES_CORTOS[ultimoMes]} ${ultimoAnio}`;
 }
 
-function formatearMonto(input) {
-  // Guardar posición del cursor
-  const raw = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-  if (raw === '') { input.value = ''; return; }
-  const num = parseInt(raw);
-  input.value = num.toLocaleString('es-CL');
+/* MES FAC PICKER */
+function renderMesFacGrid(){
+  const label=document.getElementById("mesFacAnioLabel");const grid=document.getElementById("mesFacGrid");
+  if(!label||!grid)return;
+  label.textContent=mesFacAnio;
+  grid.innerHTML=MESES_CORTOS.map((m,i)=>{const activo=i===mesFacMes;return`<button type="button" onclick="seleccionarMesFac(${i})" style="padding:8px 4px;border-radius:9px;border:1px solid ${activo?'var(--accent)':'var(--border2)'};background:${activo?'var(--accent)':'var(--surface2)'};color:${activo?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">${m}</button>`;}).join("");
+  document.getElementById("fMesFac").value=`${mesFacAnio}-${String(mesFacMes+1).padStart(2,'0')}`;
+}
+function seleccionarMesFac(i){mesFacMes=i;renderMesFacGrid();}
+function cambiarAnioMesFac(dir){mesFacAnio+=dir;renderMesFacGrid();}
+function initMesFacPicker(valorInicial){
+  if(valorInicial&&valorInicial.length===7){mesFacAnio=parseInt(valorInicial.slice(0,4));mesFacMes=parseInt(valorInicial.slice(5,7))-1;}
+  else{const hoy=new Date();mesFacAnio=hoy.getFullYear();mesFacMes=hoy.getMonth();}
+  renderMesFacGrid();
 }
 
-function leerMonto() {
-  const val = document.getElementById("fMonto").value.replace(/\./g,'').replace(/[^0-9]/g,'');
-  return parseFloat(val) || 0;
-}
+/* GUARDAR */
+async function guardar(){
+  const desc=document.getElementById("fDesc").value.trim();
+  const monto=leerMonto();
+  const fecha=document.getElementById("fFecha").value;
+  const cuenta=document.getElementById("fCuenta").value;
+  const cat=document.getElementById("fCat").value;
+  const mesFac=document.getElementById("fMesFac").value;
 
-function onCatChange() {
-  const cat = document.getElementById("fCat").value;
-  const cuenta = document.getElementById("fCuenta").value;
-  if (cuenta === "creditos" && cat === "credito_hipotecario") {
-    mostrarCampoUF(true);
-    // Cargar valor UF y mostrar en label
-    cargarValorUF().then(v => {
-      document.getElementById("valorUFLabel").textContent = "$" + Math.round(v).toLocaleString('es-CL');
-    });
-  } else {
-    mostrarCampoUF(false);
-  }
-}
-
-function setTipo(t) {
-  modalTipo = t;
-  const cuenta = document.getElementById("fCuenta").value;
-  actualizarModalPorCuenta(cuenta);
-}
-
-function cerrarModal() { document.getElementById("modalOverlay").style.display="none"; }
-function cerrarSiAfuera(e) { if(e.target===document.getElementById("modalOverlay")) cerrarModal(); }
-
-/* ══════════════════════════════════════════════
-   CUOTAS
-══════════════════════════════════════════════ */
-let numCuotas = 1;
-
-function ajustarCuotas(dir) {
-  numCuotas = Math.max(1, Math.min(48, numCuotas + dir));
-  document.getElementById("cuotasNum").textContent = numCuotas;
-  actualizarPreviewCuotas();
-}
-
-function actualizarPreviewCuotas() {
-  const preview = document.getElementById("cuotasPreview");
-  if (!preview) return;
-  const monto = leerMonto() || 0;
-  if (numCuotas <= 1 || monto === 0) {
-    preview.textContent = "";
+  /* ── CASO ESPECIAL: Pago TC en CC ── */
+  if(cuenta==="cc"&&cat==="pago_tc"){
+    if(!desc||!fecha){mostrarToast("⚠️ Completa todos los campos");return;}
+    const mesStr=`${mesPagoTCAnio}-${String(mesPagoTCMes+1).padStart(2,'0')}`;
+    const{totalGeneral,totalGonzalo,totalJavi}=calcularTotalTCDeMes(mesStr);
+    if(totalGeneral===0){mostrarToast("⚠️ Primero calcula el total TC del mes");return;}
+    cerrarModal();
+    try{
+      const trans={fecha,cuenta:"cc",tipo:"gasto",cat:"pago_tc",desc,
+        monto:totalGonzalo,monto_javi:totalJavi,monto_total:totalGeneral,tc_mes_pagado:mesStr};
+      if(editandoId){await colUsuario().doc(editandoId).update(trans);mostrarToast("✅ Pago TC actualizado");}
+      else{await colUsuario().add(trans);mostrarToast(`✅ Pago TC: ${mxn(totalGeneral)} (G:${mxn(totalGonzalo)} / J:${mxn(totalJavi)})`);}
+    }catch(err){mostrarToast("❌ Error: "+err.message);}
     return;
   }
-  const cuota = Math.round(monto / numCuotas);
-  const mesI = mesFacMes;
-  const anioI = mesFacAnio;
-  const ultimoMes = (mesI + numCuotas - 1) % 12;
-  const ultimoAnio = anioI + Math.floor((mesI + numCuotas - 1) / 12);
-  preview.textContent = `$${cuota.toLocaleString('es-CL')} × ${numCuotas} meses · ${MESES_CORTOS[mesI]} ${anioI} → ${MESES_CORTOS[ultimoMes]} ${ultimoAnio}`;
-}
 
-/* ══════════════════════════════════════════════
-   MES FACTURACIÓN PICKER
-══════════════════════════════════════════════ */
-let mesFacAnio = new Date().getFullYear();
-let mesFacMes  = new Date().getMonth();
+  if(!desc||isNaN(monto)||monto<=0||!fecha){mostrarToast("⚠️ Completa todos los campos");return;}
+  if((cuenta==="tc"||cuenta==="creditos")&&!mesFac){mostrarToast("⚠️ Selecciona el mes de facturación");return;}
 
-const MESES_CORTOS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-
-function renderMesFacGrid() {
-  const label = document.getElementById("mesFacAnioLabel");
-  const grid  = document.getElementById("mesFacGrid");
-  if (!label || !grid) return;
-  label.textContent = mesFacAnio;
-  grid.innerHTML = MESES_CORTOS.map((m, i) => {
-    const activo = (i === mesFacMes);
-    return `<button type="button" onclick="seleccionarMesFac(${i})" style="
-      padding:8px 4px;border-radius:9px;border:1px solid ${activo ? 'var(--accent)' : 'var(--border2)'};
-      background:${activo ? 'var(--accent)' : 'var(--surface2)'};
-      color:${activo ? '#fff' : 'var(--muted)'};
-      font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s"
-    >${m}</button>`;
-  }).join("");
-  const mm = String(mesFacMes + 1).padStart(2, '0');
-  document.getElementById("fMesFac").value = `${mesFacAnio}-${mm}`;
-}
-
-function seleccionarMesFac(i) {
-  mesFacMes = i;
-  renderMesFacGrid();
-}
-
-function cambiarAnioMesFac(dir) {
-  mesFacAnio += dir;
-  renderMesFacGrid();
-}
-
-function initMesFacPicker(valorInicial) {
-  if (valorInicial && valorInicial.length === 7) {
-    mesFacAnio = parseInt(valorInicial.slice(0,4));
-    mesFacMes  = parseInt(valorInicial.slice(5,7)) - 1;
-  } else {
-    const hoy = new Date();
-    mesFacAnio = hoy.getFullYear();
-    mesFacMes  = hoy.getMonth();
+  let monto_gonzalo=monto,monto_javi_calc=0,monto_total_calc=monto;
+  if((cuenta==="tc"&&cat!=="pago")||cuenta==="creditos"){
+    const regla=CATS[cat];
+    if(regla){monto_total_calc=monto;monto_gonzalo=Math.round(monto*regla.pct_g);monto_javi_calc=Math.round(monto*regla.pct_j);}
   }
-  renderMesFacGrid();
-}
-
-/* ══════════════════════════════════════════════
-   GUARDAR
-══════════════════════════════════════════════ */
-async function guardar() {
-  const desc   = document.getElementById("fDesc").value.trim();
-  const monto  = leerMonto();
-  const fecha  = document.getElementById("fFecha").value;
-  const cuenta = document.getElementById("fCuenta").value;
-  const cat    = document.getElementById("fCat").value;
-  const mesFac = document.getElementById("fMesFac").value;
-
-  if(!desc || isNaN(monto) || monto<=0 || !fecha) { mostrarToast("⚠️ Completa todos los campos"); return; }
-  if((cuenta==="tc" || cuenta==="creditos") && !mesFac) { mostrarToast("⚠️ Selecciona el mes de facturación"); return; }
-
-  // ── Calcular split ──
-  let monto_gonzalo    = monto;
-  let monto_javi_calc  = 0;
-  let monto_total_calc = monto;
-
-  if ((cuenta === "tc" && cat !== "pago") || cuenta === "creditos") {
-    const regla = CATS[cat];
-    if (regla) {
-      monto_total_calc = monto;
-      monto_gonzalo    = Math.round(monto * regla.pct_g);
-      monto_javi_calc  = Math.round(monto * regla.pct_j);
-    }
-  }
-
-  const esPagoTC = (cuenta === "tc" && cat === "pago");
-  const cuotas   = (cuenta === "tc" && !esPagoTC && numCuotas > 1) ? numCuotas : 1;
-  const montoCuota        = Math.round(monto_total_calc / cuotas);
-  const montoGonzaloCuota = Math.round(monto_gonzalo / cuotas);
-  const montoJaviCuota    = Math.round(monto_javi_calc / cuotas);
-
-  function mesFacDeCuota(base, offset) {
-    const [anioB, mesB] = base.split('-').map(Number);
-    const total = (mesB - 1) + offset;
-    const anioR = anioB + Math.floor(total / 12);
-    const mesR  = (total % 12) + 1;
-    return `${anioR}-${String(mesR).padStart(2,'0')}`;
-  }
-
-  const tranBase = {
-    fecha,
-    cuenta,
-    tipo: modalTipo,
-    cat: (cuenta==="tc" || cuenta==="creditos" || (cuenta==="cc" && modalTipo==="gasto")) ? cat : null,
-  };
+  const esPagoTC=(cuenta==="tc"&&cat==="pago");
+  const cuotas=(cuenta==="tc"&&!esPagoTC&&numCuotas>1)?numCuotas:1;
+  const montoCuota=Math.round(monto_total_calc/cuotas);
+  const montoGonzaloCuota=Math.round(monto_gonzalo/cuotas);
+  const montoJaviCuota=Math.round(monto_javi_calc/cuotas);
+  const tranBase={fecha,cuenta,tipo:modalTipo,cat:(cuenta==="tc"||cuenta==="creditos"||(cuenta==="cc"&&modalTipo==="gasto"))?cat:null};
 
   cerrarModal();
-
-  try {
-    if (editandoId) {
-      const trans = {
-        ...tranBase,
-        desc,
-        monto: monto_gonzalo,
-        ...((cuenta==="tc" || cuenta==="creditos") ? { mes_facturacion: mesFac } : {}),
-        ...((cuenta==="tc" || cuenta==="creditos") && monto_javi_calc > 0
-          ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc }
-          : {}),
-      };
+  try{
+    if(editandoId){
+      const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{})};
       await colUsuario().doc(editandoId).update(trans);
-
-      if (esPagoTC) {
-        const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===editandoId);
-        const transCC = { desc: `Pago TC: ${desc}`, monto, fecha, cuenta:"cc",
-          tipo:"gasto", cat:"pago", tc_pago_ref: editandoId };
-        if (ccEspejo) {
-          await colUsuario().doc(ccEspejo.id).update(transCC);
-        } else {
-          await colUsuario().add(transCC);
-        }
-      } else if (cuenta === "tc") {
-        const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===editandoId);
-        if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
-      } else if (cuenta === "ahorros") {
-        const ccEspejo = data.find(t => t.cuenta==="cc" && t.ahorro_ref===editandoId);
-        const tipoCC = modalTipo === "deposito" ? "gasto" : "ingreso";
-        const descCC = modalTipo === "deposito" ? `Depósito ahorro: ${desc}` : `Retiro ahorro: ${desc}`;
-        const transCC = { desc: descCC, monto, fecha, cuenta:"cc", tipo: tipoCC, cat: null, ahorro_ref: editandoId };
-        if (ccEspejo) {
-          await colUsuario().doc(ccEspejo.id).update(transCC);
-        } else {
-          await colUsuario().add(transCC);
-        }
+      if(esPagoTC){
+        const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===editandoId);
+        const transCC={desc:`Pago TC: ${desc}`,monto,fecha,cuenta:"cc",tipo:"gasto",cat:"pago",tc_pago_ref:editandoId};
+        if(ccEspejo)await colUsuario().doc(ccEspejo.id).update(transCC);else await colUsuario().add(transCC);
+      }else if(cuenta==="tc"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===editandoId);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
+      else if(cuenta==="ahorros"){
+        const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.ahorro_ref===editandoId);
+        const tipoCC=modalTipo==="deposito"?"gasto":"ingreso";const descCC=modalTipo==="deposito"?`Depósito ahorro: ${desc}`:`Retiro ahorro: ${desc}`;
+        const transCC={desc:descCC,monto,fecha,cuenta:"cc",tipo:tipoCC,cat:null,ahorro_ref:editandoId};
+        if(ccEspejo)await colUsuario().doc(ccEspejo.id).update(transCC);else await colUsuario().add(transCC);
       }
-
       mostrarToast("✅ Transacción actualizada");
-    } else {
-      if (esPagoTC) {
-        const trans = { ...tranBase, desc, monto: monto_gonzalo,
-          ...(cuenta==="tc" ? { mes_facturacion: mesFac } : {}) };
-        const docRef = await colUsuario().add(trans);
-        await colUsuario().add({ desc: `Pago TC: ${desc}`, monto, fecha,
-          cuenta:"cc", tipo:"gasto", cat:"pago", tc_pago_ref: docRef.id });
+    }else{
+      if(esPagoTC){
+        const trans={...tranBase,desc,monto:monto_gonzalo,...(cuenta==="tc"?{mes_facturacion:mesFac}:{})};
+        const docRef=await colUsuario().add(trans);
+        await colUsuario().add({desc:`Pago TC: ${desc}`,monto,fecha,cuenta:"cc",tipo:"gasto",cat:"pago",tc_pago_ref:docRef.id});
         mostrarToast("✅ Pago registrado y descontado de CC");
-      } else if (cuenta === "ahorros") {
-        // Depósito → gasto en CC; Retiro → ingreso en CC
-        const trans = { ...tranBase, desc, monto };
-        const docRef = await colUsuario().add(trans);
-        const tipoCC  = modalTipo === "deposito" ? "gasto" : "ingreso";
-        const descCC  = modalTipo === "deposito"
-          ? `Depósito ahorro: ${desc}`
-          : `Retiro ahorro: ${desc}`;
-        await colUsuario().add({
-          desc: descCC, monto, fecha,
-          cuenta: "cc", tipo: tipoCC, cat: null,
-          ahorro_ref: docRef.id
-        });
-        mostrarToast(modalTipo === "deposito"
-          ? "✅ Depósito registrado y descontado de CC"
-          : "✅ Retiro registrado e ingresado a CC");
-      } else if (cuotas > 1) {
-        const lote = db.batch();
-        for (let i = 0; i < cuotas; i++) {
-          const ref = colUsuario().doc();
-          const mesCuota = mesFacDeCuota(mesFac, i);
-          const descCuota = `${desc} (cuota ${i+1}/${cuotas})`;
-          const t = {
-            ...tranBase,
-            desc: descCuota,
-            monto: montoGonzaloCuota,
-            mes_facturacion: mesCuota,
-            ...(montoJaviCuota > 0 ? { monto_javi: montoJaviCuota, monto_total: montoCuota } : {}),
-          };
-          lote.set(ref, t);
-        }
-        await lote.commit();
-        mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
-      } else {
-        // Normal (incluye créditos)
-        const montoUFval  = parseFloat(document.getElementById("fMontoUF").value) || null;
-        const cuotaActual = parseInt(document.getElementById("fCuotaActual").value) || null;
-        const cuotasTotal = parseInt(document.getElementById("fCuotasTotal").value) || null;
-
-        // ── Auto-cuotas para créditos ──
-        if (cuenta === "creditos" && cuotaActual && cuotasTotal && cuotaActual <= cuotasTotal) {
-          const cuotasRestantes = cuotasTotal - cuotaActual + 1;
-
-          // Calcular rango de fechas para mostrar en confirmación
-          const ultimoMesFac = mesFacDeCuota(mesFac, cuotasRestantes - 1);
-          const mesInicioLabel = `${MESES_CORTOS[parseInt(mesFac.slice(5,7))-1]} ${mesFac.slice(0,4)}`;
-          const mesFinLabel   = `${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
-          const cuotaMensual  = Math.round(monto_total_calc);
-
-          const confirmado = confirm(
-            `Se crearán ${cuotasRestantes} cuotas automáticamente:\n\n` +
-            `• Desde: cuota ${cuotaActual}/${cuotasTotal} (${mesInicioLabel})\n` +
-            `• Hasta: cuota ${cuotasTotal}/${cuotasTotal} (${mesFinLabel})\n` +
-            `• Monto por cuota: $${cuotaMensual.toLocaleString('es-CL')}\n\n` +
-            `¿Confirmas?`
-          );
-          if (!confirmado) { mostrarToast("❌ Cancelado"); return; }
-
-          const lote = db.batch();
-          for (let i = 0; i < cuotasRestantes; i++) {
-            const ref = colUsuario().doc();
-            const mesCuota = mesFacDeCuota(mesFac, i);
-            const t = {
-              ...tranBase,
-              desc,
-              monto: monto_gonzalo,
-              mes_facturacion: mesCuota,
-              cuota_actual: cuotaActual + i,
-              cuotas_total: cuotasTotal,
-              ...(monto_javi_calc > 0 ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc } : {}),
-              ...(cat === "credito_hipotecario" && montoUFval ? { monto_uf: montoUFval, valor_uf: valorUF } : {}),
-            };
-            lote.set(ref, t);
-          }
-          await lote.commit();
-          mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
-        } else {
-          const trans = {
-            ...tranBase,
-            desc,
-            monto: monto_gonzalo,
-            ...((cuenta==="tc" || cuenta==="creditos") ? { mes_facturacion: mesFac } : {}),
-            ...((cuenta==="tc" || cuenta==="creditos") && monto_javi_calc > 0
-              ? { monto_javi: monto_javi_calc, monto_total: monto_total_calc }
-              : {}),
-            ...(cuenta==="creditos" && cat==="credito_hipotecario" && montoUFval
-              ? { monto_uf: montoUFval, valor_uf: valorUF }
-              : {}),
-            ...(cuenta==="creditos" && cuotaActual ? { cuota_actual: cuotaActual } : {}),
-            ...(cuenta==="creditos" && cuotasTotal ? { cuotas_total: cuotasTotal } : {}),
-          };
-          await colUsuario().add(trans);
-          mostrarToast("✅ Transacción agregada");
+      }else if(cuenta==="ahorros"){
+        const trans={...tranBase,desc,monto};const docRef=await colUsuario().add(trans);
+        const tipoCC=modalTipo==="deposito"?"gasto":"ingreso";
+        const descCC=modalTipo==="deposito"?`Depósito ahorro: ${desc}`:`Retiro ahorro: ${desc}`;
+        await colUsuario().add({desc:descCC,monto,fecha,cuenta:"cc",tipo:tipoCC,cat:null,ahorro_ref:docRef.id});
+        mostrarToast(modalTipo==="deposito"?"✅ Depósito registrado y descontado de CC":"✅ Retiro registrado e ingresado a CC");
+      }else if(cuotas>1){
+        const lote=db.batch();
+        for(let i=0;i<cuotas;i++){const ref=colUsuario().doc();const mesCuota=mesFacDeCuota(mesFac,i);const descCuota=`${desc} (cuota ${i+1}/${cuotas})`;const t={...tranBase,desc:descCuota,monto:montoGonzaloCuota,mes_facturacion:mesCuota,...(montoJaviCuota>0?{monto_javi:montoJaviCuota,monto_total:montoCuota}:{})};lote.set(ref,t);}
+        await lote.commit();mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
+      }else{
+        const montoUFval=parseFloat(document.getElementById("fMontoUF").value)||null;
+        const cuotaActual=parseInt(document.getElementById("fCuotaActual").value)||null;
+        const cuotasTotal=parseInt(document.getElementById("fCuotasTotal").value)||null;
+        if(cuenta==="creditos"&&cuotaActual&&cuotasTotal&&cuotaActual<=cuotasTotal){
+          const cuotasRestantes=cuotasTotal-cuotaActual+1;
+          const ultimoMesFac=mesFacDeCuota(mesFac,cuotasRestantes-1);
+          const mesInicioLabel=`${MESES_CORTOS[parseInt(mesFac.slice(5,7))-1]} ${mesFac.slice(0,4)}`;
+          const mesFinLabel=`${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
+          const confirmado=confirm(`Se crearán ${cuotasRestantes} cuotas automáticamente:\n\n• Desde: cuota ${cuotaActual}/${cuotasTotal} (${mesInicioLabel})\n• Hasta: cuota ${cuotasTotal}/${cuotasTotal} (${mesFinLabel})\n• Monto por cuota: $${Math.round(monto_total_calc).toLocaleString('es-CL')}\n\n¿Confirmas?`);
+          if(!confirmado){mostrarToast("❌ Cancelado");return;}
+          const lote=db.batch();
+          for(let i=0;i<cuotasRestantes;i++){const ref=colUsuario().doc();const mesCuota=mesFacDeCuota(mesFac,i);const t={...tranBase,desc,monto:monto_gonzalo,mes_facturacion:mesCuota,cuota_actual:cuotaActual+i,cuotas_total:cuotasTotal,...(monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{})};lote.set(ref,t);}
+          await lote.commit();mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
+        }else{
+          const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cuenta==="creditos"&&cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{}),...(cuenta==="creditos"&&cuotaActual?{cuota_actual:cuotaActual}:{}),...(cuenta==="creditos"&&cuotasTotal?{cuotas_total:cuotasTotal}:{})};
+          await colUsuario().add(trans);mostrarToast("✅ Transacción agregada");
         }
       }
     }
-  } catch(err) {
-    mostrarToast("❌ Error al guardar: " + err.message);
-  }
+  }catch(err){mostrarToast("❌ Error al guardar: "+err.message);}
 }
 
-async function eliminarTodosCreditos() {
-  const total = data.filter(t => t.cuenta === "creditos").length;
-  if (!confirm(`¿Eliminar TODOS los ${total} registros de créditos? Esta acción no se puede deshacer.`)) return;
-  try {
+async function eliminarTodosCreditos(){
+  const total=data.filter(t=>t.cuenta==="creditos").length;
+  if(!confirm(`¿Eliminar TODOS los ${total} registros de créditos?`))return;
+  try{
     mostrarToast(`⏳ Eliminando ${total} registros…`);
-    const todos = data.filter(t => t.cuenta === "creditos");
-    for (let i = 0; i < todos.length; i += 499) {
-      const lote = db.batch();
-      todos.slice(i, i + 499).forEach(t => lote.delete(colUsuario().doc(t.id)));
-      await lote.commit();
-    }
+    const todos=data.filter(t=>t.cuenta==="creditos");
+    for(let i=0;i<todos.length;i+=499){const lote=db.batch();todos.slice(i,i+499).forEach(t=>lote.delete(colUsuario().doc(t.id)));await lote.commit();}
     mostrarToast(`✅ ${total} registros eliminados`);
-  } catch(err) {
-    mostrarToast("❌ Error: " + err.message);
-  }
+  }catch(err){mostrarToast("❌ Error: "+err.message);}
 }
-
-async function eliminarTodasCuotas(catId) {
-  const cat = CATS[catId];
-  const nombre = cat ? cat.label : catId;
-  if (!confirm(`¿Eliminar TODOS los registros de "${nombre}"? Esta acción no se puede deshacer.`)) return;
-  try {
-    const todas = data.filter(t => t.cuenta === "creditos" && t.cat === catId);
+async function eliminarTodasCuotas(catId){
+  const cat=CATS[catId];const nombre=cat?cat.label:catId;
+  if(!confirm(`¿Eliminar TODOS los registros de "${nombre}"?`))return;
+  try{
+    const todas=data.filter(t=>t.cuenta==="creditos"&&t.cat===catId);
     mostrarToast(`⏳ Eliminando ${todas.length} registros…`);
-    // Firestore batch máximo 500
-    for (let i = 0; i < todas.length; i += 499) {
-      const lote = db.batch();
-      todas.slice(i, i + 499).forEach(t => lote.delete(colUsuario().doc(t.id)));
-      await lote.commit();
-    }
+    for(let i=0;i<todas.length;i+=499){const lote=db.batch();todas.slice(i,i+499).forEach(t=>lote.delete(colUsuario().doc(t.id)));await lote.commit();}
     mostrarToast(`✅ ${todas.length} registros eliminados`);
-  } catch(err) {
-    mostrarToast("❌ Error: " + err.message);
-  }
+  }catch(err){mostrarToast("❌ Error: "+err.message);}
+}
+async function eliminar(id){
+  if(!confirm("¿Eliminar esta transacción?"))return;
+  try{
+    const trans=data.find(t=>t.id===id);
+    if(trans&&trans.cuenta==="tc"&&trans.cat==="pago"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
+    if(trans&&trans.cuenta==="ahorros"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.ahorro_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
+    await colUsuario().doc(id).delete();mostrarToast("🗑️ Eliminado");
+  }catch(err){mostrarToast("❌ Error al eliminar: "+err.message);}
 }
 
-async function eliminar(id) {
-  if(!confirm("¿Eliminar esta transacción?")) return;
-  try {
-    const trans = data.find(t=>t.id===id);
-    if (trans && trans.cuenta==="tc" && trans.cat==="pago") {
-      const ccEspejo = data.find(t => t.cuenta==="cc" && t.tc_pago_ref===id);
-      if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
-    }
-    if (trans && trans.cuenta==="ahorros") {
-      const ccEspejo = data.find(t => t.cuenta==="cc" && t.ahorro_ref===id);
-      if (ccEspejo) await colUsuario().doc(ccEspejo.id).delete();
-    }
-    await colUsuario().doc(id).delete();
-    mostrarToast("🗑️ Eliminado");
-  } catch(err) {
-    mostrarToast("❌ Error al eliminar: " + err.message);
-  }
-}
-
-/* ══════════════════════════════════════════════
-   EXPORT / IMPORT
-══════════════════════════════════════════════ */
-function exportarJSON() {
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `finanzas_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
+/* EXPORT/IMPORT */
+function exportarJSON(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`finanzas_${new Date().toISOString().slice(0,10)}.json`;a.click();
   mostrarToast("⬇️ Datos exportados");
 }
-
-function importarJSON(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    try {
-      const d = JSON.parse(ev.target.result);
-      if(!Array.isArray(d)) throw new Error("No es un array");
-      mostrarToast("⏳ Importando " + d.length + " movimientos…");
-      const existentes = await colUsuario().get();
-      const borrar = db.batch();
-      existentes.docs.forEach(doc => borrar.delete(doc.ref));
-      await borrar.commit();
-      for (let i = 0; i < d.length; i += 499) {
-        const lote = db.batch();
-        d.slice(i, i+499).forEach(item => {
-          const {id, ...resto} = item;
-          const ref = id ? colUsuario().doc(String(id)) : colUsuario().doc();
-          lote.set(ref, resto);
-        });
-        await lote.commit();
-      }
-      mostrarToast("✅ Importados: " + d.length + " movimientos");
-    } catch(err) { mostrarToast("❌ Error: " + err.message); }
+function importarJSON(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);if(!Array.isArray(d))throw new Error("No es un array");
+      mostrarToast("⏳ Importando "+d.length+" movimientos…");
+      const existentes=await colUsuario().get();const borrar=db.batch();existentes.docs.forEach(doc=>borrar.delete(doc.ref));await borrar.commit();
+      for(let i=0;i<d.length;i+=499){const lote=db.batch();d.slice(i,i+499).forEach(item=>{const{id,...resto}=item;const ref=id?colUsuario().doc(String(id)):colUsuario().doc();lote.set(ref,resto);});await lote.commit();}
+      mostrarToast("✅ Importados: "+d.length+" movimientos");
+    }catch(err){mostrarToast("❌ Error: "+err.message);}
   };
-  reader.readAsText(file);
-  e.target.value="";
+  reader.readAsText(file);e.target.value="";
 }
 
-/* ══════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════ */
-function mostrarToast(msg) {
+/* TOAST */
+function mostrarToast(msg){
   clearTimeout(toastTimer);
-  let t = document.getElementById("toast");
-  if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; document.body.appendChild(t); }
-  t.textContent=msg; t.style.display="block";
-  toastTimer=setTimeout(()=>{ t.style.display="none"; },2400);
+  let t=document.getElementById("toast");
+  if(!t){t=document.createElement("div");t.id="toast";t.className="toast";document.body.appendChild(t);}
+  t.textContent=msg;t.style.display="block";
+  toastTimer=setTimeout(()=>{t.style.display="none";},2400);
 }
 
-/* ══════════════════════════════════════════════
-   UF — valor del día
-══════════════════════════════════════════════ */
-let valorUF = null; // se carga al abrir modal hipotecario
-
-async function cargarValorUF() {
-  if (valorUF) return valorUF; // ya cargado
-  try {
-    const hoy = new Date();
-    const dd = String(hoy.getDate()).padStart(2,'0');
-    const mm = String(hoy.getMonth()+1).padStart(2,'0');
-    const yyyy = hoy.getFullYear();
-    const url = `https://mindicador.cl/api/uf/${dd}-${mm}-${yyyy}`;
-    const res = await fetch(url);
-    const json = await res.json();
-    valorUF = json.serie[0].valor;
-  } catch(e) {
-    // fallback: valor UF aproximado si falla la API
-    valorUF = 38500;
-  }
+/* UF */
+async function cargarValorUF(){
+  if(valorUF)return valorUF;
+  try{const hoy=new Date();const dd=String(hoy.getDate()).padStart(2,'0');const mm=String(hoy.getMonth()+1).padStart(2,'0');const yyyy=hoy.getFullYear();const res=await fetch(`https://mindicador.cl/api/uf/${dd}-${mm}-${yyyy}`);const json=await res.json();valorUF=json.serie[0].valor;}
+  catch(e){valorUF=38500;}
   return valorUF;
 }
-
-function mostrarCampoUF(mostrar) {
-  document.getElementById("fieldUF").style.display = mostrar ? "" : "none";
-  document.getElementById("labelMonto").textContent = mostrar ? "Monto (CLP, calculado)" : "Monto (CLP)";
-  if (!mostrar) {
-    document.getElementById("fMontoUF").value = "";
-    document.getElementById("ufPreviewCLP").textContent = "";
-  }
+function mostrarCampoUF(mostrar){
+  document.getElementById("fieldUF").style.display=mostrar?"":"none";
+  document.getElementById("labelMonto").textContent=mostrar?"Monto (CLP, calculado)":"Monto (CLP)";
+  if(!mostrar){document.getElementById("fMontoUF").value="";document.getElementById("ufPreviewCLP").textContent="";}
 }
-
-async function convertirUFaCLP() {
-  const uf = parseFloat(document.getElementById("fMontoUF").value) || 0;
-  if (uf <= 0) {
-    document.getElementById("fMonto").value = "";
-    document.getElementById("ufPreviewCLP").textContent = "";
-    return;
-  }
-  const vuf = await cargarValorUF();
-  const clp = Math.round(uf * vuf);
-  document.getElementById("fMonto").value = clp;
-  document.getElementById("ufPreviewCLP").textContent = `${uf} UF × $${Math.round(vuf).toLocaleString('es-CL')} = ${mxn(clp)}`;
+async function convertirUFaCLP(){
+  const uf=parseFloat(document.getElementById("fMontoUF").value)||0;
+  if(uf<=0){document.getElementById("fMonto").value="";document.getElementById("ufPreviewCLP").textContent="";return;}
+  const vuf=await cargarValorUF();const clp=Math.round(uf*vuf);
+  document.getElementById("fMonto").value=clp;
+  document.getElementById("ufPreviewCLP").textContent=`${uf} UF × $${Math.round(vuf).toLocaleString('es-CL')} = ${mxn(clp)}`;
   actualizarPreviewCuotas();
 }
 
-/* ── Teclado ── */
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape") cerrarModal();
-  if(e.key==="Enter" && document.getElementById("modalOverlay").style.display!=="none") guardar();
+  if(e.key==="Escape")cerrarModal();
+  if(e.key==="Enter"&&document.getElementById("modalOverlay").style.display!=="none")guardar();
 });
-</script></body></html>
+
+/* CRÉDITOS */
+function renderCreditos(){
+  const todos=data.filter(t=>t.cuenta==="creditos");
+  const gm=delMes(todos);
+  const consumo=gm.filter(t=>t.cat==="credito_consumo");
+  const hipotecario=gm.filter(t=>t.cat==="credito_hipotecario");
+  const arriendo=gm.filter(t=>t.cat==="arriendo_oficina");
+  const totalMes=gm.filter(t=>t.cat!=="arriendo_oficina").reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalConsumo=consumo.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalHipotecario=hipotecario.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const totalArriendo=arriendo.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const arriendoGonzalo=arriendo.reduce((s,t)=>s+t.monto,0);
+  const arriendoJavi=arriendo.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const costoNetoHipotecario=totalHipotecario-totalArriendo;
+  const costoNetoGonzalo=hipotecario.reduce((s,t)=>s+t.monto,0)-arriendoGonzalo;
+  const costoNetoJavi=hipotecario.reduce((s,t)=>s+(t.monto_javi||0),0)-arriendoJavi;
+  const hastaElMes=todos.filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return t.cat!=="arriendo_oficina"&&((d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes));});
+  const acumuladoTotal=hastaElMes.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  let html=`
+    <div style="background:linear-gradient(135deg,#1E0E04,#2A1508);border:1px solid #4A2010;border-radius:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-size:10px;color:#FDB579;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Pagado acumulado hasta ${MESES[mes]} ${anio}</div><div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:#FDB579">${mxn(acumuladoTotal)}</div></div>
+      <div style="font-size:36px;opacity:.4">🏛️</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="background:linear-gradient(135deg,#1E0E04,#2A1508);border:1px solid #3A2010;border-radius:12px;padding:14px"><div style="font-size:10px;color:#FDB579;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total créditos</div><div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#FDB579">${mxn(totalMes)}</div><div style="font-size:10px;color:#7A3A10;margin-top:3px">sin arriendo</div></div>
+      <div style="background:linear-gradient(135deg,#1D0E38,#2D1060);border:1px solid #3D1880;border-radius:12px;padding:14px"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Gonzalo neto</div><div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#C4B5FD">${mxn(costoNetoGonzalo)}</div><div style="font-size:10px;color:#7060A0;margin-top:3px">créditos - arriendo</div></div>
+      <div style="background:var(--surface);border:1px solid #64748B30;border-radius:12px;padding:14px"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Javi neto</div><div style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#94A3B8">${mxn(costoNetoJavi)}</div><div style="font-size:10px;color:#475569;margin-top:3px">créditos - arriendo</div></div>
+    </div>
+    ${totalHipotecario>0||totalArriendo>0?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden"><div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Oficina — Costo neto del mes</div><div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--muted)">🏠 Crédito hipotecario</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171">-${mxn(totalHipotecario)}</span></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--muted)">🏢 Arriendo recibido</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#6EE7B7">+${mxn(totalArriendo)}</span></div><div style="border-top:1px solid var(--border2);padding-top:10px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:700;color:#F0EEF8">Costo neto</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${costoNetoHipotecario<=0?'#6EE7B7':'#F87171'}">${costoNetoHipotecario<=0?'+':''}${mxn(Math.abs(costoNetoHipotecario))}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px"><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630;text-align:center"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoGonzalo<=0?'#6EE7B7':'#F87171'}">${costoNetoGonzalo<=0?'+':''}${mxn(Math.abs(costoNetoGonzalo))}</div></div><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #64748B30;text-align:center"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoJavi<=0?'#6EE7B7':'#F87171'}">${costoNetoJavi<=0?'+':''}${mxn(Math.abs(costoNetoJavi))}</div></div></div></div></div>`:''}`;
+  [{id:"credito_consumo",items:consumo,total:totalConsumo,cat:CATS["credito_consumo"]},{id:"credito_hipotecario",items:hipotecario,total:totalHipotecario,cat:CATS["credito_hipotecario"]},{id:"arriendo_oficina",items:arriendo,total:totalArriendo,cat:CATS["arriendo_oficina"],esIngreso:true}].filter(x=>x.items.length>0||x.total>0).forEach(({id,items,total:catTotal,cat:c,esIngreso})=>{
+    const abierta=catExpandidaCredito===id;
+    const gonzaloTotal=items.reduce((s,t)=>s+t.monto,0);const javiTotal=items.reduce((s,t)=>s+(t.monto_javi||0),0);
+    const pct=acumuladoTotal>0?(catTotal/acumuladoTotal*100).toFixed(1):"0.0";
+    const badgeRegla=c.regla==="gonzalo"?`<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`:`<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`;
+    const badgeIngreso=esIngreso?`<span style="background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">↑ Ingreso</span>`:'';
+    const montoColor=esIngreso?'#6EE7B7':'#F0EEF8';const montoSigno=esIngreso?'+':'';
+    html+=`<div style="background:var(--surface);border:1px solid ${abierta?c.color+'60':'var(--border)'};border-radius:14px;overflow:hidden;transition:border-color .2s">
+      <div onclick="toggleCatCredito('${id}')" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px"><span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>${badgeRegla}${badgeIngreso}</div><div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px"><div style="height:4px;border-radius:3px;width:${Math.min(parseFloat(pct),100)}%;background:${c.color};box-shadow:0 0 6px ${c.color}60"></div></div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:8px"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor}">${montoSigno}${mxn(catTotal)}</div><div style="font-size:11px;color:${c.color};font-weight:600">${items.length} mov. este mes</div></div>
+        <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
+      </div>
+      ${abierta?`<div style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;justify-content:flex-end"><button onclick="event.stopPropagation();eliminarTodasCuotas('${id}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos los registros de ${c.label}</button></div>
+      <div style="border-top:1px solid var(--border2);background:var(--surface2)">
+        <div style="padding:10px 14px 8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-bottom:1px solid var(--border)">
+          <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(gonzaloTotal)}</div></div>
+          ${c.regla==="50_50"?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #64748B30"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(javiTotal)}</div></div>`:'<div></div>'}
+          <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid var(--border2)"><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Total mes</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(catTotal)}</div></div>
+        </div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:5px">
+          ${items.length?items.sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(t=>{
+            const fecha=fechaLocal(t.fecha).toLocaleDateString("es-CL",{day:"numeric",month:"short"});
+            const tieneJavi=(t.monto_javi||0)>0;const montoMostrar=t.monto_total||t.monto;
+            return`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;background:var(--surface);border:1px solid var(--border)"><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div><div style="font-size:11px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap"><span>${fecha}</span>${t.cuota_actual&&t.cuotas_total?`<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px">Cuota ${t.cuota_actual}/${t.cuotas_total}</span>`:''} ${t.monto_uf?`<span style="color:#93C5FD;font-weight:700">${t.monto_uf} UF</span>`:''} ${tieneJavi?`<span style="color:#C4B5FD">G: ${mxn(t.monto)}</span><span style="color:#94A3B8">J: ${mxn(t.monto_javi)}</span>`:''}</div></div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${montoColor};flex-shrink:0">${montoSigno}${mxn(montoMostrar)}</div><button class="btn-icon" onclick="event.stopPropagation();abrirModal('${t.id}')" title="Editar">✏️</button><button class="btn-icon" onclick="event.stopPropagation();eliminar('${t.id}')" title="Eliminar">🗑️</button></div>`;
+          }).join(""):`<div style="text-align:center;padding:16px;color:var(--dim);font-size:13px">Sin movimientos este mes</div>`}
+        </div>
+      </div>`:''}
+    </div>`;
+  });
+  if(!gm.length)html+=emptyState("🏛️","Sin créditos este mes","Registra cuotas de consumo o hipotecarios");
+  const tieneRegistros=data.filter(t=>t.cuenta==="creditos");
+  html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div><div style="display:flex;flex-direction:column;gap:8px">${tieneRegistros.length>0?Object.entries(tieneRegistros.reduce((acc,t)=>{acc[t.cat||'sin_cat']=(acc[t.cat||'sin_cat']||0)+1;return acc;},{})).map(([catId,count])=>{const cat=CATS[catId]||{icon:"📦",label:catId};return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)"><span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span><button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar</button></div>`;}).join(''):'<div style="color:var(--dim);font-size:13px">No hay registros</div>'}<button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E80;color:#F87171;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS los créditos ${tieneRegistros.length>0?'('+tieneRegistros.length+' registros)':''}</button></div></div>`;
+  document.getElementById("viewCreditos").innerHTML=html;
+}
+function toggleCatCredito(id){catExpandidaCredito=catExpandidaCredito===id?null:id;renderCreditos();}
+</script>
+</body>
+</html>
