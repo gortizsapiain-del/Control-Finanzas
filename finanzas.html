@@ -436,6 +436,8 @@ function renderResumen(){
   // ccGastos para panel CC: excluir pago_tc (no es gasto real, es pago de deuda TC ya contabilizada)
   const ccGastos=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc").reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const ccGastosReales=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref).reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const ccGastosRealesM=ccM.filter(t=>t.tipo==="gasto"&&t.cat!=="pago_tc"&&!t.ahorro_ref);
+  const ccGastosGonzalo=ccGastosRealesM.reduce((s,t)=>s+t.monto,0),ccGastosJavi=ccGastosRealesM.reduce((s,t)=>s+(t.monto_javi||0),0);
   // Saldo CC acumulado real: incluir pago_tc + saldo inicial pre-registro
   const ccSaldoAcumulado=SALDO_INICIAL_CC+data.filter(t=>t.cuenta==="cc").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="ingreso"?s+t.monto:s-(t.monto_total||t.monto),0);
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
@@ -447,71 +449,28 @@ function renderResumen(){
   const creditosTotalNeto=creditosTotal-arriendoTotal,creditosGonzaloNeto=creditosGonzalo-arriendoGonzalo,creditosJaviNeto=creditosJavi-arriendoJavi;
   // Total gastos: siempre incluir TC (pagada o no), más CC reales y créditos netos (con arriendo oficina descontado)
   const totalGastos=tcTotal+ccGastosReales+creditosTotalNeto;
-  const totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzaloNeto;
-  const totalGastosJavi=tcJavi+creditosJaviNeto;
+  const totalGastosGonzalo=tcGonzalo+ccGastosGonzalo+creditosGonzaloNeto;
+  const totalGastosJavi=tcJavi+ccGastosJavi+creditosJaviNeto;
   // Deuda real a pagar: TC pendiente (0 si ya pagada) + Créditos netos (descontando arriendo oficina, que casi lo compensa). CC NO se incluye: ya salió de la cuenta, no es un pago pendiente.
   const deudaTotal=tcParaTotal+creditosTotalNeto;
   const deudaGonzalo=tcGonzaloParaTotal+creditosGonzaloNeto;
   const deudaJavi=tcJaviParaTotal+creditosJaviNeto;
   const mesLabel=MESES[m]+" "+a;
   document.getElementById("viewResumen").innerHTML=`
-    <div style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:20px 22px">
-      <div style="font-size:11px;color:#A78BFA;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">Resumen — ${mesLabel}</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <!-- TC -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
-          <span style="color:#C4B5FD;font-size:14px;font-weight:600">💳 Tarjeta de crédito${pagoTCEsteMes?' <span style=\"background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px\">✓ pagada</span>':''}</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${pagoTCEsteMes?'#6EE7B7':'#F0EEF8'}">${pagoTCEsteMes?'$0':mxn(tcTotal)}</span>
-        </div>
-        <!-- CC Ingresos -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
-          <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏦 CC — Ingresos del mes</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(ccIngresos)}</span>
-        </div>
-        <!-- CC Gastos -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F43F5E10;border-radius:12px;border:1px solid #F43F5E30">
-          <span style="color:#F87171;font-size:14px;font-weight:600">🏦 CC — Gastos del mes</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F87171">-${mxn(ccGastosReales)}</span>
-        </div>
-        ${creditosTotal>0?`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
-          <span style="color:#FDB579;font-size:14px;font-weight:600">🏛️ Créditos</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579">-${mxn(creditosTotal)}</span>
-        </div>`:''}
-        ${arriendoTotal>0?`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
-          <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏢 Arriendo oficina recibido</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(arriendoTotal)}</span>
-        </div>`:''}
-        <!-- Split Gonzalo / Javi -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-          <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div>
-            <div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div>
-          </div>
-          <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
-            <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div style="background:linear-gradient(135deg,#241505,#3A2408);border:1px solid #7A5A18;border-radius:18px;padding:18px 20px">
+    <div style="background:linear-gradient(135deg,#241505,#3A2408);border:1px solid #7A5A18;border-radius:18px;padding:20px 22px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <div style="font-size:11px;color:#FCD34D;font-weight:700;letter-spacing:.12em;text-transform:uppercase">💰 Lo que debes — ${mesLabel}</div>
-        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FCD34D">${mxn(deudaTotal)}</div>
       </div>
-      <div style="font-size:11px;color:#B08A3E;margin-bottom:14px">Solo TC pendiente + Créditos netos (Créditos ${mxn(creditosTotal)} − Arriendo oficina ${mxn(arriendoTotal)} = ${mxn(creditosTotalNeto)}). La Cta. Corriente no cuenta: ese dinero ya salió de la cuenta.</div>
+      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:32px;color:#FCD34D;margin:6px 0 4px">${mxn(deudaTotal)}</div>
+      <div style="font-size:11px;color:#B08A3E;margin-bottom:16px">TC pendiente + Créditos netos (ya descontado el arriendo oficina). No incluye Cta. Corriente: ese dinero ya salió de la cuenta.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+        <div style="background:#ffffff10;border-radius:10px;padding:12px">
           <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo debe</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaGonzalo)}</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:#FCD34D">${mxn(deudaGonzalo)}</div>
         </div>
-        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+        <div style="background:#ffffff10;border-radius:10px;padding:12px">
           <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi debe</div>
-          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaJavi)}</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:#FCD34D">${mxn(deudaJavi)}</div>
         </div>
       </div>
     </div>
@@ -523,6 +482,51 @@ function renderResumen(){
         <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}"><div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       </div>
     </div>
+    <details style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:0;overflow:hidden">
+      <summary style="list-style:none;cursor:pointer;padding:16px 20px;font-size:11px;color:#A78BFA;font-weight:700;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between">Detalle<span style="font-size:14px">▾</span></summary>
+      <div style="padding:0 20px 20px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <!-- TC -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
+            <span style="color:#C4B5FD;font-size:14px;font-weight:600">💳 Tarjeta de crédito${pagoTCEsteMes?' <span style=\"background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px\">✓ pagada</span>':''}</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${pagoTCEsteMes?'#6EE7B7':'#F0EEF8'}">${pagoTCEsteMes?'$0':mxn(tcTotal)}</span>
+          </div>
+          <!-- CC Ingresos -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
+            <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏦 CC — Ingresos del mes</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(ccIngresos)}</span>
+          </div>
+          <!-- CC Gastos -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#F43F5E10;border-radius:12px;border:1px solid #F43F5E30">
+            <span style="color:#F87171;font-size:14px;font-weight:600">🏦 CC — Gastos del mes</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F87171">-${mxn(ccGastosReales)}</span>
+          </div>
+          ${creditosTotal>0?`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
+            <span style="color:#FDB579;font-size:14px;font-weight:600">🏛️ Créditos</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579">-${mxn(creditosTotal)}</span>
+          </div>`:''}
+          ${arriendoTotal>0?`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
+            <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏢 Arriendo oficina recibido</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(arriendoTotal)}</span>
+          </div>`:''}
+          <!-- Split Gonzalo / Javi -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+            <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+              <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div>
+              <div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div>
+            </div>
+            <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+              <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
+              <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
     <div class="actions-bar"><button class="btn-ghost" onclick="exportarJSON()">⬇ Exportar</button><label class="btn-ghost" style="cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importarJSON(event)"/></label></div>`;
 }
 
