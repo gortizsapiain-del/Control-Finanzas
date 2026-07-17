@@ -441,14 +441,18 @@ function renderResumen(){
   const ahTotal=data.filter(t=>t.cuenta==="ahorros").filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<a)||(d.getFullYear()===a&&d.getMonth()<=m);}).reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const creditosM=data.filter(t=>t.cuenta==="creditos"&&t.cat!=="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const creditosTotal=creditosM.reduce((s,t)=>s+(t.monto_total||t.monto),0),creditosGonzalo=creditosM.reduce((s,t)=>s+t.monto,0),creditosJavi=creditosM.reduce((s,t)=>s+(t.monto_javi||0),0);
+  // Arriendo oficina: casi netea el crédito hipotecario de la oficina, se descuenta de la deuda de créditos
+  const arriendoM=data.filter(t=>t.cuenta==="creditos"&&t.cat==="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
+  const arriendoTotal=arriendoM.reduce((s,t)=>s+(t.monto_total||t.monto),0),arriendoGonzalo=arriendoM.reduce((s,t)=>s+t.monto,0),arriendoJavi=arriendoM.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const creditosTotalNeto=creditosTotal-arriendoTotal,creditosGonzaloNeto=creditosGonzalo-arriendoGonzalo,creditosJaviNeto=creditosJavi-arriendoJavi;
   // Total gastos: siempre incluir TC (pagada o no), más CC reales y créditos
   const totalGastos=tcTotal+ccGastosReales+creditosTotal;
   const totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzalo;
   const totalGastosJavi=tcJavi+creditosJavi;
-  // Deuda real a pagar: TC pendiente (0 si ya pagada) + Créditos. CC NO se incluye: ya salió de la cuenta, no es un pago pendiente.
-  const deudaTotal=tcParaTotal+creditosTotal;
-  const deudaGonzalo=tcGonzaloParaTotal+creditosGonzalo;
-  const deudaJavi=tcJaviParaTotal+creditosJavi;
+  // Deuda real a pagar: TC pendiente (0 si ya pagada) + Créditos netos (descontando arriendo oficina, que casi lo compensa). CC NO se incluye: ya salió de la cuenta, no es un pago pendiente.
+  const deudaTotal=tcParaTotal+creditosTotalNeto;
+  const deudaGonzalo=tcGonzaloParaTotal+creditosGonzaloNeto;
+  const deudaJavi=tcJaviParaTotal+creditosJaviNeto;
   const mesLabel=MESES[m]+" "+a;
   document.getElementById("viewResumen").innerHTML=`
     <div style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:20px 22px">
@@ -494,7 +498,7 @@ function renderResumen(){
         <div style="font-size:11px;color:#FCD34D;font-weight:700;letter-spacing:.12em;text-transform:uppercase">💰 Lo que debes — ${mesLabel}</div>
         <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FCD34D">${mxn(deudaTotal)}</div>
       </div>
-      <div style="font-size:11px;color:#B08A3E;margin-bottom:14px">Solo TC pendiente + Créditos. La Cta. Corriente no cuenta: ese dinero ya salió de la cuenta.</div>
+      <div style="font-size:11px;color:#B08A3E;margin-bottom:14px">Solo TC pendiente + Créditos netos (Créditos ${mxn(creditosTotal)} − Arriendo oficina ${mxn(arriendoTotal)} = ${mxn(creditosTotalNeto)}). La Cta. Corriente no cuenta: ese dinero ya salió de la cuenta.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
           <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo debe</div>
