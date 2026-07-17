@@ -445,10 +445,10 @@ function renderResumen(){
   const arriendoM=data.filter(t=>t.cuenta==="creditos"&&t.cat==="arriendo_oficina").filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return d.getMonth()===m&&d.getFullYear()===a;});
   const arriendoTotal=arriendoM.reduce((s,t)=>s+(t.monto_total||t.monto),0),arriendoGonzalo=arriendoM.reduce((s,t)=>s+t.monto,0),arriendoJavi=arriendoM.reduce((s,t)=>s+(t.monto_javi||0),0);
   const creditosTotalNeto=creditosTotal-arriendoTotal,creditosGonzaloNeto=creditosGonzalo-arriendoGonzalo,creditosJaviNeto=creditosJavi-arriendoJavi;
-  // Total gastos: siempre incluir TC (pagada o no), más CC reales y créditos
-  const totalGastos=tcTotal+ccGastosReales+creditosTotal;
-  const totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzalo;
-  const totalGastosJavi=tcJavi+creditosJavi;
+  // Total gastos: siempre incluir TC (pagada o no), más CC reales y créditos netos (con arriendo oficina descontado)
+  const totalGastos=tcTotal+ccGastosReales+creditosTotalNeto;
+  const totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzaloNeto;
+  const totalGastosJavi=tcJavi+creditosJaviNeto;
   // Deuda real a pagar: TC pendiente (0 si ya pagada) + Créditos netos (descontando arriendo oficina, que casi lo compensa). CC NO se incluye: ya salió de la cuenta, no es un pago pendiente.
   const deudaTotal=tcParaTotal+creditosTotalNeto;
   const deudaGonzalo=tcGonzaloParaTotal+creditosGonzaloNeto;
@@ -477,6 +477,11 @@ function renderResumen(){
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
           <span style="color:#FDB579;font-size:14px;font-weight:600">🏛️ Créditos</span>
           <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579">-${mxn(creditosTotal)}</span>
+        </div>`:''}
+        ${arriendoTotal>0?`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
+          <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏢 Arriendo oficina recibido</span>
+          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(arriendoTotal)}</span>
         </div>`:''}
         <!-- Split Gonzalo / Javi -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
