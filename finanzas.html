@@ -515,13 +515,13 @@ function renderResumen(){
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
             <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
               <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalGastosGonzalo)}</div>
-              <div style="font-size:10px;color:#8B70D8;margin-top:2px">${totalGastos>0?(totalGastosGonzalo/totalGastos*100).toFixed(0):'0'}% del total</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(deudaGonzalo)}</div>
+              <div style="font-size:10px;color:#8B70D8;margin-top:2px">${deudaTotal>0?(deudaGonzalo/deudaTotal*100).toFixed(0):'0'}% del total</div>
             </div>
             <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
               <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
-              <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
+              <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(deudaJavi)}</div>
+              <div style="font-size:10px;color:#475569;margin-top:2px">${deudaTotal>0?(deudaJavi/deudaTotal*100).toFixed(0):'0'}% del total</div>
             </div>
           </div>
         </div>
