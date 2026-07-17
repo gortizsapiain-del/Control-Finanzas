@@ -466,13 +466,13 @@ function renderResumen(){
         <div style="background:${ccSaldoAcumulado>=0?'#10B98110':'#F43F5E10'};border-radius:9px;padding:8px 10px;border:1px solid ${ccSaldoAcumulado>=0?'#10B98130':'#F43F5E30'}"><div style="font-size:10px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'};font-weight:700;text-transform:uppercase;margin-bottom:2px">Saldo actual</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${ccSaldoAcumulado>=0?'#6EE7B7':'#F87171'}">${mxn(ccSaldoAcumulado)}</div></div>
       </div>
     </div>
-    <div style="background:linear-gradient(135deg,#241505,#3A2408);border:1px solid #7A5A18;border-radius:18px;padding:20px 22px">
-      <div style="font-size:11px;color:#FCD34D;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px">💰 Lo que debes — ${mesLabel}</div>
-      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:32px;color:#FCD34D;margin:6px 0 16px">${mxn(deudaTotal)}</div>
+    <div style="background:linear-gradient(135deg,#0A1830,#123A66);border:1px solid #2563EB;border-radius:18px;padding:20px 22px">
+      <div style="font-size:11px;color:#60A5FA;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px">💰 Lo que debes — ${mesLabel}</div>
+      <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:32px;color:#60A5FA;margin:6px 0 16px">${mxn(deudaTotal)}</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <!-- TC -->
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#ffffff08;border-radius:12px">
-          <span style="color:#FDE68A;font-size:14px;font-weight:600">💳 Tarjeta de crédito${pagoTCEsteMes?' <span style=\"background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px\">✓ pagada</span>':''}</span>
+          <span style="color:#93C5FD;font-size:14px;font-weight:600">💳 Tarjeta de crédito${pagoTCEsteMes?' <span style=\"background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px\">✓ pagada</span>':''}</span>
           <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${pagoTCEsteMes?'#6EE7B7':'#F0EEF8'}">${pagoTCEsteMes?'$0':mxn(tcParaTotal)}</span>
         </div>
         ${creditosTotal>0?`
@@ -488,12 +488,12 @@ function renderResumen(){
         <!-- Split Gonzalo / Javi -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
           <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo debe</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaGonzalo)}</div>
+            <div style="font-size:10px;color:#93C5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo debe</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#60A5FA">${mxn(deudaGonzalo)}</div>
           </div>
           <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
-            <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi debe</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaJavi)}</div>
+            <div style="font-size:10px;color:#93C5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi debe</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#60A5FA">${mxn(deudaJavi)}</div>
           </div>
         </div>
       </div>
@@ -508,7 +508,9 @@ function renderResumen(){
               <span style="color:#C4B5FD;font-size:14px;font-weight:600">💳 Tarjeta de crédito${pagoTCEsteMes?' <span style=\"background:#10B98120;border:1px solid #10B98160;color:#6EE7B7;font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px\">✓ pagada</span>':''}</span>
               <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${pagoTCEsteMes?'#6EE7B7':'#F0EEF8'}">${pagoTCEsteMes?'$0':mxn(tcTotal)}</span>
             </summary>
-            <div class="expense-list" style="padding:0 6px 8px">${tcM.length?tcM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            ${togglesDetalle('detTC')}
+            <div id="detTC_list" class="expense-list" style="padding:0 6px 8px">${tcM.length?tcM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            <div id="detTC_chart" style="display:none">${graficoPorCategoria(tcM)}</div>
           </details>
           <!-- CC Ingresos -->
           <details style="background:#10B98110;border:1px solid #10B98130;border-radius:12px;overflow:hidden">
@@ -516,7 +518,9 @@ function renderResumen(){
               <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏦 CC — Ingresos del mes</span>
               <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(ccIngresos)}</span>
             </summary>
-            <div class="expense-list" style="padding:0 6px 8px">${ccIngresosM.length?ccIngresosM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            ${togglesDetalle('detCCIn')}
+            <div id="detCCIn_list" class="expense-list" style="padding:0 6px 8px">${ccIngresosM.length?ccIngresosM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            <div id="detCCIn_chart" style="display:none">${graficoPorCategoria(ccIngresosM)}</div>
           </details>
           <!-- CC Gastos -->
           <details style="background:#F43F5E10;border:1px solid #F43F5E30;border-radius:12px;overflow:hidden">
@@ -524,7 +528,9 @@ function renderResumen(){
               <span style="color:#F87171;font-size:14px;font-weight:600">🏦 CC — Gastos del mes</span>
               <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F87171">-${mxn(ccGastosReales)}</span>
             </summary>
-            <div class="expense-list" style="padding:0 6px 8px">${ccGastosRealesM.length?ccGastosRealesM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            ${togglesDetalle('detCCGa')}
+            <div id="detCCGa_list" class="expense-list" style="padding:0 6px 8px">${ccGastosRealesM.length?ccGastosRealesM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            <div id="detCCGa_chart" style="display:none">${graficoPorCategoria(ccGastosRealesM)}</div>
           </details>
           ${creditosTotal>0?`
           <details style="background:#ffffff08;border-radius:12px;overflow:hidden">
@@ -532,7 +538,9 @@ function renderResumen(){
               <span style="color:#FDB579;font-size:14px;font-weight:600">🏛️ Créditos</span>
               <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579">-${mxn(creditosTotal)}</span>
             </summary>
-            <div class="expense-list" style="padding:0 6px 8px">${creditosM.length?creditosM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            ${togglesDetalle('detCred')}
+            <div id="detCred_list" class="expense-list" style="padding:0 6px 8px">${creditosM.length?creditosM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            <div id="detCred_chart" style="display:none">${graficoPorCategoria(creditosM)}</div>
           </details>`:''}
           ${arriendoTotal>0?`
           <details style="background:#10B98110;border:1px solid #10B98130;border-radius:12px;overflow:hidden">
@@ -540,7 +548,9 @@ function renderResumen(){
               <span style="color:#6EE7B7;font-size:14px;font-weight:600">🏢 Arriendo oficina recibido</span>
               <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">+${mxn(arriendoTotal)}</span>
             </summary>
-            <div class="expense-list" style="padding:0 6px 8px">${arriendoM.length?arriendoM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            ${togglesDetalle('detArr')}
+            <div id="detArr_list" class="expense-list" style="padding:0 6px 8px">${arriendoM.length?arriendoM.map((t,i)=>filaTransaccion(t,i)).join(""):'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin movimientos</div>'}</div>
+            <div id="detArr_chart" style="display:none">${graficoPorCategoria(arriendoM)}</div>
           </details>`:''}
           <!-- Split Gonzalo / Javi -->
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
@@ -740,7 +750,37 @@ function filaTransaccionTC(t,i){
   </div>`;
 }
 
-/* FILTROS Y MES */
+/* GRÁFICO / LISTADO EN DETALLE */
+function graficoPorCategoria(items){
+  const totals={};
+  items.forEach(t=>{const key=t.cat||'otros';totals[key]=(totals[key]||0)+(t.monto_total||t.monto);});
+  const arr=Object.entries(totals).map(([id,total])=>({id,total,label:(CATS[id]||{}).label||id,icon:(CATS[id]||{}).icon||'📦',color:(CATS[id]||{}).color||'#6B7280'})).sort((a,b)=>b.total-a.total);
+  if(!arr.length)return'<div style="padding:8px 10px;font-size:12px;color:var(--dim)">Sin datos</div>';
+  const max=arr[0].total;
+  return`<div style="display:flex;flex-direction:column;gap:10px;padding:6px 10px 10px">${arr.map(c=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:12px;color:#E8E6F0">${c.icon} ${esc(c.label)}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:#E8E6F0;font-weight:700">${mxn(c.total)}</span>
+      </div>
+      <div style="background:#ffffff10;border-radius:4px;height:6px;width:100%"><div style="height:6px;border-radius:4px;width:${Math.max(4,(c.total/max*100)).toFixed(0)}%;background:${c.color};box-shadow:0 0 6px ${c.color}80"></div></div>
+    </div>`).join('')}</div>`;
+}
+function togglesDetalle(id){
+  return`<div style="display:flex;gap:6px;padding:0 10px 8px">
+    <button id="${id}_btnLista" onclick="toggleVistaDetalle('${id}','lista')" style="flex:1;padding:6px;border-radius:8px;border:1px solid #ffffff20;background:#ffffff10;color:#E8E6F0;font-size:11px;font-weight:700;cursor:pointer;opacity:1">📋 Listado</button>
+    <button id="${id}_btnGrafico" onclick="toggleVistaDetalle('${id}','grafico')" style="flex:1;padding:6px;border-radius:8px;border:1px solid #ffffff20;background:#ffffff08;color:#E8E6F0;font-size:11px;font-weight:700;cursor:pointer;opacity:.5">📊 Gráfico</button>
+  </div>`;
+}
+function toggleVistaDetalle(id,vista){
+  const list=document.getElementById(id+"_list"),chart=document.getElementById(id+"_chart"),bL=document.getElementById(id+"_btnLista"),bG=document.getElementById(id+"_btnGrafico");
+  if(!list||!chart)return;
+  list.style.display=vista==="lista"?"block":"none";
+  chart.style.display=vista==="grafico"?"block":"none";
+  if(bL)bL.style.opacity=vista==="lista"?"1":".5";
+  if(bG)bG.style.opacity=vista==="grafico"?"1":".5";
+}
+
 function setFiltroTC(f){filtroTC=f;renderTC();}
 function setFiltroCC(f){filtroCC=f;renderCC();}
 function setFiltroPersonaTC(p){filtroPersonaTC=p;catExpandida=null;renderTC();}
