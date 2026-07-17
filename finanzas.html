@@ -445,6 +445,10 @@ function renderResumen(){
   const totalGastos=tcTotal+ccGastosReales+creditosTotal;
   const totalGastosGonzalo=tcGonzalo+ccGastosReales+creditosGonzalo;
   const totalGastosJavi=tcJavi+creditosJavi;
+  // Deuda real a pagar: TC pendiente (0 si ya pagada) + Créditos. CC NO se incluye: ya salió de la cuenta, no es un pago pendiente.
+  const deudaTotal=tcParaTotal+creditosTotal;
+  const deudaGonzalo=tcGonzaloParaTotal+creditosGonzalo;
+  const deudaJavi=tcJaviParaTotal+creditosJavi;
   const mesLabel=MESES[m]+" "+a;
   document.getElementById("viewResumen").innerHTML=`
     <div style="background:linear-gradient(135deg,#1A0A2E,#2D1060);border:1px solid #4D20A0;border-radius:18px;padding:20px 22px">
@@ -482,6 +486,23 @@ function renderResumen(){
             <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#94A3B8">${mxn(totalGastosJavi)}</div>
             <div style="font-size:10px;color:#475569;margin-top:2px">${totalGastos>0?(totalGastosJavi/totalGastos*100).toFixed(0):'0'}% del total</div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#241505,#3A2408);border:1px solid #7A5A18;border-radius:18px;padding:18px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:11px;color:#FCD34D;font-weight:700;letter-spacing:.12em;text-transform:uppercase">💰 Lo que debes — ${mesLabel}</div>
+        <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FCD34D">${mxn(deudaTotal)}</div>
+      </div>
+      <div style="font-size:11px;color:#B08A3E;margin-bottom:14px">Solo TC pendiente + Créditos. La Cta. Corriente no cuenta: ese dinero ya salió de la cuenta.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Gonzalo debe</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaGonzalo)}</div>
+        </div>
+        <div style="background:#ffffff10;border-radius:10px;padding:10px 12px">
+          <div style="font-size:10px;color:#FDE68A;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Javi debe</div>
+          <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#FCD34D">${mxn(deudaJavi)}</div>
         </div>
       </div>
     </div>
@@ -927,7 +948,7 @@ async function guardar(){
   if((cuenta==="tc"||cuenta==="creditos")&&!mesFac){mostrarToast("⚠️ Selecciona el mes de facturación");return;}
 
   let monto_gonzalo=monto,monto_javi_calc=0,monto_total_calc=monto;
-  if((cuenta==="tc"&&cat!=="pago")||cuenta==="creditos"){
+  if((cuenta==="tc"&&cat!=="pago")||cuenta==="creditos"||(cuenta==="cc"&&modalTipo==="gasto"&&cat&&cat!=="pago"&&cat!=="pago_tc")){
     const regla=CATS[cat];
     if(regla){monto_total_calc=monto;monto_gonzalo=Math.round(monto*regla.pct_g);monto_javi_calc=Math.round(monto*regla.pct_j);}
   }
@@ -941,7 +962,7 @@ async function guardar(){
   cerrarModal();
   try{
     if(editandoId){
-      const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{})};
+      const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos"||cuenta==="cc")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{})};
       await colUsuario().doc(editandoId).update(trans);
       if(esPagoTC){
         const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===editandoId);
@@ -986,7 +1007,7 @@ async function guardar(){
           for(let i=0;i<cuotasRestantes;i++){const ref=colUsuario().doc();const mesCuota=mesFacDeCuota(mesFac,i);const t={...tranBase,desc,monto:monto_gonzalo,mes_facturacion:mesCuota,cuota_actual:cuotaActual+i,cuotas_total:cuotasTotal,...(monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{})};lote.set(ref,t);}
           await lote.commit();mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
         }else{
-          const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cuenta==="creditos"&&cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{}),...(cuenta==="creditos"&&cuotaActual?{cuota_actual:cuotaActual}:{}),...(cuenta==="creditos"&&cuotasTotal?{cuotas_total:cuotasTotal}:{})};
+          const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos"||cuenta==="cc")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cuenta==="creditos"&&cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{}),...(cuenta==="creditos"&&cuotaActual?{cuota_actual:cuotaActual}:{}),...(cuenta==="creditos"&&cuotasTotal?{cuotas_total:cuotasTotal}:{})};
           await colUsuario().add(trans);mostrarToast("✅ Transacción agregada");
         }
       }
