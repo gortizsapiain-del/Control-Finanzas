@@ -1138,26 +1138,8 @@ async function guardar(){
   }catch(err){mostrarToast("❌ Error al guardar: "+err.message);}
 }
 
-async function eliminarTodosCreditos(){
-  const total=data.filter(t=>t.cuenta==="creditos").length;
-  if(!confirm(`¿Eliminar TODOS los ${total} registros de créditos?`))return;
-  try{
-    mostrarToast(`⏳ Eliminando ${total} registros…`);
-    const todos=data.filter(t=>t.cuenta==="creditos");
-    for(let i=0;i<todos.length;i+=499){const lote=db.batch();todos.slice(i,i+499).forEach(t=>lote.delete(colUsuario().doc(t.id)));await lote.commit();}
-    mostrarToast(`✅ ${total} registros eliminados`);
-  }catch(err){mostrarToast("❌ Error: "+err.message);}
-}
-async function eliminarTodasCuotas(catId){
-  const cat=CATS[catId];const nombre=cat?cat.label:catId;
-  if(!confirm(`¿Eliminar TODOS los registros de "${nombre}"?`))return;
-  try{
-    const todas=data.filter(t=>t.cuenta==="creditos"&&t.cat===catId);
-    mostrarToast(`⏳ Eliminando ${todas.length} registros…`);
-    for(let i=0;i<todas.length;i+=499){const lote=db.batch();todas.slice(i,i+499).forEach(t=>lote.delete(colUsuario().doc(t.id)));await lote.commit();}
-    mostrarToast(`✅ ${todas.length} registros eliminados`);
-  }catch(err){mostrarToast("❌ Error: "+err.message);}
-}
+
+
 async function eliminarCuotasRelacionadas(){
   if(!editandoId)return;
   const t=data.find(x=>x.id===editandoId);
@@ -1297,8 +1279,7 @@ function renderCreditos(){
         <div style="text-align:right;flex-shrink:1;margin-left:8px;min-width:0"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor};overflow-wrap:anywhere">${montoSigno}${mxn(catTotal)}</div><div style="font-size:11px;color:${c.color};font-weight:600">${items.length} mov. este mes</div></div>
         <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
       </div>
-      ${abierta?`<div style="padding:8px 16px;border-top:1px solid var(--border);background:var(--surface2);display:flex;justify-content:flex-end"><button onclick="event.stopPropagation();eliminarTodasCuotas('${id}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🗑️ Eliminar todos los registros de ${c.label}</button></div>
-      <div style="border-top:1px solid var(--border2);background:var(--surface2)">
+      ${abierta?`<div style="border-top:1px solid var(--border2);background:var(--surface2)">
         <div class="grid-auto" style="padding:10px 14px 8px;border-bottom:1px solid var(--border)">
           <div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div><div class="mono" style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(gonzaloTotal)}</div></div>
           ${c.regla==="50_50"?`<div style="background:var(--surface);border-radius:9px;padding:8px 10px;border:1px solid #64748B30"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div><div class="mono" style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${montoColor}">${montoSigno}${mxn(javiTotal)}</div></div>`:''}
@@ -1315,8 +1296,6 @@ function renderCreditos(){
     </div>`;
   });
   if(!gm.length)html+=emptyState("🏛️","Sin créditos este mes","Registra cuotas de consumo o hipotecarios");
-  const tieneRegistros=data.filter(t=>t.cuenta==="creditos");
-  html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px">Gestión de créditos</div><div style="display:flex;flex-direction:column;gap:8px">${tieneRegistros.length>0?Object.entries(tieneRegistros.reduce((acc,t)=>{acc[t.cat||'sin_cat']=(acc[t.cat||'sin_cat']||0)+1;return acc;},{})).map(([catId,count])=>{const cat=CATS[catId]||{icon:"📦",label:catId};return`<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)"><span style="font-size:13px;color:var(--text)">${cat.icon} ${cat.label} <span style="color:var(--dim);font-size:12px">(${count} registros)</span></span><button onclick="eliminarTodasCuotas('${catId}')" style="background:#F43F5E18;border:1px solid #F43F5E40;color:#F87171;padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">🗑️ Eliminar</button></div>`;}).join(''):'<div style="color:var(--dim);font-size:13px">No hay registros</div>'}<button onclick="eliminarTodosCreditos()" style="background:#F43F5E30;border:1px solid #F43F5E80;color:#F87171;padding:10px 14px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">🗑️ Eliminar TODOS los créditos ${tieneRegistros.length>0?'('+tieneRegistros.length+' registros)':''}</button></div></div>`;
   document.getElementById("viewCreditos").innerHTML=html;
 }
 function toggleCatCredito(id){catExpandidaCredito=catExpandidaCredito===id?null:id;renderCreditos();}
