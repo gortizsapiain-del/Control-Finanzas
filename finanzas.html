@@ -252,6 +252,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <option value="cafe">☕ Café</option>
         <option value="skin_lux">💆‍♀️ Skin Lux</option>
         <option value="credito_consumo">💼 Crédito Consumo</option>
+        <option value="credito_consumo_2">💼 Crédito Consumo 2</option>
         <option value="credito_hipotecario">🏠 Crédito Hipotecario</option>
         <option value="arriendo_oficina">🏢 Arriendo Oficina</option>
       </select>
@@ -389,10 +390,11 @@ const CATS={
   cafe:{label:"Café",icon:"☕",color:"#A16207",regla:"gonzalo",pct_g:1,pct_j:0},
   skin_lux:{label:"Skin Lux",icon:"💆‍♀️",color:"#EC4899",regla:"javi",pct_g:0,pct_j:1},
   credito_consumo:{label:"Crédito Consumo",icon:"💼",color:"#F97316",regla:"gonzalo",pct_g:1,pct_j:0},
+  credito_consumo_2:{label:"Crédito Consumo 2",icon:"💼",color:"#EA580C",regla:"gonzalo",pct_g:1,pct_j:0},
   credito_hipotecario:{label:"Crédito Hipotecario",icon:"🏠",color:"#3B82F6",regla:"50_50",pct_g:0.5,pct_j:0.5},
   arriendo_oficina:{label:"Arriendo Oficina",icon:"🏢",color:"#10B981",regla:"50_50",pct_g:0.5,pct_j:0.5,es_ingreso:true},
 };
-const CATS_CREDITOS=["credito_consumo","credito_hipotecario","arriendo_oficina"];
+const CATS_CREDITOS=["credito_consumo","credito_consumo_2","credito_hipotecario","arriendo_oficina"];
 const SALDO_INICIAL_CC=59737; // Saldo CC al inicio del registro (antes de Julio 2026)
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -1252,21 +1254,22 @@ document.addEventListener("keydown",e=>{
 function renderCreditos(){
   const todos=data.filter(t=>t.cuenta==="creditos");
   const gm=delMes(todos);
-  const consumo=gm.filter(t=>t.cat==="credito_consumo");
-  const hipotecario=gm.filter(t=>t.cat==="credito_hipotecario");
   const arriendo=gm.filter(t=>t.cat==="arriendo_oficina");
-  const totalMes=gm.filter(t=>t.cat!=="arriendo_oficina").reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalConsumo=consumo.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-  const totalHipotecario=hipotecario.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+  const noArriendo=gm.filter(t=>t.cat!=="arriendo_oficina");
+  const totalMes=noArriendo.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const totalArriendo=arriendo.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   const arriendoGonzalo=arriendo.reduce((s,t)=>s+t.monto,0);
   const arriendoJavi=arriendo.reduce((s,t)=>s+(t.monto_javi||0),0);
-  const costoNetoHipotecario=totalHipotecario-totalArriendo;
-  const oficinaNetoGonzalo=hipotecario.reduce((s,t)=>s+t.monto,0)-arriendoGonzalo;
-  const oficinaNetoJavi=hipotecario.reduce((s,t)=>s+(t.monto_javi||0),0)-arriendoJavi;
-  const costoNetoGonzalo=totalConsumo+oficinaNetoGonzalo;
-  const costoNetoJavi=oficinaNetoJavi;
-  const costoNetoGeneral=totalConsumo+costoNetoHipotecario;
+  const gonzaloTotalCreditos=noArriendo.reduce((s,t)=>s+t.monto,0);
+  const javiTotalCreditos=noArriendo.reduce((s,t)=>s+(t.monto_javi||0),0);
+  const costoNetoGeneral=totalMes-totalArriendo;
+  const costoNetoGonzalo=gonzaloTotalCreditos-arriendoGonzalo;
+  const costoNetoJavi=javiTotalCreditos-arriendoJavi;
+  const categorias=CATS_CREDITOS.filter(id=>id!=="arriendo_oficina").map(id=>{
+    const items=gm.filter(t=>t.cat===id);
+    const total=items.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+    return{id,cat:CATS[id],total,items};
+  }).filter(x=>x.total>0);
   const hastaElMes=todos.filter(t=>{const ref=t.mes_facturacion?t.mes_facturacion+"-01":t.fecha;const d=fechaLocal(ref);return t.cat!=="arriendo_oficina"&&((d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes));});
   const acumuladoTotal=hastaElMes.reduce((s,t)=>s+(t.monto_total||t.monto),0);
   let html=`
@@ -1279,8 +1282,8 @@ function renderCreditos(){
       <div style="background:linear-gradient(135deg,#1D0E38,#2D1060);border:1px solid #3D1880;border-radius:12px;padding:14px"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Gonzalo neto</div><div class="mono" style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#C4B5FD">${mxn(costoNetoGonzalo)}</div><div style="font-size:10px;color:#7060A0;margin-top:3px">créditos - arriendo</div></div>
       <div style="background:var(--surface);border:1px solid #64748B30;border-radius:12px;padding:14px"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Javi neto</div><div class="mono" style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#94A3B8">${mxn(costoNetoJavi)}</div><div style="font-size:10px;color:#475569;margin-top:3px">créditos - arriendo</div></div>
     </div>
-    ${totalHipotecario>0||totalArriendo>0||totalConsumo>0?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden"><div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Costo neto del mes</div><div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">${totalConsumo>0?`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">💼 Crédito consumo</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171;overflow-wrap:anywhere">${mxn(totalConsumo)}</span></div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">🏠 Crédito hipotecario</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171;overflow-wrap:anywhere">${mxn(totalHipotecario)}</span></div><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">🏢 Arriendo recibido</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#6EE7B7;overflow-wrap:anywhere">+${mxn(totalArriendo)}</span></div><div style="border-top:1px solid var(--border2);padding-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;font-weight:700;color:#F0EEF8">Costo neto</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${costoNetoGeneral<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGeneral<=0?'+':''}${mxn(Math.abs(costoNetoGeneral))}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px"><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630;text-align:center;min-width:0"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoGonzalo<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGonzalo<=0?'+':''}${mxn(Math.abs(costoNetoGonzalo))}</div></div><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #64748B30;text-align:center;min-width:0"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoJavi<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoJavi<=0?'+':''}${mxn(Math.abs(costoNetoJavi))}</div></div></div></div></div>`:''}`;
-  [{id:"credito_consumo",items:consumo,total:totalConsumo,cat:CATS["credito_consumo"]},{id:"credito_hipotecario",items:hipotecario,total:totalHipotecario,cat:CATS["credito_hipotecario"]},{id:"arriendo_oficina",items:arriendo,total:totalArriendo,cat:CATS["arriendo_oficina"],esIngreso:true}].filter(x=>x.items.length>0||x.total>0).forEach(({id,items,total:catTotal,cat:c,esIngreso})=>{
+    ${categorias.length||totalArriendo>0?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden"><div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Costo neto del mes</div><div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">${categorias.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">${c.cat.icon} ${c.cat.label}</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171;overflow-wrap:anywhere">${mxn(c.total)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">🏢 Arriendo recibido</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#6EE7B7;overflow-wrap:anywhere">+${mxn(totalArriendo)}</span></div><div style="border-top:1px solid var(--border2);padding-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;font-weight:700;color:#F0EEF8">Costo neto</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${costoNetoGeneral<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGeneral<=0?'+':''}${mxn(Math.abs(costoNetoGeneral))}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px"><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630;text-align:center;min-width:0"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoGonzalo<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGonzalo<=0?'+':''}${mxn(Math.abs(costoNetoGonzalo))}</div></div><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #64748B30;text-align:center;min-width:0"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoJavi<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoJavi<=0?'+':''}${mxn(Math.abs(costoNetoJavi))}</div></div></div></div></div>`:''}`;
+  [...categorias,{id:"arriendo_oficina",items:arriendo,total:totalArriendo,cat:CATS["arriendo_oficina"],esIngreso:true}].filter(x=>x.items.length>0||x.total>0).forEach(({id,items,total:catTotal,cat:c,esIngreso})=>{
     const abierta=catExpandidaCredito===id;
     const gonzaloTotal=items.reduce((s,t)=>s+t.monto,0);const javiTotal=items.reduce((s,t)=>s+(t.monto_javi||0),0);
     const pct=acumuladoTotal>0?(catTotal/acumuladoTotal*100).toFixed(1):"0.0";
