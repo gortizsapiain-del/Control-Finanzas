@@ -513,7 +513,7 @@ function renderResumen(){
         ${creditosTotal>0?`
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:#ffffff08;border-radius:12px">
           <span style="color:#FDB579;font-size:14px;font-weight:600">🏛️ Créditos</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579;overflow-wrap:anywhere">-${mxn(creditosTotal)}</span>
+          <span style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FDB579;overflow-wrap:anywhere">${mxn(creditosTotal)}</span>
         </div>`:''}
         ${arriendoTotal>0?`
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:#10B98110;border-radius:12px;border:1px solid #10B98130">
