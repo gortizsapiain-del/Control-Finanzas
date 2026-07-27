@@ -1144,25 +1144,42 @@ async function eliminarCuotasRelacionadas(){
   if(!editandoId)return;
   const t=data.find(x=>x.id===editandoId);
   if(!t)return;
-  let relacionadas=[],label='';
-  if(t.cuenta==="tc"&&/\(cuota \d+\/\d+\)$/.test(t.desc||"")){
-    const base=t.desc.replace(/\s*\(cuota \d+\/\d+\)$/,'');
-    relacionadas=data.filter(x=>x.cuenta==="tc"&&/\(cuota \d+\/\d+\)$/.test(x.desc||"")&&x.desc.replace(/\s*\(cuota \d+\/\d+\)$/,'')===base);
-    label=base;
-  }else if(t.cuenta==="creditos"&&t.cuota_actual&&t.cuotas_total){
-    relacionadas=data.filter(x=>x.cuenta==="creditos"&&x.cat===t.cat&&x.desc===t.desc&&x.cuota_actual&&x.cuotas_total);
-    label=t.desc;
-  }else{
-    mostrarToast("Esta transacción no forma parte de un plan de cuotas");return;
-  }
-  if(!relacionadas.length){mostrarToast("No se encontraron cuotas relacionadas");return;}
-  if(!confirm(`¿Eliminar TODAS las cuotas de "${label}"? (${relacionadas.length} registros)`))return;
-  try{
-    mostrarToast(`⏳ Eliminando ${relacionadas.length} registros…`);
-    for(let i=0;i<relacionadas.length;i+=499){const lote=db.batch();relacionadas.slice(i,i+499).forEach(x=>lote.delete(colUsuario().doc(x.id)));await lote.commit();}
-    cerrarModal();
-    mostrarToast(`✅ ${relacionadas.length} cuotas eliminadas`);
-  }catch(err){mostrarToast("❌ Error: "+err.message);}
+  const esCuotaTC=t.cuenta==="tc"&&/\(cuota \d+\/\d+\)$/.test(t.desc||"");
+  const esCuotaCredito=t.cuenta==="creditos"&&t.cuota_actual&&t.cuotas_total;
+  if(!esCuotaTC&&!esCuotaCredito){mostrarToast("Esta transacción no forma parte de un plan de cuotas");return;}
+  mostrarDialogoCuotas(async(opcion)=>{
+    if(!opcion)return;
+    if(opcion==="sola"){
+      if(!confirm("¿Eliminar esta transacción?"))return;
+      try{
+        await colUsuario().doc(editandoId).delete();
+        cerrarModal();
+        mostrarToast("🗑️ Eliminado");
+      }catch(err){mostrarToast("❌ Error al eliminar: "+err.message);}
+      return;
+    }
+    let relacionadas=[];
+    if(esCuotaTC){
+      const base=t.desc.replace(/\s*\(cuota \d+\/\d+\)$/,'');
+      const nActual=parseInt(t.desc.match(/\(cuota (\d+)\/\d+\)$/)[1]);
+      relacionadas=data.filter(x=>{
+        if(x.cuenta!=="tc")return false;
+        const m=(x.desc||"").match(/\(cuota (\d+)\/(\d+)\)$/);
+        if(!m)return false;
+        return x.desc.replace(/\s*\(cuota \d+\/\d+\)$/,'')===base&&parseInt(m[1])>=nActual;
+      });
+    }else{
+      relacionadas=data.filter(x=>x.cuenta==="creditos"&&x.cat===t.cat&&x.desc===t.desc&&x.cuota_actual&&x.cuota_actual>=t.cuota_actual);
+    }
+    if(!relacionadas.length){mostrarToast("No se encontraron cuotas relacionadas");return;}
+    if(!confirm(`¿Eliminar esta cuota y las ${relacionadas.length-1} futuras? (${relacionadas.length} en total)`))return;
+    try{
+      mostrarToast(`⏳ Eliminando ${relacionadas.length} registros…`);
+      for(let i=0;i<relacionadas.length;i+=499){const lote=db.batch();relacionadas.slice(i,i+499).forEach(x=>lote.delete(colUsuario().doc(x.id)));await lote.commit();}
+      cerrarModal();
+      mostrarToast(`✅ ${relacionadas.length} cuotas eliminadas`);
+    }catch(err){mostrarToast("❌ Error: "+err.message);}
+  });
 }
 async function eliminar(id){
   const trans=data.find(t=>t.id===id);
