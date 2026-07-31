@@ -95,6 +95,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);transition:all .2s;font-family:inherit}
 .chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ── Filter bar (reemplaza chips) ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-select{appearance:none;-webkit-appearance:none;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:7px 28px 7px 13px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239090A8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all .2s;min-width:130px}
+.filter-select:focus{outline:none;border-color:var(--accent)}
+.filter-select.on{border-color:var(--accent);background-color:#7C3AED18;color:var(--accent2)}
+.filter-select option{background:var(--surface2);color:var(--text)}
+/* ── Section header ── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.sec-head-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .expense-list{display:flex;flex-direction:column;gap:7px}
 .expense-row{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;background:var(--surface);border:1px solid var(--border);transition:border-color .2s;animation:fadeUp .3s ease both}
 .expense-row:hover{border-color:var(--border2)}
@@ -658,19 +667,26 @@ function renderTC(){
   const saldoPendiente=totalFacturado-totalPagos;
   const totalJavi=gm.reduce((s,t)=>s+(t.monto_javi||0),0);
   let html=`
-    <div class="chips">
-      <button class="chip ${filtroTarjeta==="todas"?"active":""}" onclick="setFiltroTarjeta('todas')">🗂 Todas</button>
-      ${Object.entries(TARJETAS).map(([k,v])=>`<button class="chip ${filtroTarjeta===k?"active":""}" onclick="setFiltroTarjeta('${k}')" style="${filtroTarjeta===k?`background:${v.color}22;border-color:${v.color};color:${v.color}`:""}">${v.icon} ${v.label}</button>`).join("")}
+    <div class="filter-bar">
+      <select class="filter-select ${filtroTarjeta!=='todas'?'on':''}" onchange="setFiltroTarjeta(this.value)">
+        <option value="todas" ${filtroTarjeta==="todas"?"selected":""}>💳 Tarjeta: Todas</option>
+        ${Object.entries(TARJETAS).map(([k,v])=>`<option value="${k}" ${filtroTarjeta===k?"selected":""}>${v.icon} ${v.label}</option>`).join("")}
+      </select>
+      <select class="filter-select ${filtroPersonaTC!=='todas'?'on':''}" onchange="setFiltroPersonaTC(this.value)">
+        <option value="todas" ${filtroPersonaTC==="todas"?"selected":""}>👥 Persona: Todas</option>
+        <option value="gonzalo" ${filtroPersonaTC==="gonzalo"?"selected":""}>🟣 Gonzalo</option>
+        <option value="javi" ${filtroPersonaTC==="javi"?"selected":""}>⚪ Javi</option>
+      </select>
     </div>
     <div class="grid-3">
-      <div class="summary-card neutral" onclick="setFiltroPersonaTC('todas')" style="cursor:pointer;${filtroPersonaTC==='todas'?'outline:2px solid #A78BFA;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:var(--muted)">Total facturado</div><div class="s-amount" style="color:#F0EEF8">${mxn(totalFacturado)}</div><div class="s-sub" style="color:var(--dim)">${gm.length} movimientos</div></div>
-      <div class="summary-card purple" onclick="setFiltroPersonaTC('gonzalo')" style="cursor:pointer;${filtroPersonaTC==='gonzalo'?'outline:2px solid #A78BFA;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:#A78BFA">Gonzalo</div><div class="s-amount" style="color:#F0EEF8">${mxn(total)}</div><div class="s-sub" style="color:#7060A0">${totalFacturado>0?(total/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
-      <div class="summary-card neutral" onclick="setFiltroPersonaTC('javi')" style="cursor:pointer;border-color:#64748B40;${filtroPersonaTC==='javi'?'outline:2px solid #94A3B8;outline-offset:2px':'opacity:.65'}"><div class="s-label" style="color:#94A3B8">Javi</div><div class="s-amount" style="color:#94A3B8">${mxn(totalJavi)}</div><div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
+      <div class="summary-card neutral"><div class="s-label" style="color:var(--muted)">Total facturado</div><div class="s-amount" style="color:#F0EEF8">${mxn(totalFacturado)}</div><div class="s-sub" style="color:var(--dim)">${gm.length} movimientos</div></div>
+      <div class="summary-card purple"><div class="s-label" style="color:#A78BFA">Gonzalo</div><div class="s-amount" style="color:#F0EEF8">${mxn(total)}</div><div class="s-sub" style="color:#7060A0">${totalFacturado>0?(total/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
+      <div class="summary-card neutral" style="border-color:#64748B40"><div class="s-label" style="color:#94A3B8">Javi</div><div class="s-amount" style="color:#94A3B8">${mxn(totalJavi)}</div><div class="s-sub" style="color:#475569">${totalFacturado>0?(totalJavi/totalFacturado*100).toFixed(0):'0'}% del total</div></div>
     </div>
     ${totalFacturado>0?`<div class="grid-auto" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px"><div><div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total facturado</div><div class="mono" style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#F0EEF8">${mxn(totalFacturado)}</div></div><div><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Pagos realizados</div><div class="mono" style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#6EE7B7">${mxn(totalPagos)}</div></div><div><div style="font-size:10px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Saldo pendiente</div><div class="mono" style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${saldoPendiente>0?'#F87171':'#6EE7B7'}">${mxn(saldoPendiente)}</div></div></div><div style="background:var(--surface2);border-radius:6px;height:6px;overflow:hidden"><div style="height:6px;border-radius:6px;background:linear-gradient(90deg,var(--green),#059669);width:${totalFacturado>0?Math.min(totalPagos/totalFacturado*100,100).toFixed(1):0}%;transition:width .6s ease"></div></div>`:''}
-    <div style="display:flex;gap:6px">
-      <button onclick="setVistaTC('categorias')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='categorias'?'var(--accent)':'var(--border2)'};background:${vistaTC==='categorias'?'#3D1880':'var(--surface2)'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📊 Por categoría</button>
-      <button onclick="setVistaTC('lista')" style="flex:1;padding:8px;border-radius:10px;border:1px solid ${vistaTC==='lista'?'var(--accent)':'var(--border2)'};background:${vistaTC==='lista'?'#3D1880':'var(--surface2)'};color:${vistaTC==='lista'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">📋 Lista completa</button>
+    <div style="display:flex;gap:6px;background:var(--surface2);border-radius:12px;padding:4px;border:1px solid var(--border)">
+      <button onclick="setVistaTC('categorias')" style="flex:1;padding:7px;border-radius:9px;border:none;background:${vistaTC==='categorias'?'var(--accent)':'transparent'};color:${vistaTC==='categorias'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s">📊 Por categoría</button>
+      <button onclick="setVistaTC('lista')" style="flex:1;padding:7px;border-radius:9px;border:none;background:${vistaTC==='lista'?'var(--accent)':'transparent'};color:${vistaTC==='lista'?'#fff':'var(--muted)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s">📋 Lista</button>
     </div>`;
   if(!porCat.length){html+=emptyState("💳","Sin gastos este mes","Agrega tu primer gasto con el botón de arriba");document.getElementById("viewTC").innerHTML=html;return;}
   if(vistaTC==="categorias"){
@@ -720,7 +736,7 @@ function renderTC(){
     }).join("");
   }
   if(vistaTC==="lista"){
-    html+=`<div class="chips"><button class="chip ${filtroTC==="todas"?"active":""}" onclick="setFiltroTC('todas')">Todas</button>${porCat.map(c=>`<button class="chip ${filtroTC===c.id?"active":""}" onclick="setFiltroTC('${c.id}')" style="${filtroTC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("")}</div>`;
+    html+=`<div class="filter-bar"><select class="filter-select ${filtroTC!=='todas'?'on':''}" onchange="setFiltroTC(this.value)"><option value="todas" ${filtroTC==="todas"?"selected":""}>🗂 Categoría: Todas</option>${porCat.map(c=>`<option value="${c.id}" ${filtroTC===c.id?"selected":""}>${c.icon} ${c.label}</option>`).join("")}</select></div>`;
     const filtrados=(filtroTC==="todas"?gm:gm.filter(t=>t.cat===filtroTC)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
     html+=`<div class="expense-list">${filtrados.map((t,i)=>filaTransaccionTC(t,i)).join("")}</div>`;
   }
@@ -852,7 +868,7 @@ function renderCC(){
     html+=`<div class="card"><div class="section-label" style="margin-bottom:14px">Gastos por categoría</div>${porCat.map(c=>`<div class="cat-row"><div class="cat-meta"><span>${c.icon} ${c.label}</span><span style="font-family:'DM Mono',monospace;font-weight:600;color:#C0B8D8">${mxn(c.total)}</span></div><div class="cat-bar-bg"><div class="cat-bar" style="width:${(c.total/gastos*100).toFixed(1)}%;background:${c.color};box-shadow:0 0 8px ${c.color}60"></div></div></div>`).join("")}</div>`;
   }
   const catChips=porCat.map(c=>`<button class="chip ${filtroCC===c.id?"active":""}" onclick="setFiltroCC('${c.id}')" style="${filtroCC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("");
-  html+=`<div class="chips"><button class="chip ${filtroCC==="todas"?"active":""}" onclick="setFiltroCC('todas')">Todos</button><button class="chip ${filtroCC==="ingresos"?"active":""}" onclick="setFiltroCC('ingresos')" style="${filtroCC==="ingresos"?"background:#10B98120;border-color:var(--green);color:var(--green)":""}">✅ Ingresos</button><button class="chip ${filtroCC==="gastos"?"active":""}" onclick="setFiltroCC('gastos')" style="${filtroCC==="gastos"?"background:#F43F5E18;border-color:var(--red);color:var(--red)":""}">🔴 Gastos</button>${catChips}</div>`;
+  html+=`<div class="filter-bar"><select class="filter-select ${filtroCC!=='todas'?'on':''}" onchange="setFiltroCC(this.value)"><option value="todas" ${filtroCC==="todas"?"selected":""}>🗂 Ver: Todos</option><option value="ingresos" ${filtroCC==="ingresos"?"selected":""}>✅ Ingresos</option><option value="gastos" ${filtroCC==="gastos"?"selected":""}>🔴 Gastos</option>${porCat.map(c=>`<option value="${c.id}" ${filtroCC===c.id?"selected":""}>${c.icon} ${c.label}</option>`).join("")}</select></div>`;
   html+=`<div class="expense-list">${filtrados.length?filtrados.map((t,i)=>filaTransaccion(t,i)).join(""):emptyState("🏦","Sin movimientos este mes","Agrega ingresos o gastos con el botón de arriba")}</div>`;
   document.getElementById("viewCC").innerHTML=html;
 }
@@ -864,11 +880,8 @@ function renderAhorros(){
   const hastaHoy=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
   const saldoTotal=hastaHoy.reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const gm=delMes(todos);
-  // Chips de cuenta
-  const chipsHtml=`<div class="chips">
-    <button class="chip ${filtroAhorro==="todas"?"active":""}" onclick="setFiltroAhorro('todas')">🗂 Todas</button>
-    ${Object.entries(CUENTAS_AHORRO).map(([k,v])=>`<button class="chip ${filtroAhorro===k?"active":""}" onclick="setFiltroAhorro('${k}')" style="${filtroAhorro===k?`background:${v.color}22;border-color:${v.color};color:${v.color}`:""}">${v.icon} ${v.label}</button>`).join("")}
-  </div>`;
+  // Filter select cuenta ahorro
+  const chipsHtml=`<div class="filter-bar"><select class="filter-select ${filtroAhorro!=='todas'?'on':''}" onchange="setFiltroAhorro(this.value)"><option value="todas" ${filtroAhorro==="todas"?"selected":""}>💎 Cuenta: Todas</option>${Object.entries(CUENTAS_AHORRO).map(([k,v])=>`<option value="${k}" ${filtroAhorro===k?"selected":""}>${v.icon} ${v.label}</option>`).join("")}</select></div>`;
   // Saldo por cuenta
   const saldosPorCuenta=Object.entries(CUENTAS_AHORRO).map(([k,v])=>{
     const s=hastaHoy.filter(t=>(t.cuenta_ahorro||"renta_plus")===k).reduce((acc,t)=>t.tipo==="deposito"?acc+t.monto:acc-t.monto,0);
