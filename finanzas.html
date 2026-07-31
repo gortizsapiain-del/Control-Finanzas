@@ -428,7 +428,7 @@ const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct",
 
 /* ESTADO */
 let data=[],mes=new Date().getMonth(),anio=new Date().getFullYear();
-let tabActual="resumen",filtroTC="todas",filtroCC="todas",filtroPersonaTC="todas",filtroTarjeta="todas",filtroAhorro="todas";
+let tabActual="resumen",filtroTC="todas",filtroCC="todas",filtroPersonaTC="todas",filtroTarjeta="todas",filtroAhorro="todas",filtroCredito="todas";
 const TARJETAS={
   visa_singular:{label:"Visa Singular",icon:"💳",color:"#3B82F6"},
   visa_signature:{label:"Visa Signature",icon:"💎",color:"#8B5CF6"},
@@ -867,7 +867,6 @@ function renderCC(){
   if(porCat.length&&gastos>0){
     html+=`<div class="card"><div class="section-label" style="margin-bottom:14px">Gastos por categoría</div>${porCat.map(c=>`<div class="cat-row"><div class="cat-meta"><span>${c.icon} ${c.label}</span><span style="font-family:'DM Mono',monospace;font-weight:600;color:#C0B8D8">${mxn(c.total)}</span></div><div class="cat-bar-bg"><div class="cat-bar" style="width:${(c.total/gastos*100).toFixed(1)}%;background:${c.color};box-shadow:0 0 8px ${c.color}60"></div></div></div>`).join("")}</div>`;
   }
-  const catChips=porCat.map(c=>`<button class="chip ${filtroCC===c.id?"active":""}" onclick="setFiltroCC('${c.id}')" style="${filtroCC===c.id?`background:${c.color}22;border-color:${c.color};color:${c.color}`:""}">${c.icon} ${c.label}</button>`).join("");
   html+=`<div class="filter-bar"><select class="filter-select ${filtroCC!=='todas'?'on':''}" onchange="setFiltroCC(this.value)"><option value="todas" ${filtroCC==="todas"?"selected":""}>🗂 Ver: Todos</option><option value="ingresos" ${filtroCC==="ingresos"?"selected":""}>✅ Ingresos</option><option value="gastos" ${filtroCC==="gastos"?"selected":""}>🔴 Gastos</option>${porCat.map(c=>`<option value="${c.id}" ${filtroCC===c.id?"selected":""}>${c.icon} ${c.label}</option>`).join("")}</select></div>`;
   html+=`<div class="expense-list">${filtrados.length?filtrados.map((t,i)=>filaTransaccion(t,i)).join(""):emptyState("🏦","Sin movimientos este mes","Agrega ingresos o gastos con el botón de arriba")}</div>`;
   document.getElementById("viewCC").innerHTML=html;
@@ -980,11 +979,12 @@ function toggleVistaDetalle(id,vista){
 }
 
 function setFiltroTC(f){filtroTC=f;renderTC();}
+function setFiltroCredito(f){filtroCredito=f;catExpandidaCredito=f!=='todas'?f:null;renderCreditos();}
 function setFiltroCC(f){filtroCC=f;renderCC();}
 function setFiltroPersonaTC(p){filtroPersonaTC=p;catExpandida=null;renderTC();}
 function setFiltroTarjeta(f){filtroTarjeta=f;catExpandida=null;renderTC();}
 let deudaTCExpandida=false,deudaTCTarjeta="visa_singular";
-function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";filtroTarjeta="todas";filtroAhorro="todas";render();}
+function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";filtroTarjeta="todas";filtroAhorro="todas";filtroCredito="todas";render();}
 
 /* PICKER MES PAGO TC */
 function renderMesPagoTCGrid(){
@@ -1506,8 +1506,12 @@ function renderCreditos(){
       <div style="background:var(--surface);border:1px solid #64748B30;border-radius:12px;padding:14px"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Javi neto</div><div class="mono" style="font-size:17px;font-weight:700;font-family:'DM Mono',monospace;color:#94A3B8">${mxn(costoNetoJavi)}</div><div style="font-size:10px;color:#475569;margin-top:3px">créditos - arriendo</div></div>
     </div>
     ${categorias.length||totalArriendo>0?`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden"><div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Costo neto del mes</div><div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">${categorias.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">${c.cat.icon} ${c.cat.label}</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#F87171;overflow-wrap:anywhere">${mxn(c.total)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;color:var(--muted)">🏢 Arriendo recibido</span><span style="font-family:'DM Mono',monospace;font-weight:700;color:#6EE7B7;overflow-wrap:anywhere">+${mxn(totalArriendo)}</span></div><div style="border-top:1px solid var(--border2);padding-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0"><span style="font-size:13px;font-weight:700;color:#F0EEF8">Costo neto</span><span style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:${costoNetoGeneral<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGeneral<=0?'+':''}${mxn(Math.abs(costoNetoGeneral))}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px"><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #8B5CF630;text-align:center;min-width:0"><div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoGonzalo<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoGonzalo<=0?'+':''}${mxn(Math.abs(costoNetoGonzalo))}</div></div><div style="background:var(--surface2);border-radius:9px;padding:8px 10px;border:1px solid #64748B30;text-align:center;min-width:0"><div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi neto</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:${costoNetoJavi<=0?'#6EE7B7':'#F87171'};overflow-wrap:anywhere">${costoNetoJavi<=0?'+':''}${mxn(Math.abs(costoNetoJavi))}</div></div></div></div></div>`:''}`;
-  [...categorias,{id:"arriendo_oficina",items:arriendo,total:totalArriendo,cat:CATS["arriendo_oficina"],esIngreso:true}].filter(x=>x.items.length>0||x.total>0).forEach(({id,items,total:catTotal,cat:c,esIngreso})=>{
-    const abierta=catExpandidaCredito===id;
+  // Filter dropdown para créditos
+  const todasLasCats=[...categorias,{id:"arriendo_oficina",items:arriendo,total:totalArriendo,cat:CATS["arriendo_oficina"],esIngreso:true}].filter(x=>x.items.length>0||x.total>0);
+  html+=`<div class="filter-bar"><select class="filter-select ${filtroCredito!=='todas'?'on':''}" onchange="setFiltroCredito(this.value)"><option value="todas" ${filtroCredito==="todas"?"selected":""}>🏛️ Ver: Todos los créditos</option>${todasLasCats.map(x=>`<option value="${x.id}" ${filtroCredito===x.id?"selected":""}>${x.cat.icon} ${x.cat.label}</option>`).join("")}</select></div>`;
+  const catsMostrar=filtroCredito==="todas"?todasLasCats:todasLasCats.filter(x=>x.id===filtroCredito);
+  catsMostrar.forEach(({id,items,total:catTotal,cat:c,esIngreso})=>{
+    const abierta=catExpandidaCredito===id||filtroCredito===id;
     const gonzaloTotal=items.reduce((s,t)=>s+t.monto,0);const javiTotal=items.reduce((s,t)=>s+(t.monto_javi||0),0);
     const pct=acumuladoTotal>0?(catTotal/acumuladoTotal*100).toFixed(1):"0.0";
     const badgeRegla=c.regla==="gonzalo"?`<span style="background:#8B5CF620;border:1px solid #8B5CF660;color:#C4B5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">100% Gonzalo</span>`:`<span style="background:#3B82F620;border:1px solid #3B82F660;color:#93C5FD;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px">50% · 50%</span>`;
