@@ -724,30 +724,67 @@ function renderDeudaTC(){
   if(deudaTCExpandida){
     // Chips tarjetas
     const chipsHtml=Object.entries(TARJETAS).map(([k,v])=>`<button onclick="setDeudaTCTarjeta('${k}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid ${deudaTCTarjeta===k?v.color:"var(--border2)"};background:${deudaTCTarjeta===k?v.color+"22":"var(--surface2)"};color:${deudaTCTarjeta===k?v.color:"var(--muted)"};font-family:inherit;transition:all .2s">${v.icon} ${v.label}</button>`).join("");
-    // Calcular deuda para tarjeta seleccionada (todo el historial)
+    // Calcular deuda pendiente real = cuotas no facturadas aún + gastos del período actual
     const tc=TARJETAS[deudaTCTarjeta];
     const gastos=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat!=="pago"&&(t.tarjeta||"")=== deudaTCTarjeta);
-    const pagos=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat==="pago"&&(t.tarjeta||"")=== deudaTCTarjeta);
-    const totalFac=gastos.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-    const totalPag=pagos.reduce((s,t)=>s+(t.monto_total||t.monto),0);
-    const deuda=totalFac-totalPag;
-    const totalGonzalo=gastos.reduce((s,t)=>s+t.monto,0)-pagos.reduce((s,t)=>s+t.monto,0);
-    const totalJavi=gastos.reduce((s,t)=>s+(t.monto_javi||0),0)-pagos.reduce((s,t)=>s+(t.monto_javi||0),0);
+    // Corte de facturación: día 23 de cada mes
+    const hoy=new Date();
+    const diaCierre=23;
+    const ultimoCierre=hoy.getDate()>diaCierre
+      ?new Date(hoy.getFullYear(),hoy.getMonth(),diaCierre)
+      :new Date(hoy.getFullYear(),hoy.getMonth()-1,diaCierre);
+    let deuda=0,deudaGonzalo=0,deudaJavi=0;
+    let pendienteSinFacturar=0,cuotasFuturas=0;
+    gastos.forEach(t=>{
+      const fechaCompra=new Date((t.fecha||"")+"T12:00:00");
+      const montoTotal=t.monto_total||t.monto;
+      const montoCuota=t.monto||montoTotal;
+      const cuotasTotales=montoCuota>0?Math.round(montoTotal/montoCuota):1;
+      let pendiente=0;
+      if(fechaCompra>ultimoCierre){
+        // Aún no facturado — suma total pendiente
+        pendiente=montoTotal;
+        pendienteSinFacturar+=pendiente;
+      } else {
+        // Calcular cuotas ya facturadas
+        const mesesFacturados=(ultimoCierre.getFullYear()-fechaCompra.getFullYear())*12
+          +(ultimoCierre.getMonth()-fechaCompra.getMonth())+1;
+        const cuotasFacturadas=Math.min(cuotasTotales,mesesFacturados);
+        const cuotasRestantes=Math.max(0,cuotasTotales-cuotasFacturadas);
+        pendiente=cuotasRestantes*montoCuota;
+        cuotasFuturas+=pendiente;
+      }
+      deuda+=pendiente;
+      // Prorrateo por persona
+      const fracJavi=montoTotal>0?(t.monto_javi||0)/montoTotal:0;
+      deudaJavi+=pendiente*fracJavi;
+      deudaGonzalo+=pendiente*(1-fracJavi);
+    });
+    const totalJavi=deudaJavi;
+    const totalGonzalo=deudaGonzalo;
     inner=`
       <div style="padding:14px 16px;border-top:1px solid var(--border2)">
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${chipsHtml}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-          <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px">
-            <div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total cargado</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F87171">${mxn(totalFac)}</div>
+        <div style="background:${deuda>0?"linear-gradient(135deg,#200A0C,#2A0F12)":"linear-gradient(135deg,#062318,#0A3020)"};border:1px solid ${deuda>0?"#4A1020":"#0D4030"};border-radius:14px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:10px;color:${deuda>0?"#F87171":"#6EE7B7"};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">💳 Deuda pendiente total</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:24px;color:${deuda>0?"#F87171":"#6EE7B7"}">${mxn(deuda)}</div>
           </div>
-          <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
-            <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total pagado</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#6EE7B7">${mxn(totalPag)}</div>
+          <div style="text-align:right">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Corte: día 23</div>
+            <div style="font-size:11px;color:var(--dim)">${ultimoCierre.toLocaleDateString("es-CL",{day:"numeric",month:"short"})}</div>
           </div>
-          <div style="background:${deuda>0?"linear-gradient(135deg,#200A0C,#2A0F12)":"linear-gradient(135deg,#062318,#0A3020)"};border:1px solid ${deuda>0?"#4A1020":"#0D4030"};border-radius:12px;padding:14px">
-            <div style="font-size:10px;color:${deuda>0?"#F87171":"#6EE7B7"};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Deuda pendiente</div>
-            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:${deuda>0?"#F87171":"#6EE7B7"}">${mxn(deuda)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px">
+            <div style="font-size:10px;color:#FBBF24;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">⏳ Sin facturar aún</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#FBBF24">${mxn(pendienteSinFacturar)}</div>
+            <div style="font-size:10px;color:var(--dim);margin-top:2px">Gastos período actual</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px">
+            <div style="font-size:10px;color:#60A5FA;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">📅 Cuotas futuras</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#60A5FA">${mxn(cuotasFuturas)}</div>
+            <div style="font-size:10px;color:var(--dim);margin-top:2px">Próximas facturas</div>
           </div>
         </div>
         ${totalJavi>0?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
