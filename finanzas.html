@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -148,7 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <body>
 <div class="header">
   <div class="header-inner">
-    <div><div class="header-label">💰 Finanzas</div><div class="header-title">Control Financiero</div></div>
+    <div><div class="header-label">💰 Finanzas</div><div class="header-title" style="display:flex;align-items:center;gap:6px"><span id="headerTitle">Control Financiero</span><span onclick="togglePerfilMenu()" style="cursor:pointer;font-size:14px;opacity:.6">▼</span></div><div id="perfilMenu" style="display:none;position:absolute;top:56px;left:16px;background:#16161E;border:1px solid #2A2A38;border-radius:12px;padding:6px;z-index:200;min-width:160px"><button onclick="cambiarPerfil('gonzalo')" style="display:block;width:100%;text-align:left;padding:9px 14px;background:none;border:none;color:#E8E6F0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;transition:background .15s" onmouseover="this.style.background='#2A2A38'" onmouseout="this.style.background='none'">💰 Gonzalo</button><button onclick="cambiarPerfil('skinlux')" style="display:block;width:100%;text-align:left;padding:9px 14px;background:none;border:none;color:#E8E6F0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;transition:background .15s" onmouseover="this.style.background='#2A2A38'" onmouseout="this.style.background='none'">✨ Skin Lux</button></div></div>
     <div style="display:flex;align-items:center;gap:10px">
       <div id="userInfo" style="display:none;align-items:center;gap:8px">
         <img id="userAvatar" src="" alt="" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);object-fit:cover"/>
@@ -161,11 +162,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div style="background:#12121A;border-bottom:1px solid var(--border);padding:10px 20px">
   <div style="max-width:720px;margin:0 auto">
     <div class="tabs">
-      <button class="tab active" onclick="setTab('resumen')">📊 Resumen</button>
-      <button class="tab" onclick="setTab('tc')">💳 TC</button>
-      <button class="tab" onclick="setTab('cc')">🏦 Cta. Corriente</button>
-      <button class="tab" onclick="setTab('ahorros')">💎 Ahorros</button>
-      <button class="tab" onclick="setTab('creditos')">🏛️ Créditos</button>
+      <button class="tab tab-all active" onclick="setTab('resumen')">📊 Resumen</button>
+      <button class="tab tab-gonzalo" onclick="setTab('tc')">💳 TC</button>
+      <button class="tab tab-gonzalo" onclick="setTab('cc')">🏦 Cta. Corriente</button>
+      <button class="tab tab-gonzalo" onclick="setTab('ahorros')">💎 Ahorros</button>
+      <button class="tab tab-gonzalo" onclick="setTab('creditos')">🏛️ Créditos</button>
+      <button class="tab tab-skinlux" style="display:none" onclick="setTab('ventas')">💰 Ventas</button>
+      <button class="tab tab-skinlux" style="display:none" onclick="setTab('compras')">🛒 Compras</button>
+      <button class="tab tab-skinlux" style="display:none" onclick="setTab('iva')">📋 IVA F29</button>
+      <button class="tab tab-skinlux" style="display:none" onclick="setTab('flujo')">📈 Flujo</button>
+      <button class="tab tab-skinlux" style="display:none" onclick="setTab('reembolsos')">👥 Reembolsos</button>
     </div>
   </div>
 </div>
@@ -180,6 +186,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div id="viewCC" style="display:none"></div>
   <div id="viewAhorros" style="display:none"></div>
   <div id="viewCreditos" style="display:none"></div>
+  <div id="viewVentas" style="display:none"></div>
+  <div id="viewCompras" style="display:none"></div>
+  <div id="viewIVA" style="display:none"></div>
+  <div id="viewFlujo" style="display:none"></div>
+  <div id="viewReembolsos" style="display:none"></div>
 </div>
 <!-- Login overlay -->
 <div class="overlay" id="loginOverlay" style="display:flex">
@@ -194,6 +205,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div id="loginError" style="margin-top:14px;color:var(--red);font-size:13px;display:none"></div>
   </div>
 </div>
+<!-- Import Excel (hidden input) -->
+<input type="file" id="excelInput" accept=".xlsx,.xlsm,.xls" style="display:none" onchange="procesarExcel(this)"/>
+
 <!-- Modal -->
 <div class="overlay" id="modalOverlay" style="display:none" onclick="cerrarSiAfuera(event)">
   <div class="modal">
@@ -352,6 +366,7 @@ auth.onAuthStateChanged(user=>{
     document.getElementById("btnAgregar").style.display="";
     document.getElementById("userAvatar").src=user.photoURL||"";
     escucharDatos();
+    suscribirSL();
   }else{
     if(unsubscribeData){unsubscribeData();unsubscribeData=null;}
     data=[];
@@ -369,6 +384,332 @@ function loginConGoogle(){
     else{document.getElementById("loginError").style.display="";document.getElementById("loginError").textContent="Error: "+err.message;btn.disabled=false;btn.innerHTML='<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg> Continuar con Google';}
   });
 }
+
+/* PERFIL */
+let perfil="gonzalo",dataSL=[];
+let unsubscribeSL=null;
+
+function togglePerfilMenu(){
+  const m=document.getElementById("perfilMenu");
+  m.style.display=m.style.display==="none"?"block":"none";
+}
+document.addEventListener("click",e=>{
+  const m=document.getElementById("perfilMenu");
+  if(m&&m.style.display!=="none"&&!m.contains(e.target)&&!e.target.closest(".header-inner"))m.style.display="none";
+});
+
+function cambiarPerfil(p){
+  perfil=p;
+  document.getElementById("perfilMenu").style.display="none";
+  document.getElementById("headerTitle").textContent=p==="skinlux"?"Skin Lux":"Control Financiero";
+  if(p==="skinlux"&&!unsubscribeSL&&currentUser)suscribirSL();
+  const tabsG=["resumen","tc","cc","ahorros","creditos"];
+  const tabsSL=["resumen","ventas","compras","iva","flujo","reembolsos"];
+  if(!tabsSL.includes(tabActual)&&p==="skinlux")tabActual="resumen";
+  if(!tabsG.includes(tabActual)&&p==="gonzalo")tabActual="resumen";
+  render();
+}
+
+function colSkinlux(){return db.collection(`usuarios/${currentUser.uid}/transacciones_skinlux`);}
+
+function suscribirSL(){
+  if(unsubscribeSL)unsubscribeSL();
+  unsubscribeSL=colSkinlux().onSnapshot(snap=>{
+    dataSL=snap.docs.map(doc=>({id:doc.id,...doc.data()}));
+    if(perfil==="skinlux")render();
+  },err=>mostrarToast("⚠️ Error SL: "+err.message));
+}
+
+const PPM_TASA=0.00125;
+
+const MESES_SL=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const SL_DATA_INIT={
+ventas:[{cuenta:"ventas",fecha:"2026-05-16",mes_facturacion:"2026-05",cliente:"Gonzalo",rut_cliente:"—",n_documento:"M23WW1V2-1",categoria:"Servicio Estética",desc:"Prueba — Tarjeta Crédito",neto:84,iva:16,monto:100,comision:3,depositado:97,docId:"venta_20260516_17"},{cuenta:"ventas",fecha:"2026-05-16",mes_facturacion:"2026-05",cliente:"Alejandra Hernández",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Limpieza Facial Premium — Tarjeta Débito",neto:50336,iva:9564,monto:59900,comision:1775,depositado:58125,docId:"venta_20260516_18"},{cuenta:"ventas",fecha:"2026-05-19",mes_facturacion:"2026-05",cliente:"Patricia Soto",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Limpieza Facial Premium — Tarjeta Débito",neto:50336,iva:9564,monto:59900,comision:1775,depositado:58125,docId:"venta_20260519_19"},{cuenta:"ventas",fecha:"2026-05-22",mes_facturacion:"2026-05",cliente:"Cecilia Peñafiel",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Limpieza Facial Premium — Tarjeta Débito",neto:50336,iva:9564,monto:59900,comision:1775,depositado:58125,docId:"venta_20260522_20"},{cuenta:"ventas",fecha:"2026-05-28",mes_facturacion:"2026-05",cliente:"Patricia Soto",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Vitamina C — Tarjeta Crédito",neto:37815,iva:7185,monto:45000,comision:1333,depositado:43667,docId:"venta_20260528_21"},{cuenta:"ventas",fecha:"2026-06-04",mes_facturacion:"2026-06",cliente:"Silvia Manquez (2)",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Limpieza Facial Premium — Tarjeta Crédito VISA 14:06",neto:80538,iva:15302,monto:95840,comision:2840,depositado:93000,docId:"venta_20260604_22"},{cuenta:"ventas",fecha:"2026-06-04",mes_facturacion:"2026-06",cliente:"Bernarda Castillo",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Limpieza Facial Básica — Tarjeta Crédito Mastercard 19:40",neto:23529,iva:4471,monto:28000,comision:830,depositado:27170,docId:"venta_20260604_23"},{cuenta:"ventas",fecha:"2026-06-05",mes_facturacion:"2026-06",cliente:"Consumidor final",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Cyber premium — 13:59 VISA",neto:40269,iva:7651,monto:47920,comision:1420,depositado:46500,docId:"venta_20260605_24"},{cuenta:"ventas",fecha:"2026-06-25",mes_facturacion:"2026-06",cliente:"Cecilia Peñafiel",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Vitamina C — Tarjeta Debito",neto:37815,iva:7185,monto:45000,comision:1333,depositado:43667,docId:"venta_20260625_25"},{cuenta:"ventas",fecha:"2026-07-05",mes_facturacion:"2026-07",cliente:"Patricia Soto",rut_cliente:"—",n_documento:"",categoria:"Servicio Estética",desc:"Vitamina C — Tarjeta Debito",neto:37815,iva:7185,monto:45000,comision:1333,depositado:43667,docId:"venta_20260705_26"}],
+compras:[{cuenta:"compras",fecha:"2026-05-16",mes_facturacion:"2026-05",proveedor:"Decoración Integral Limitada",rut_proveedor:"86.838.400-K",n_factura:"106010",categoria:"Insumos / Ropa de cama",desc:"Frazada coral King crudo",neto:19489,iva:3702.91,monto:23192,forma_pago:"TC Socio",docId:"compra_106010"},{cuenta:"compras",fecha:"2026-05-16",mes_facturacion:"2026-05",proveedor:"Escuela Prof. de Estética M. Paz Torres EIRL",rut_proveedor:"—",n_factura:"3481",categoria:"Insumos cosméticos",desc:"Máscaras peel off, Double Phase, Pack Sabanilla",neto:54875,iva:10426.25,monto:65301,forma_pago:"TC Socio",docId:"compra_3481"},{cuenta:"compras",fecha:"2026-05-22",mes_facturacion:"2026-05",proveedor:"Renovación y Tecnología Empresarial Ltda",rut_proveedor:"78.936.330-7",n_factura:"1298115",categoria:"Tecnología",desc:"iPhone 17 Pro",neto:1260479,iva:239491.01,monto:1499970,forma_pago:"TC Socio",docId:"compra_1298115"},{cuenta:"compras",fecha:"2026-05-22",mes_facturacion:"2026-05",proveedor:"Matriz Ideas S.A.",rut_proveedor:"76.322.590-9",n_factura:"433381",categoria:"Decoración",desc:"Aceite aromático, difusor USB, rociador, bolsa",neto:15109,iva:2870.71,monto:17980,forma_pago:"TC Socio",docId:"compra_433381"},{cuenta:"compras",fecha:"2026-05-24",mes_facturacion:"2026-05",proveedor:"Matriz Ideas S.A.",rut_proveedor:"76.322.590-9",n_factura:"433397",categoria:"Decoración",desc:"Marco foto MDF, percha puerta",neto:24168,iva:4591.92,monto:28760,forma_pago:"TC Socio",docId:"compra_433397"},{cuenta:"compras",fecha:"2026-05-30",mes_facturacion:"2026-05",proveedor:"Sodimac S.A.",rut_proveedor:"96.792.430-K",n_factura:"147543272",categoria:"Equipamiento",desc:"Cajones apilables, cajas plásticas, puff",neto:33732,iva:6409.08,monto:40141,forma_pago:"TC Socio",docId:"compra_147543272"},{cuenta:"compras",fecha:"2026-06-03",mes_facturacion:"2026-06",proveedor:"ASM Global Limitada",rut_proveedor:"76.523.147-7",n_factura:"119",categoria:"Mobiliario",desc:"Mueble para tocador M241608",neto:69748,iva:13252.12,monto:83000,forma_pago:"TC Socio",docId:"compra_119"},{cuenta:"compras",fecha:"2026-07-02",mes_facturacion:"2026-07",proveedor:"AMBM SHOP (Mercado Libre)",rut_proveedor:"77.603.022-8",n_factura:"19864",categoria:"Insumo",desc:"Cintillo, regalo gift card",neto:20823.53,iva:3956.47,monto:24780,forma_pago:"Cuenta Empresa",docId:"compra_19864"},{cuenta:"compras",fecha:"2026-07-10",mes_facturacion:"2026-07",proveedor:"IMPORTACION KIMALE SPA",rut_proveedor:"77.714.021-3",n_factura:"905",categoria:"Insumo",desc:"Aguja dermapen",neto:24398.46,iva:4635.71,monto:27414,forma_pago:"Cuenta Empresa",docId:"compra_905"}],
+reembolsos_adeudo:[{cuenta:"reembolsos_adeudo",fecha:"2026-05-16",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"106010",proveedor:"Decoración Integral Limitada",emitida_rut:"Sí",monto:23192,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_106010"},{cuenta:"reembolsos_adeudo",fecha:"2026-05-16",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"3481",proveedor:"Escuela Prof. de Estética M. Paz Torres EIRL",emitida_rut:"Sí",monto:65301,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_3481"},{cuenta:"reembolsos_adeudo",fecha:"2026-05-22",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"1298115",proveedor:"Renovación y Tecnología Empresarial Ltda",emitida_rut:"Sí",monto:1499970,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_1298115"},{cuenta:"reembolsos_adeudo",fecha:"2026-05-22",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"433381",proveedor:"Matriz Ideas S.A.",emitida_rut:"Sí",monto:17980,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_433381"},{cuenta:"reembolsos_adeudo",fecha:"2026-05-24",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"433397",proveedor:"Matriz Ideas S.A.",emitida_rut:"Sí",monto:28760,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_433397"},{cuenta:"reembolsos_adeudo",fecha:"2026-05-30",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"147543272",proveedor:"Sodimac S.A.",emitida_rut:"Sí",monto:40141,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-05",docId:"remb_adeudo_147543272"},{cuenta:"reembolsos_adeudo",fecha:"2026-06-03",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"119",proveedor:"ASM Global Limitada",emitida_rut:"Sí",monto:83000,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-06",docId:"remb_adeudo_119"},{cuenta:"reembolsos_adeudo",fecha:"2026-06-16",socio:"Gonzalo Andrés Ortiz Sapiain",rut_socio:"19.101.309-3",n_factura:"Boleta SII",proveedor:"SII Pago PPM",emitida_rut:"Sí",monto:23398,calificacion:"Reembolso (Caso A)",mes_facturacion:"2026-06",docId:"remb_adeudo_BoletaSII"}],
+reembolsos_pago:[{cuenta:"reembolsos_pago",fecha:"2026-06-01",socio:"Gonzalo Andrés Ortiz Sapiain",monto:311411,medio:"Transferencia",desc:"iPhone (parcial), ajustado por comisión SumUp absorbida en depósitos may-jun",mes_facturacion:"2026-06",docId:"remb_pago_16"},{cuenta:"reembolsos_pago",fecha:"2026-06-17",socio:"Gonzalo Andrés Ortiz Sapiain",monto:23398,medio:"Transferencia",desc:"Abono a cuenta del socio",mes_facturacion:"2026-06",docId:"remb_pago_17"},{cuenta:"reembolsos_pago",fecha:"2026-07-10",socio:"Gonzalo Andrés Ortiz Sapiain",monto:50000,medio:"Transferencia",desc:"Abono a cuenta del socio",mes_facturacion:"2026-07",docId:"remb_pago_18"}]
+};
+
+function slData(cuenta){
+  const init=(SL_DATA_INIT[cuenta]||[]).map(t=>({...t,id:t.docId}));
+  const fb=dataSL.filter(t=>t.cuenta===cuenta);
+  const fbIds=new Set(fb.map(t=>t.docId||t.id));
+  const initFilt=init.filter(t=>!fbIds.has(t.docId));
+  return [...initFilt,...fb];
+}
+
+function renderResumenSL(){
+  const todasVentas=slData("ventas");
+  const todasCompras=slData("compras");
+  const todasComprasCta=todasCompras.filter(t=>(t.forma_pago||"").toLowerCase().includes("empresa"));
+  const todosReembolsosPago=slData("reembolsos_pago");
+  const todasReembolsosAdeudo=slData("reembolsos_adeudo");
+  const ventasBruto=todasVentas.reduce((s,t)=>s+(t.monto||0),0);
+  const ventasDep=todasVentas.reduce((s,t)=>s+(t.depositado||0),0);
+  const comprasTotal=todasCompras.reduce((s,t)=>s+(t.monto||0),0);
+  const mesesIVA=[...new Set([...todasVentas,...todasCompras].map(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)).filter(Boolean))].sort();
+  let _rem=0,posIVA=0,ultimoMesIVA="";
+  const f29Meses=[];
+  mesesIVA.forEach(m=>{
+    const vm=todasVentas.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m);
+    const cm=todasCompras.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m);
+    const deb=vm.reduce((s,t)=>s+(t.iva||0),0);
+    const cred=cm.reduce((s,t)=>s+(t.iva||0),0);
+    const ivaMes=deb-cred;
+    const posicion=ivaMes-_rem;
+    _rem=posicion<0?Math.abs(posicion):0;
+    posIVA=posicion;
+    ultimoMesIVA=m;
+    const ventasNetas=vm.reduce((s,t)=>s+(t.neto||0),0);
+    const ppm=Math.round(ventasNetas*PPM_TASA);
+    const ivaPagar=posicion>0?posicion:0;
+    f29Meses.push({m,posicion,aPagar:ivaPagar,remanente:_rem,ppm,totalF29:ivaPagar+ppm});
+  });
+  const saldoCuenta=ventasDep-todasComprasCta.reduce((s,t)=>s+(t.monto||0),0)-todosReembolsosPago.reduce((s,t)=>s+(t.monto||0),0);
+  const pendienteRemb=todasReembolsosAdeudo.reduce((s,t)=>s+(t.monto||0),0)-todosReembolsosPago.reduce((s,t)=>s+(t.monto||0),0);
+  const hayDatos=todasVentas.length>0||todasCompras.length>0;
+  let html=`
+  <div style="background:linear-gradient(135deg,#1D0E38,#2D1060);border:1px solid #3D1880;border-radius:16px;padding:20px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="min-width:0">
+      <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Saldo Cuenta Empresa · acumulado</div>
+      <div style="font-size:clamp(22px,7vw,32px);font-weight:700;font-family:'DM Mono',monospace;color:${saldoCuenta>=0?"#C4B5FD":"#F87171"};overflow-wrap:anywhere">${mxn(saldoCuenta)}</div>
+      <div style="font-size:12px;color:#9060D0;margin-top:4px">ventas depositadas − compras cta empresa − reembolsos</div>
+    </div>
+    <div style="font-size:40px;opacity:.4;flex-shrink:0">✨</div>
+  </div>
+  <div class="summary-grid-2">
+    <div class="summary-card green" style="cursor:pointer" onclick="setTab('ventas')"><div class="s-label" style="color:#6EE7B7">💰 Ventas</div><div class="s-amount" style="color:#6EE7B7">${mxn(ventasBruto)}</div><div class="s-sub" style="color:#3A7060">dep. ${mxn(ventasDep)} · ${todasVentas.length} vtas</div></div>
+    <div class="summary-card orange" style="cursor:pointer" onclick="setTab('compras')"><div class="s-label" style="color:#FDB579">🛒 Compras</div><div class="s-amount" style="color:#FDB579">${mxn(comprasTotal)}</div><div class="s-sub" style="color:#6A3A20">${todasCompras.length} facturas</div></div>
+    <div class="summary-card purple" style="cursor:pointer" onclick="setTab('iva')"><div class="s-label" style="color:#C4B5FD">📊 IVA</div><div class="s-amount" style="color:${posIVA<=0?"#6EE7B7":"#FDB579"}">${mxn(Math.abs(posIVA))}</div><div class="s-sub" style="color:#7060A0">${ultimoMesIVA?MESES_SL[parseInt(ultimoMesIVA.split("-")[1])-1]+" · ":""}${posIVA<=0?"a favor":"a pagar"}</div></div>
+    <div class="summary-card neutral" style="cursor:pointer" onclick="setTab('reembolsos')"><div class="s-label" style="color:var(--muted)">👥 Reembolso socios</div><div class="s-amount" style="color:#F87171">${mxn(pendienteRemb>0?pendienteRemb:0)}</div><div class="s-sub" style="color:var(--dim)">pendiente</div></div>
+  </div>
+  <div style="background:linear-gradient(135deg,#0A1830,#102045);border:1px solid #1A3060;border-radius:14px;padding:14px 16px;cursor:pointer" onclick="setTab('iva')">
+    <div style="font-size:10px;color:#93C5FD;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">📋 F29 · Total a pagar por mes (IVA + PPM)</div>
+    <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:4px 12px;align-items:center;margin-bottom:4px">
+      <div style="font-size:10px;color:#4A6090"></div>
+      <div style="font-size:10px;color:#4A6090;text-align:right">IVA</div>
+      <div style="font-size:10px;color:#4A6090;text-align:right">PPM</div>
+      <div style="font-size:10px;color:#93C5FD;text-align:right;font-weight:700">Total F29</div>
+    </div>
+    ${f29Meses.map(r=>{
+      const [ay,am]=r.m.split("-");
+      const label=MESES_SL[parseInt(am)-1]+" "+ay;
+      return`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:4px 12px;align-items:center;padding:7px 0;border-bottom:1px solid #1A3060"><div style="font-size:13px;color:#93C5FD;font-weight:600">${label}</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:${r.aPagar>0?"#FDB579":"#6EE7B7"};text-align:right">${r.aPagar>0?mxn(r.aPagar):"favor"}</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:#93C5FD;text-align:right">${mxn(r.ppm)}</div><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${r.totalF29>0?"#FDB579":"#6EE7B7"};text-align:right">${mxn(r.totalF29)}</div></div>`;
+    }).join("")}
+  </div>
+  ${!hayDatos?`<div style="background:#1A1830;border:1px solid #3A2870;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="abrirImportExcel()"><div style="font-size:28px">📥</div><div><div style="font-weight:700;font-size:14px;color:#C4B5FD">Importar Excel</div><div style="font-size:12px;color:#7060A0">Toca para cargar Control Financiero SkinLux.xlsm</div></div></div>`:`<div style="background:#0A1A10;border:1px solid #1A4028;border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="abrirImportExcel()"><div style="font-size:13px;color:#6EE7B7;font-weight:600">📥 Actualizar desde Excel</div><div style="font-size:11px;color:#2A6040">re-importar</div></div>`}`;
+  document.getElementById("viewResumen").innerHTML=html;
+}
+
+function renderVentas(){
+  const ventas=slData("ventas").sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
+  const total=ventas.reduce((s,t)=>s+(t.monto||0),0);
+  const dep=ventas.reduce((s,t)=>s+(t.depositado||0),0);
+  let html=`<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 2px;margin-bottom:8px">Ventas · SkinLux SpA · acumulado</div>`;
+  html+=`<div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:16px;padding:18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total ventas</div><div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7">${mxn(total)}</div><div style="font-size:12px;color:#3A7060;margin-top:3px">dep. ${mxn(dep)} · ${ventas.length} ventas</div></div><div style="font-size:36px;opacity:.4">💰</div></div>`;
+  if(!ventas.length){html+=`<div style="text-align:center;padding:32px 20px;color:var(--dim);font-size:14px">Sin ventas. Importa el Excel.</div>`;document.getElementById("viewVentas").innerHTML=html;return;}
+  ventas.forEach(t=>{
+    const [ay,am]=((t.mes_facturacion||t.fecha||"").slice(0,7)).split("-");
+    const mesLabel=am?MESES_SL[parseInt(am)-1]+" "+ay:"";
+    html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;min-width:0"><div style="min-width:0;flex:1"><div style="font-weight:700;font-size:13px;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.cliente||""}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${t.desc||""}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${mesLabel}${t.n_documento?" · "+t.n_documento:""}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#6EE7B7">${mxn(t.monto||0)}</div><div style="font-size:10px;color:var(--dim)">dep. ${mxn(t.depositado||0)}</div><div style="font-size:10px;color:var(--dim)">IVA ${mxn(t.iva||0)}</div></div></div></div>`;
+  });
+  document.getElementById("viewVentas").innerHTML=html;
+}
+
+function renderComprasSL(){
+  const compras=slData("compras").sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
+  const total=compras.reduce((s,t)=>s+(t.monto||0),0);
+  let html=`<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 2px;margin-bottom:8px">Compras · SkinLux SpA · acumulado</div>`;
+  html+=`<div style="background:linear-gradient(135deg,#1E0E04,#2A1508);border:1px solid #3A2010;border-radius:16px;padding:18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:#FDB579;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total compras</div><div style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:#FDB579">${mxn(total)}</div><div style="font-size:12px;color:#6A3A20;margin-top:3px">${compras.length} facturas</div></div><div style="font-size:36px;opacity:.4">🛒</div></div>`;
+  if(!compras.length){html+=`<div style="text-align:center;padding:32px 20px;color:var(--dim);font-size:14px">Sin compras. Importa el Excel.</div>`;document.getElementById("viewCompras").innerHTML=html;return;}
+  compras.forEach(t=>{
+    const [ay,am]=((t.mes_facturacion||t.fecha||"").slice(0,7)).split("-");
+    const mesLabel=am?MESES_SL[parseInt(am)-1]+" "+ay:"";
+    html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;min-width:0"><div style="min-width:0;flex:1"><div style="font-weight:700;font-size:13px;color:#E8E6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.proveedor||""}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${t.desc||""}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${mesLabel}${t.n_factura?" · F°"+t.n_factura:""}${t.forma_pago?" · "+t.forma_pago:""}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#FDB579">${mxn(t.monto||0)}</div><div style="font-size:10px;color:var(--dim)">IVA ${mxn(t.iva||0)}</div></div></div></div>`;
+  });
+  document.getElementById("viewCompras").innerHTML=html;
+}
+
+function renderIVASL(){
+  const ventas=slData("ventas");
+  const compras=slData("compras");
+  const meses=[...new Set([...ventas,...compras].map(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)).filter(Boolean))].sort();
+  let html=`<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 2px;margin-bottom:8px">Resumen IVA F29 · SkinLux SpA</div>`;
+  if(!meses.length){html+=`<div style="text-align:center;padding:32px 20px;color:var(--dim);font-size:14px">Sin datos. Importa el Excel primero.</div>`;document.getElementById("viewIVA").innerHTML=html;return;}
+  let remanente=0;
+  meses.forEach(m=>{
+    const vm=ventas.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m);
+    const cm=compras.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m);
+    const debito=vm.reduce((s,t)=>s+(t.iva||0),0);
+    const credito=cm.reduce((s,t)=>s+(t.iva||0),0);
+    const ivaMes=debito-credito;
+    const posicion=ivaMes-remanente;
+    const aPagar=posicion>0?posicion:0;
+    const remNuevo=posicion<0?Math.abs(posicion):0;
+    const ventasNetas=vm.reduce((s,t)=>s+(t.neto||0),0);
+    const ppm=Math.round(ventasNetas*PPM_TASA);
+    const totalF29=aPagar+ppm;
+    const [ay,am]=m.split("-");
+    const label=MESES_SL[parseInt(am)-1]+" "+ay;
+    html+=`<div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px">`;
+    html+=`<div style="background:linear-gradient(135deg,#1D0E38,#2D1060);padding:12px 16px;display:flex;justify-content:space-between;align-items:center">`;
+    html+=`<div style="font-weight:700;font-size:14px;color:#C4B5FD">📋 ${label}</div>`;
+    html+=`<div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#93C5FD">Total F29: ${mxn(totalF29)}</div><div style="font-size:11px;color:#7060A0;margin-top:2px">${aPagar>0?"IVA "+mxn(aPagar)+" + ":"IVA a favor · "}PPM ${mxn(ppm)}</div></div>`;
+    html+=`</div><div style="padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--surface)">`;
+    html+=`<div style="font-size:12px;color:var(--muted)">Ventas netas</div><div style="font-size:12px;text-align:right;font-weight:600">${mxn(ventasNetas)}</div>`;
+    html+=`<div style="font-size:12px;color:var(--muted)">IVA débito (19%)</div><div style="font-size:12px;text-align:right;font-weight:600;color:#6EE7B7">${mxn(debito)}</div>`;
+    html+=`<div style="font-size:12px;color:var(--muted)">Compras netas</div><div style="font-size:12px;text-align:right;font-weight:600">${mxn(cm.reduce((s,t)=>s+(t.neto||0),0))}</div>`;
+    html+=`<div style="font-size:12px;color:var(--muted)">IVA crédito (19%)</div><div style="font-size:12px;text-align:right;font-weight:600;color:#F87171">${mxn(credito)}</div>`;
+    if(remanente>0){html+=`<div style="font-size:12px;color:var(--muted)">Remanente anterior</div><div style="font-size:12px;text-align:right;font-weight:600;color:#6EE7B7">${mxn(remanente)}</div>`;}
+    html+=`<div style="font-size:12px;font-weight:700;color:#C4B5FD">Posición IVA</div><div style="font-size:12px;text-align:right;font-weight:700;color:${posicion<=0?"#6EE7B7":"#FDB579"}">${mxn(Math.abs(posicion))}${posicion<=0?" a favor":" a pagar"}</div>`;
+    html+=`<div style="font-size:12px;color:var(--muted)">PPM (0,125% × neto)</div><div style="font-size:12px;text-align:right;font-weight:600;color:#93C5FD">${mxn(ppm)}</div>`;
+    html+=`<div style="font-size:13px;font-weight:700;color:#93C5FD;border-top:1px solid var(--border);padding-top:6px">Total F29 (sin intereses)</div><div style="font-size:13px;text-align:right;font-weight:700;color:#93C5FD;border-top:1px solid var(--border);padding-top:6px">${mxn(totalF29)}</div>`;
+    html+=`</div></div>`;
+    remanente=remNuevo;
+  });
+  document.getElementById("viewIVA").innerHTML=html;
+}
+
+function renderFlujoSL(){
+  const ventas=slData("ventas");
+  const comprasCta=slData("compras").filter(t=>(t.forma_pago||"").toLowerCase().includes("empresa"));
+  const reembolsosPago=slData("reembolsos_pago");
+  const meses=[...new Set([...ventas,...comprasCta,...reembolsosPago].map(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)).filter(Boolean))].sort();
+  let html=`<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 2px;margin-bottom:8px">Flujo de Caja · Cuenta Empresa SkinLux SpA</div>`;
+  let saldo=0;
+  meses.forEach(m=>{
+    const dep=ventas.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m).reduce((s,t)=>s+(t.depositado||0),0);
+    const comp=comprasCta.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m).reduce((s,t)=>s+(t.monto||0),0);
+    const remb=reembolsosPago.filter(t=>(t.mes_facturacion||t.fecha||"").slice(0,7)===m).reduce((s,t)=>s+(t.monto||0),0);
+    const flujoNeto=dep-comp-remb;
+    saldo+=flujoNeto;
+    const [ay,am]=m.split("-");
+    const label=MESES_SL[parseInt(am)-1]+" "+ay;
+    html+=`<div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px">`;
+    html+=`<div style="background:linear-gradient(135deg,#0A1830,#102045);padding:10px 16px;display:flex;justify-content:space-between;align-items:center">`;
+    html+=`<div style="font-weight:700;font-size:14px;color:#93C5FD">📈 ${label}</div>`;
+    html+=`<div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${flujoNeto>=0?"#6EE7B7":"#F87171"}">${mxn(flujoNeto)}</div></div>`;
+    html+=`<div style="padding:10px 16px;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface)">`;
+    html+=`<div style="font-size:12px;color:var(--muted)">Ventas depositadas</div><div style="font-size:12px;text-align:right;color:#6EE7B7;font-weight:600">+${mxn(dep)}</div>`;
+    if(comp>0){html+=`<div style="font-size:12px;color:var(--muted)">Compras cta empresa</div><div style="font-size:12px;text-align:right;color:#F87171;font-weight:600">−${mxn(comp)}</div>`;}
+    if(remb>0){html+=`<div style="font-size:12px;color:var(--muted)">Reembolsos socios</div><div style="font-size:12px;text-align:right;color:#F87171;font-weight:600">−${mxn(remb)}</div>`;}
+    html+=`<div style="font-size:12px;font-weight:700;color:#93C5FD;border-top:1px solid var(--border);padding-top:6px">Saldo acumulado</div><div style="font-size:12px;text-align:right;font-weight:700;color:${saldo>=0?"#6EE7B7":"#F87171"};border-top:1px solid var(--border);padding-top:6px">${mxn(saldo)}</div>`;
+    html+=`</div></div>`;
+  });
+  if(!meses.length)html+=`<div style="text-align:center;padding:32px 20px;color:var(--dim);font-size:14px">Sin datos. Importa el Excel primero.</div>`;
+  document.getElementById("viewFlujo").innerHTML=html;
+}
+
+function renderReembolsosSL(){
+  const adeudo=slData("reembolsos_adeudo").filter(t=>t.fecha);
+  const pagos=slData("reembolsos_pago").filter(t=>t.fecha);
+  const totalAdeudo=adeudo.reduce((s,t)=>s+(t.monto||0),0);
+  const totalPagado=pagos.reduce((s,t)=>s+(t.monto||0),0);
+  const pendiente=totalAdeudo-totalPagado;
+  let html=`<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 2px;margin-bottom:8px">Reembolsos Socios · SkinLux SpA</div>`;
+  html+=`<div class="summary-grid-2" style="margin-bottom:12px">`;
+  html+=`<div class="summary-card neutral"><div class="s-label" style="color:var(--muted)">💸 Adeudado</div><div class="s-amount" style="color:#F87171">${mxn(totalAdeudo)}</div><div class="s-sub" style="color:var(--dim)">${adeudo.length} facturas</div></div>`;
+  html+=`<div class="summary-card green"><div class="s-label" style="color:#6EE7B7">✅ Pagado</div><div class="s-amount" style="color:#6EE7B7">${mxn(totalPagado)}</div><div class="s-sub" style="color:#3A7060">${pagos.length} pagos</div></div>`;
+  html+=`</div>`;
+  html+=`<div style="background:${pendiente>0?"linear-gradient(135deg,#1E0A0A,#2A1010)":"linear-gradient(135deg,#062318,#0A3020)"};border:1px solid ${pendiente>0?"#4A1010":"#0D4030"};border-radius:12px;padding:14px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700;font-size:14px;color:${pendiente>0?"#F87171":"#6EE7B7"}">Saldo pendiente</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:20px;color:${pendiente>0?"#F87171":"#6EE7B7"}">${mxn(pendiente)}</div></div>`;
+  if(adeudo.length){
+    html+=`<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Facturas adeudadas</div>`;
+    adeudo.sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")).forEach(t=>{
+      const [ay,am]=((t.mes_facturacion||t.fecha||"").slice(0,7)).split("-");
+      const mesLabel=am?MESES_SL[parseInt(am)-1]+" "+ay:"";
+      html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div style="min-width:0;flex:1"><div style="font-size:13px;font-weight:600;color:#E8E6F0">${t.proveedor||""}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${t.socio||""}${t.n_factura?" · F°"+t.n_factura:""}</div><div style="font-size:11px;color:var(--muted);margin-top:1px">${mesLabel}</div></div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#F87171;flex-shrink:0">${mxn(t.monto||0)}</div></div>`;
+    });
+  }
+  if(pagos.length){
+    html+=`<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 8px">Pagos realizados</div>`;
+    pagos.sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")).forEach(t=>{
+      const [ay,am]=((t.mes_facturacion||t.fecha||"").slice(0,7)).split("-");
+      const mesLabel=am?MESES_SL[parseInt(am)-1]+" "+ay:"";
+      html+=`<div style="background:var(--surface);border:1px solid #0D4030;border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div style="min-width:0;flex:1"><div style="font-size:13px;font-weight:600;color:#6EE7B7">${t.socio||""}</div><div style="font-size:11px;color:var(--dim);margin-top:2px">${t.desc||""}${t.medio?" · "+t.medio:""}</div><div style="font-size:11px;color:var(--muted);margin-top:1px">${mesLabel}</div></div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:#6EE7B7;flex-shrink:0">+${mxn(t.monto||0)}</div></div>`;
+    });
+  }
+  document.getElementById("viewReembolsos").innerHTML=html;
+}
+
+function abrirImportExcel(){document.getElementById("excelInput").value="";document.getElementById("excelInput").click();}
+
+async function procesarExcel(input){
+  if(!input.files||!input.files[0])return;
+  if(!currentUser){mostrarToast("⚠️ Debes iniciar sesión");return;}
+  mostrarToast("⏳ Procesando Excel...");
+  try{
+    const buf=await input.files[0].arrayBuffer();
+    const wb=XLSX.read(buf,{cellDates:true,dateNF:"yyyy-mm-dd"});
+    const col=colSkinlux();
+    let totalEscritos=0;
+
+    function fmt(v){
+      if(!v)return"";
+      if(v instanceof Date){return v.getFullYear()+"-"+String(v.getMonth()+1).padStart(2,"0")+"-"+String(v.getDate()).padStart(2,"0");}
+      if(typeof v==="number"&&v>40000&&v<50000){const d=new Date(Math.round((v-25569)*86400000));return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+      return String(v).trim();
+    }
+    function num(v){return typeof v==="number"?Math.round(v*100)/100:parseFloat(String(v).replace(/[$.]/g,"").replace(",","."))||0;}
+
+    // Ventas
+    const wsV=wb.Sheets[wb.SheetNames[0]];
+    const rowsV=XLSX.utils.sheet_to_json(wsV,{header:1,raw:true,defval:""});
+    let lote=db.batch();let c=0;
+    for(let i=1;i<rowsV.length;i++){
+      const r=rowsV[i];
+      const fecha=fmt(r[0]);if(!fecha)continue;
+      const monto=num(r[6]);if(!monto)continue;
+      const mesStr=fecha.slice(0,7);
+      const docId="venta_"+fecha.replace(/-/g,"")+"_"+i;
+      lote.set(col.doc(docId),{cuenta:"ventas",fecha,mes_facturacion:mesStr,cliente:String(r[1]||""),rut_cliente:String(r[2]||""),n_documento:String(r[3]||""),categoria:String(r[4]||""),desc:String(r[5]||""),monto,neto:num(r[7]),iva:num(r[8]),comision:num(r[9]),depositado:num(r[10]),docId});
+      c++;if(c%499===0){await lote.commit();lote=db.batch();}
+    }
+
+    // Compras
+    const wsC=wb.Sheets[wb.SheetNames[1]];
+    const rowsC=XLSX.utils.sheet_to_json(wsC,{header:1,raw:true,defval:""});
+    for(let i=1;i<rowsC.length;i++){
+      const r=rowsC[i];
+      const fecha=fmt(r[0]);if(!fecha)continue;
+      const monto=num(r[6]);if(!monto)continue;
+      const mesStr=fecha.slice(0,7);
+      const nFac=r[3]||i;
+      const docId="compra_"+String(nFac).replace(/[\s/]/g,"");
+      lote.set(col.doc(docId),{cuenta:"compras",fecha,mes_facturacion:mesStr,proveedor:String(r[1]||""),rut_proveedor:String(r[2]||""),n_factura:String(r[3]||""),categoria:String(r[4]||""),desc:String(r[5]||""),monto,neto:num(r[7]),iva:num(r[8]),forma_pago:String(r[9]||""),docId});
+      c++;if(c%499===0){await lote.commit();lote=db.batch();}
+    }
+
+    // Reembolsos (hoja 4)
+    if(wb.SheetNames.length>3){
+      const wsR=wb.Sheets[wb.SheetNames[3]];
+      const rowsR=XLSX.utils.sheet_to_json(wsR,{header:1,raw:true,defval:""});
+      let seccion="adeudo";
+      for(let i=1;i<rowsR.length;i++){
+        const r=rowsR[i];
+        const fecha=fmt(r[0]);
+        if(!fecha&&!num(r[4]))continue;
+        if(String(r[0]||"").toLowerCase().includes("pago")){seccion="pago";continue;}
+        if(seccion==="adeudo"&&num(r[4])>0){
+          const nFac=r[3]||i;
+          const docId="remb_adeudo_"+String(nFac).replace(/[\s/]/g,"");
+          lote.set(col.doc(docId),{cuenta:"reembolsos_adeudo",fecha,socio:String(r[1]||""),rut_socio:String(r[2]||""),n_factura:String(r[3]||""),proveedor:String(r[4]||""),monto:num(r[5]),mes_facturacion:(fecha||"").slice(0,7),docId});
+          c++;if(c%499===0){await lote.commit();lote=db.batch();}
+        } else if(seccion==="pago"&&num(r[2])>0){
+          const docId="remb_pago_"+i;
+          lote.set(col.doc(docId),{cuenta:"reembolsos_pago",fecha,socio:String(r[1]||""),monto:num(r[2]),medio:String(r[3]||""),desc:String(r[4]||""),mes_facturacion:(fecha||"").slice(0,7),docId});
+          c++;if(c%499===0){await lote.commit();lote=db.batch();}
+        }
+      }
+    }
+
+    await lote.commit();
+    totalEscritos=c;
+    mostrarToast("✅ Importados: "+totalEscritos+" registros");
+    input.value="";
+  }catch(err){mostrarToast("❌ Error: "+err.message);console.error(err);}
+}
+
 function logout(){if(unsubscribeData){unsubscribeData();unsubscribeData=null;}auth.signOut();}
 function colUsuario(){return db.collection(`usuarios/${currentUser.uid}/transacciones`);}
 function escucharDatos(){
@@ -466,25 +807,50 @@ function calcularTotalTCDeMes(mesStr){
 /* TABS */
 function setTab(t){
   tabActual=t;
-  const tabs=["resumen","tc","cc","ahorros","creditos"];
-  document.querySelectorAll(".tab").forEach((el,i)=>el.classList.toggle("active",tabs[i]===t));
-  document.getElementById("monthNav").style.display="";
-  document.getElementById("btnAgregar").style.display=(t==="resumen"||!currentUser)?"none":"";
+  // Activar tab correcto según perfil
+  const allTabs=["resumen","tc","cc","ahorros","creditos",null,null,null,null,"ventas","compras","iva","flujo","reembolsos"];
+  document.querySelectorAll(".tab").forEach((el,i)=>{
+    const tName=allTabs[i];
+    el.classList.toggle("active",tName===t);
+  });
+  document.getElementById("monthNav").style.display=perfil==="skinlux"?"none":"";
+  document.getElementById("btnAgregar").style.display="none";
   render();
 }
 function render(){
   document.getElementById("mesNombre").textContent=MESES[mes];
   document.getElementById("anioNum").textContent=anio;
+  document.getElementById("monthNav").style.display=perfil==="skinlux"?"none":"";
+  // Show/hide tabs
+  document.querySelectorAll(".tab-gonzalo").forEach(el=>el.style.display=perfil==="gonzalo"?"":"none");
+  document.querySelectorAll(".tab-skinlux").forEach(el=>el.style.display=perfil==="skinlux"?"":"none");
+  // Personal tabs
   document.getElementById("viewResumen").style.display=tabActual==="resumen"?"":"none";
-  document.getElementById("viewTC").style.display=tabActual==="tc"?"":"none";
-  document.getElementById("viewCC").style.display=tabActual==="cc"?"":"none";
-  document.getElementById("viewAhorros").style.display=tabActual==="ahorros"?"":"none";
-  document.getElementById("viewCreditos").style.display=tabActual==="creditos"?"":"none";
-  if(tabActual==="resumen")renderResumen();
-  if(tabActual==="tc")renderTC();
-  if(tabActual==="cc")renderCC();
-  if(tabActual==="ahorros")renderAhorros();
-  if(tabActual==="creditos")renderCreditos();
+  document.getElementById("viewTC").style.display=(tabActual==="tc"&&perfil==="gonzalo")?"":"none";
+  document.getElementById("viewCC").style.display=(tabActual==="cc"&&perfil==="gonzalo")?"":"none";
+  document.getElementById("viewAhorros").style.display=(tabActual==="ahorros"&&perfil==="gonzalo")?"":"none";
+  document.getElementById("viewCreditos").style.display=(tabActual==="creditos"&&perfil==="gonzalo")?"":"none";
+  // Skin Lux tabs
+  document.getElementById("viewVentas").style.display=(tabActual==="ventas"&&perfil==="skinlux")?"":"none";
+  document.getElementById("viewCompras").style.display=(tabActual==="compras"&&perfil==="skinlux")?"":"none";
+  document.getElementById("viewIVA").style.display=(tabActual==="iva"&&perfil==="skinlux")?"":"none";
+  document.getElementById("viewFlujo").style.display=(tabActual==="flujo"&&perfil==="skinlux")?"":"none";
+  document.getElementById("viewReembolsos").style.display=(tabActual==="reembolsos"&&perfil==="skinlux")?"":"none";
+  // Render content
+  if(perfil==="gonzalo"){
+    if(tabActual==="resumen")renderResumen();
+    if(tabActual==="tc")renderTC();
+    if(tabActual==="cc")renderCC();
+    if(tabActual==="ahorros")renderAhorros();
+    if(tabActual==="creditos")renderCreditos();
+  } else {
+    if(tabActual==="resumen")renderResumenSL();
+    if(tabActual==="ventas")renderVentas();
+    if(tabActual==="compras")renderComprasSL();
+    if(tabActual==="iva")renderIVASL();
+    if(tabActual==="flujo")renderFlujoSL();
+    if(tabActual==="reembolsos")renderReembolsosSL();
+  }
 }
 
 /* RESUMEN */
