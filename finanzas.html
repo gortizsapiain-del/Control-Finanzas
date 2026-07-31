@@ -207,6 +207,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <option value="cencosud">🏪 Cencosud</option>
       </select>
     </div>
+    <!-- Selector cuenta ahorro (solo Ahorros) -->
+    <div class="field" id="fieldCuentaAhorro" style="display:none">
+      <label>Cuenta de ahorro</label>
+      <select id="fCuentaAhorro">
+        <option value="renta_plus">📈 Renta Plus</option>
+        <option value="racional">🧠 Racional</option>
+        <option value="mercado_pago">💙 Mercado Pago</option>
+      </select>
+    </div>
     <div class="field" id="fieldTipo" style="display:none">
       <label id="labelTipo">Tipo</label>
       <div class="tipo-toggle" id="tipoToggle"></div>
@@ -410,11 +419,16 @@ const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct",
 
 /* ESTADO */
 let data=[],mes=new Date().getMonth(),anio=new Date().getFullYear();
-let tabActual="resumen",filtroTC="todas",filtroCC="todas",filtroPersonaTC="todas",filtroTarjeta="todas";
+let tabActual="resumen",filtroTC="todas",filtroCC="todas",filtroPersonaTC="todas",filtroTarjeta="todas",filtroAhorro="todas";
 const TARJETAS={
   visa_singular:{label:"Visa Singular",icon:"💳",color:"#3B82F6"},
   visa_signature:{label:"Visa Signature",icon:"💎",color:"#8B5CF6"},
   cencosud:{label:"Cencosud",icon:"🏪",color:"#10B981"},
+};
+const CUENTAS_AHORRO={
+  renta_plus:{label:"Renta Plus",icon:"📈",color:"#F59E0B"},
+  racional:{label:"Racional",icon:"🧠",color:"#8B5CF6"},
+  mercado_pago:{label:"Mercado Pago",icon:"💙",color:"#3B82F6"},
 };
 let vistaTC="categorias",catExpandida=null,catExpandidaCredito=null;
 let editandoId=null,modalTipo="gasto",toastTimer=null;
@@ -844,16 +858,32 @@ function renderCC(){
 }
 
 /* AHORROS */
+function setFiltroAhorro(f){filtroAhorro=f;renderAhorros();}
 function renderAhorros(){
   const todos=data.filter(t=>t.cuenta==="ahorros");
   const hastaHoy=todos.filter(t=>{const d=fechaLocal(t.fecha);return(d.getFullYear()<anio)||(d.getFullYear()===anio&&d.getMonth()<=mes);});
-  const saldo=hastaHoy.reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
+  const saldoTotal=hastaHoy.reduce((s,t)=>t.tipo==="deposito"?s+t.monto:s-t.monto,0);
   const gm=delMes(todos);
-  const depositos=gm.filter(t=>t.tipo==="deposito").reduce((s,t)=>s+t.monto,0);
-  const retiros=gm.filter(t=>t.tipo==="retiro").reduce((s,t)=>s+t.monto,0);
-  const filtrados=gm.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  // Chips de cuenta
+  const chipsHtml=`<div class="chips">
+    <button class="chip ${filtroAhorro==="todas"?"active":""}" onclick="setFiltroAhorro('todas')">🗂 Todas</button>
+    ${Object.entries(CUENTAS_AHORRO).map(([k,v])=>`<button class="chip ${filtroAhorro===k?"active":""}" onclick="setFiltroAhorro('${k}')" style="${filtroAhorro===k?`background:${v.color}22;border-color:${v.color};color:${v.color}`:""}">${v.icon} ${v.label}</button>`).join("")}
+  </div>`;
+  // Saldo por cuenta
+  const saldosPorCuenta=Object.entries(CUENTAS_AHORRO).map(([k,v])=>{
+    const s=hastaHoy.filter(t=>(t.cuenta_ahorro||"renta_plus")===k).reduce((acc,t)=>t.tipo==="deposito"?acc+t.monto:acc-t.monto,0);
+    return{k,v,s};
+  });
+  const cuentasHtml=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${saldosPorCuenta.map(({k,v,s})=>`<div onclick="setFiltroAhorro('${k}')" style="background:${filtroAhorro===k?v.color+"22":"var(--surface2)"};border:1px solid ${filtroAhorro===k?v.color:"var(--border2)"};border-radius:12px;padding:12px;cursor:pointer;transition:all .2s;min-width:0"><div style="font-size:16px;margin-bottom:4px">${v.icon}</div><div style="font-size:9px;color:${filtroAhorro===k?v.color:"var(--muted)"};font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;overflow-wrap:anywhere">${v.label}</div><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:13px;color:${filtroAhorro===k?v.color:"#F0EEF8"};overflow-wrap:anywhere">${mxn(s)}</div></div>`).join("")}</div>`;
+  // Filtrar movimientos del mes
+  let gmFiltrado=filtroAhorro==="todas"?gm:gm.filter(t=>(t.cuenta_ahorro||"renta_plus")===filtroAhorro);
+  const depositos=gmFiltrado.filter(t=>t.tipo==="deposito").reduce((s,t)=>s+t.monto,0);
+  const retiros=gmFiltrado.filter(t=>t.tipo==="retiro").reduce((s,t)=>s+t.monto,0);
+  const filtrados=gmFiltrado.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   let html=`
-    <div class="summary-card gold" style="padding:20px 18px;border-radius:16px"><div class="s-label" style="color:#FCD34D">Saldo acumulado</div><div style="font-size:clamp(22px,7vw,32px);font-weight:700;font-family:'DM Mono',monospace;color:#FCD34D;margin:6px 0 4px;overflow-wrap:anywhere">${mxn(saldo)}</div><div style="font-size:12px;color:#7A5A18">Hasta ${MESES[mes]} ${anio}</div></div>
+    <div class="summary-card gold" style="padding:20px 18px;border-radius:16px"><div class="s-label" style="color:#FCD34D">Saldo total acumulado</div><div style="font-size:clamp(22px,7vw,32px);font-weight:700;font-family:'DM Mono',monospace;color:#FCD34D;margin:6px 0 4px;overflow-wrap:anywhere">${mxn(saldoTotal)}</div><div style="font-size:12px;color:#7A5A18">Hasta ${MESES[mes]} ${anio}</div></div>
+    ${cuentasHtml}
+    ${chipsHtml}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px;min-width:0"><div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Depósitos del mes</div><div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#6EE7B7;overflow-wrap:anywhere">+${mxn(depositos)}</div></div>
       <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px;min-width:0"><div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Retiros del mes</div><div style="font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:#F87171;overflow-wrap:anywhere">-${mxn(retiros)}</div></div>
@@ -868,6 +898,7 @@ function filaTransaccion(t,i){
   const fecha=fechaLocal(t.fecha).toLocaleDateString("es-MX",{day:"numeric",month:"short"});
   let iconBg,icon,amountClass,signo,badge;
   if(t.cuenta==="tc"){iconBg=c.color+"22";icon=c.icon;amountClass="amount-gasto";signo="-";badge="";}
+  else if(t.cuenta==="ahorros"){const ca=CUENTAS_AHORRO[t.cuenta_ahorro||"renta_plus"]||CUENTAS_AHORRO.renta_plus;iconBg=ca.color+"22";icon=ca.icon;amountClass=t.tipo==="deposito"?"amount-ingreso":"amount-gasto";signo=t.tipo==="deposito"?"+":"-";badge=`<span style="font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:${ca.color}22;color:${ca.color}">${ca.label}</span>`;}
   else if(t.cuenta==="cc"){
     if(t.tipo==="ingreso"){iconBg="#10B98120";icon="💵";amountClass="amount-ingreso";signo="+";badge=`<span class="badge badge-ingreso">Ingreso</span>`;}
     else{iconBg=c.color+"22";icon=c.icon;amountClass="amount-gasto";signo="-";badge=`<span class="badge badge-gasto">Gasto</span>`;}
@@ -940,7 +971,7 @@ function setFiltroCC(f){filtroCC=f;renderCC();}
 function setFiltroPersonaTC(p){filtroPersonaTC=p;catExpandida=null;renderTC();}
 function setFiltroTarjeta(f){filtroTarjeta=f;catExpandida=null;renderTC();}
 let deudaTCExpandida=false,deudaTCTarjeta="visa_singular";
-function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";filtroTarjeta="todas";render();}
+function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";filtroTarjeta="todas";filtroAhorro="todas";render();}
 
 /* PICKER MES PAGO TC */
 function renderMesPagoTCGrid(){
@@ -993,6 +1024,7 @@ function abrirModal(id=null){
     document.getElementById("fCuotasTotal").value=t.cuotas_total||"";
     calcularCuotaMensual();
     if(t.cuenta==="tc"){initMesFacPicker(t.mes_facturacion||t.fecha.slice(0,7));document.getElementById("fTarjeta").value=t.tarjeta||"visa_singular";}
+    if(t.cuenta==="ahorros"){document.getElementById("fCuentaAhorro").value=t.cuenta_ahorro||"renta_plus";}
     if(t.cuenta==="creditos")initMesFacPicker(t.mes_facturacion||t.fecha.slice(0,7));
     if(t.cuenta==="cc"&&t.cat==="pago_tc"&&t.tc_mes_pagado){
       const[y,m]=t.tc_mes_pagado.split('-').map(Number);
@@ -1016,6 +1048,7 @@ function abrirModal(id=null){
     actualizarModalPorCuenta(cuentaDefault);
     document.getElementById("fFecha").value=hoy;
     if(cuentaDefault==="tc"){initMesFacPicker(hoy.slice(0,7));document.getElementById("fTarjeta").value=filtroTarjeta!=="todas"?filtroTarjeta:"visa_singular";}
+    if(cuentaDefault==="ahorros"){document.getElementById("fCuentaAhorro").value=filtroAhorro!=="todas"?filtroAhorro:"renta_plus";}
     else if(cuentaDefault==="creditos"){const ma=new Date();ma.setMonth(ma.getMonth()-1);initMesFacPicker(`${ma.getFullYear()}-${String(ma.getMonth()+1).padStart(2,'0')}`);}
   }
   document.getElementById("modalOverlay").style.display="flex";
@@ -1032,6 +1065,7 @@ function actualizarModalPorCuenta(cuentaForzada){
   if(cuenta==="tc"){
     mostrarCampoUF(false);
     document.getElementById("fieldCuotasCredito").style.display="none";
+    document.getElementById("fieldCuentaAhorro").style.display="none";
     document.getElementById("fieldTarjeta").style.display="";
     fieldTipo.style.display="none";fieldCat.style.display="";
     actualizarOpcionesCat("tc");modalTipo="gasto";
@@ -1040,6 +1074,7 @@ function actualizarModalPorCuenta(cuentaForzada){
     document.getElementById("fieldMesFac").style.display="";renderMesFacGrid();
     document.getElementById("fieldCuotas").style.display="";actualizarPreviewCuotas();
   }else if(cuenta==="creditos"){
+    document.getElementById("fieldCuentaAhorro").style.display="none";
     document.getElementById("fieldTarjeta").style.display="none";
     fieldTipo.style.display="none";fieldCat.style.display="";
     actualizarOpcionesCat("creditos");modalTipo="gasto";
@@ -1049,6 +1084,7 @@ function actualizarModalPorCuenta(cuentaForzada){
     document.getElementById("fieldCuotas").style.display="none";
     document.getElementById("fieldCuotasCredito").style.display="";onCatChange();
   }else if(cuenta==="cc"){
+    document.getElementById("fieldCuentaAhorro").style.display="none";
     document.getElementById("fieldTarjeta").style.display="none";
     fieldTipo.style.display="";
     document.getElementById("fieldCuotasCredito").style.display="none";
@@ -1069,6 +1105,7 @@ function actualizarModalPorCuenta(cuentaForzada){
     }
   }else{
     document.getElementById("fieldTarjeta").style.display="none";
+    document.getElementById("fieldCuentaAhorro").style.display="";
     fieldTipo.style.display="";
     document.getElementById("labelTipo").textContent="Tipo de movimiento";
     fieldCat.style.display="none";
@@ -1206,7 +1243,8 @@ async function guardar(){
   const montoGonzaloCuota=Math.round(monto_gonzalo/cuotas);
   const montoJaviCuota=Math.round(monto_javi_calc/cuotas);
   const tarjeta=document.getElementById("fTarjeta").value;
-  const tranBase={fecha,cuenta,tipo:modalTipo,cat:(cuenta==="tc"||cuenta==="creditos"||(cuenta==="cc"&&modalTipo==="gasto"))?cat:null,...(cuenta==="tc"?{tarjeta}:{})};
+  const cuenta_ahorro=document.getElementById("fCuentaAhorro").value;
+  const tranBase={fecha,cuenta,tipo:modalTipo,cat:(cuenta==="tc"||cuenta==="creditos"||(cuenta==="cc"&&modalTipo==="gasto"))?cat:null,...(cuenta==="tc"?{tarjeta}:{}),...(cuenta==="ahorros"?{cuenta_ahorro}:{})};
 
   cerrarModal();
   try{
