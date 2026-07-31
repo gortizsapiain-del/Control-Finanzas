@@ -710,10 +710,69 @@ function renderTC(){
     const filtrados=(filtroTC==="todas"?gm:gm.filter(t=>t.cat===filtroTC)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
     html+=`<div class="expense-list">${filtrados.map((t,i)=>filaTransaccionTC(t,i)).join("")}</div>`;
   }
+  // ── Deuda total TC ──
+  html+=renderDeudaTC();
   document.getElementById("viewTC").innerHTML=html;
 }
 function setVistaTC(v){vistaTC=v;catExpandida=null;renderTC();}
 function toggleCat(id){catExpandida=catExpandida===id?null:id;renderTC();}
+function toggleDeudaTC(){deudaTCExpandida=!deudaTCExpandida;renderTC();}
+function setDeudaTCTarjeta(t){deudaTCTarjeta=t;renderTC();}
+function renderDeudaTC(){
+  const chevron=deudaTCExpandida?"▲":"▼";
+  let inner="";
+  if(deudaTCExpandida){
+    // Chips tarjetas
+    const chipsHtml=Object.entries(TARJETAS).map(([k,v])=>`<button onclick="setDeudaTCTarjeta('${k}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid ${deudaTCTarjeta===k?v.color:"var(--border2)"};background:${deudaTCTarjeta===k?v.color+"22":"var(--surface2)"};color:${deudaTCTarjeta===k?v.color:"var(--muted)"};font-family:inherit;transition:all .2s">${v.icon} ${v.label}</button>`).join("");
+    // Calcular deuda para tarjeta seleccionada (todo el historial)
+    const tc=TARJETAS[deudaTCTarjeta];
+    const gastos=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat!=="pago"&&(t.tarjeta||"")=== deudaTCTarjeta);
+    const pagos=data.filter(t=>t.cuenta==="tc"&&t.tipo==="gasto"&&t.cat==="pago"&&(t.tarjeta||"")=== deudaTCTarjeta);
+    const totalFac=gastos.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+    const totalPag=pagos.reduce((s,t)=>s+(t.monto_total||t.monto),0);
+    const deuda=totalFac-totalPag;
+    const totalGonzalo=gastos.reduce((s,t)=>s+t.monto,0)-pagos.reduce((s,t)=>s+t.monto,0);
+    const totalJavi=gastos.reduce((s,t)=>s+(t.monto_javi||0),0)-pagos.reduce((s,t)=>s+(t.monto_javi||0),0);
+    inner=`
+      <div style="padding:14px 16px;border-top:1px solid var(--border2)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${chipsHtml}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:linear-gradient(135deg,#200A0C,#2A0F12);border:1px solid #4A1020;border-radius:12px;padding:14px">
+            <div style="font-size:10px;color:#F87171;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total cargado</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#F87171">${mxn(totalFac)}</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#062318,#0A3020);border:1px solid #0D4030;border-radius:12px;padding:14px">
+            <div style="font-size:10px;color:#6EE7B7;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Total pagado</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px;color:#6EE7B7">${mxn(totalPag)}</div>
+          </div>
+          <div style="background:${deuda>0?"linear-gradient(135deg,#200A0C,#2A0F12)":"linear-gradient(135deg,#062318,#0A3020)"};border:1px solid ${deuda>0?"#4A1020":"#0D4030"};border-radius:12px;padding:14px">
+            <div style="font-size:10px;color:${deuda>0?"#F87171":"#6EE7B7"};font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Deuda pendiente</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:18px;color:${deuda>0?"#F87171":"#6EE7B7"}">${mxn(deuda)}</div>
+          </div>
+        </div>
+        ${totalJavi>0?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--surface2);border:1px solid #8B5CF630;border-radius:10px;padding:10px 12px">
+            <div style="font-size:10px;color:#C4B5FD;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Gonzalo</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#F0EEF8">${mxn(Math.max(0,totalGonzalo))}</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid #64748B30;border-radius:10px;padding:10px 12px">
+            <div style="font-size:10px;color:#94A3B8;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Javi</div>
+            <div style="font-family:'DM Mono',monospace;font-weight:700;font-size:14px;color:#F0EEF8">${mxn(Math.max(0,totalJavi))}</div>
+          </div>
+        </div>`:""}
+      </div>`;
+  }
+  return`<div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-top:4px">
+    <div onclick="toggleDeudaTC()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;border-radius:9px;background:#F43F5E18;display:flex;align-items:center;justify-content:center;font-size:18px">💳</div>
+        <span style="font-weight:700;font-size:15px;color:#F0EEF8">Deuda total TC</span>
+      </div>
+      <span style="color:var(--dim);font-size:12px">${chevron}</span>
+    </div>
+    ${inner}
+  </div>`;
+}
 
 /* CC */
 function renderCC(){
@@ -843,6 +902,7 @@ function setFiltroTC(f){filtroTC=f;renderTC();}
 function setFiltroCC(f){filtroCC=f;renderCC();}
 function setFiltroPersonaTC(p){filtroPersonaTC=p;catExpandida=null;renderTC();}
 function setFiltroTarjeta(f){filtroTarjeta=f;catExpandida=null;renderTC();}
+let deudaTCExpandida=false,deudaTCTarjeta="visa_singular";
 function cambiarMes(dir){mes+=dir;if(mes<0){mes=11;anio--;}if(mes>11){mes=0;anio++;}filtroTC="todas";filtroCC="todas";filtroPersonaTC="todas";filtroTarjeta="todas";render();}
 
 /* PICKER MES PAGO TC */
