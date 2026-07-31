@@ -1505,6 +1505,7 @@ function renderCreditos(){
         <div style="width:36px;height:36px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${c.icon}</div>
         <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px"><span style="font-weight:700;font-size:14px;color:#F0EEF8">${c.label}</span>${badgeRegla}${badgeIngreso}</div><div style="background:var(--surface2);border-radius:3px;height:4px;width:100%;margin-top:4px"><div style="height:4px;border-radius:3px;width:${Math.min(parseFloat(pct),100)}%;background:${c.color};box-shadow:0 0 6px ${c.color}60"></div></div></div>
         <div style="text-align:right;flex-shrink:1;margin-left:8px;min-width:0"><div style="font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:${montoColor};overflow-wrap:anywhere">${montoSigno}${mxn(catTotal)}</div><div style="font-size:11px;color:${c.color};font-weight:600">${items.length} mov. este mes</div></div>
+        ${!esIngreso?`<button onclick="pagoAutomatico('${id}',event)" title="Registrar pago automático este mes" style="flex-shrink:0;padding:6px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid ${c.color}60;background:${c.color}18;color:${c.color};font-family:inherit;white-space:nowrap;transition:all .2s">⚡ Auto</button>`:''}
         <div style="color:var(--dim);font-size:12px;margin-left:4px">${abierta?'▲':'▼'}</div>
       </div>
       ${abierta?`<div style="border-top:1px solid var(--border2);background:var(--surface2)">
@@ -1527,6 +1528,46 @@ function renderCreditos(){
   document.getElementById("viewCreditos").innerHTML=html;
 }
 function toggleCatCredito(id){catExpandidaCredito=catExpandidaCredito===id?null:id;renderCreditos();}
+async function pagoAutomatico(catId,e){
+  e.stopPropagation();
+  // Buscar última transacción de esta categoría para usar como base
+  const historial=data.filter(t=>t.cuenta==="creditos"&&t.cat===catId).sort((a,b)=>{
+    const ra=a.mes_facturacion||a.fecha;const rb=b.mes_facturacion||b.fecha;return rb.localeCompare(ra);
+  });
+  if(!historial.length){mostrarToast("⚠️ No hay cuotas anteriores para esta categoría");return;}
+  const ultima=historial[0];
+  // Mes de facturación: mes actual en formato YYYY-MM
+  const hoy=new Date();
+  const mesFacAuto=`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+  // Verificar si ya existe una cuota para este mes
+  const yaExiste=data.find(t=>t.cuenta==="creditos"&&t.cat===catId&&(t.mes_facturacion||t.fecha.slice(0,7))===mesFacAuto);
+  if(yaExiste){mostrarToast(`⚠️ Ya hay un pago registrado para ${MESES[hoy.getMonth()]} ${hoy.getFullYear()}`);return;}
+  // Construir nueva cuota
+  const nuevaCuota={
+    cuenta:"creditos",
+    tipo:"gasto",
+    cat:catId,
+    desc:ultima.desc.replace(/cuota \d+\/\d+/i,`cuota ${(ultima.cuota_actual||1)+1}/${ultima.cuotas_total||'?'}`),
+    monto:ultima.monto,
+    fecha:`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`,
+    mes_facturacion:mesFacAuto,
+    ...(ultima.monto_total?{monto_total:ultima.monto_total}:{}),
+    ...(ultima.monto_javi?{monto_javi:ultima.monto_javi}:{}),
+    ...(ultima.monto_uf?{monto_uf:ultima.monto_uf}:{}),
+    ...(ultima.cuotas_total?{cuotas_total:ultima.cuotas_total,cuota_actual:(ultima.cuota_actual||1)+1}:{}),
+  };
+  const c=CATS[catId];
+  const confirmar=confirm(`¿Registrar pago automático de ${c.icon} ${c.label}?
+
+Monto: ${mxn(nuevaCuota.monto_total||nuevaCuota.monto)}
+Mes: ${MESES[hoy.getMonth()]} ${hoy.getFullYear()}${nuevaCuota.cuota_actual?`
+Cuota: ${nuevaCuota.cuota_actual}/${nuevaCuota.cuotas_total}`:''}`);
+  if(!confirmar)return;
+  try{
+    await colUsuario().add(nuevaCuota);
+    mostrarToast(`✅ Pago automático registrado — ${c.label}`);
+  }catch(err){mostrarToast("❌ Error al registrar: "+err.message);}
+}
 </script>
 </body>
 </html>
