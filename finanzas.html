@@ -775,6 +775,8 @@ const CATS={
   arriendo_oficina:{label:"Arriendo Oficina",icon:"🏢",color:"#10B981",regla:"50_50",pct_g:0.5,pct_j:0.5,es_ingreso:true},
 };
 const CATS_CREDITOS=["credito_consumo","credito_consumo_2","credito_hipotecario","arriendo_oficina"];
+// Cats que NO se sincronizan a Javi (ya están como fijos o son exclusivas de Skin Lux)
+const CATS_NO_SYNC_JAVI=["credito_hipotecario","gastos_comunes_depto","gastos_comunes_oficina","gastos_depto","skin_lux","arriendo_oficina"];
 const SALDO_INICIAL_CC=59737; // Saldo CC al inicio del registro (antes de Julio 2026)
 const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MESES_CORTOS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -1580,6 +1582,21 @@ function initMesFacPicker(valorInicial){
   renderMesFacGrid();
 }
 
+/* SYNC JAVI */
+async function sincronizarConJavi(docId,trans,montoJavi){
+  if(!javiAuth.currentUser)return;
+  if(montoJavi>0&&trans.cat&&!CATS_NO_SYNC_JAVI.includes(trans.cat)){
+    const entrada={fecha:trans.fecha||"",cuenta:"gonzalo",tipo:"gasto",cat:trans.cat,desc:trans.desc||"",monto:montoJavi,from_gonzalo:true,...(trans.mes_facturacion?{mes_facturacion:trans.mes_facturacion}:{})};
+    try{await javiDb.collection("compartido_gonzalo").doc(docId).set(entrada);}catch(e){console.warn("Sync Javi:",e.message);}
+  }else{
+    try{await javiDb.collection("compartido_gonzalo").doc(docId).delete();}catch(e){}
+  }
+}
+async function eliminarSyncJavi(id){
+  if(!javiAuth.currentUser)return;
+  try{await javiDb.collection("compartido_gonzalo").doc(id).delete();}catch(e){console.warn("Sync Javi delete:",e.message);}
+}
+
 /* GUARDAR */
 async function guardar(){
   const desc=document.getElementById("fDesc").value.trim();
@@ -1641,7 +1658,7 @@ async function guardar(){
   try{
     if(editandoId){
       const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos"||cuenta==="cc")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{})};
-      await colUsuario().doc(editandoId).update(trans);
+      await colUsuario().doc(editandoId).update(trans);await sincronizarConJavi(editandoId,trans,monto_javi_calc);
       if(esPagoTC){
         const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===editandoId);
         const transCC={desc:`Pago TC: ${desc}`,monto,fecha,cuenta:"cc",tipo:"gasto",cat:"pago",tc_pago_ref:editandoId};
@@ -1667,9 +1684,11 @@ async function guardar(){
         await colUsuario().add({desc:descCC,monto,fecha,cuenta:"cc",tipo:tipoCC,cat:null,ahorro_ref:docRef.id});
         mostrarToast(modalTipo==="deposito"?"✅ Depósito registrado y descontado de CC":"✅ Retiro registrado e ingresado a CC");
       }else if(cuotas>1){
-        const lote=db.batch();
-        for(let i=0;i<cuotas;i++){const ref=colUsuario().doc();const mesCuota=mesFacDeCuota(mesFac,i);const descCuota=`${desc} (cuota ${i+1}/${cuotas})`;const t={...tranBase,desc:descCuota,monto:montoGonzaloCuota,mes_facturacion:mesCuota,...(montoJaviCuota>0?{monto_javi:montoJaviCuota,monto_total:montoCuota}:{})};lote.set(ref,t);}
-        await lote.commit();mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
+        const lote=db.batch();const cuotaRefs=[];
+        for(let i=0;i<cuotas;i++){const ref=colUsuario().doc();cuotaRefs.push({ref,i});const mesCuota=mesFacDeCuota(mesFac,i);const descCuota=`${desc} (cuota ${i+1}/${cuotas})`;const t={...tranBase,desc:descCuota,monto:montoGonzaloCuota,mes_facturacion:mesCuota,...(montoJaviCuota>0?{monto_javi:montoJaviCuota,monto_total:montoCuota}:{})};lote.set(ref,t);}
+        await lote.commit();
+        if(montoJaviCuota>0&&!CATS_NO_SYNC_JAVI.includes(cat)){for(const{ref,i}of cuotaRefs){const mesCuota=mesFacDeCuota(mesFac,i);const descCuota=`${desc} (cuota ${i+1}/${cuotas})`;await sincronizarConJavi(ref.id,{...tranBase,cat,desc:descCuota,mes_facturacion:mesCuota},montoJaviCuota);}}
+        mostrarToast(`✅ ${cuotas} cuotas de ${new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(montoCuota)} agregadas`);
       }else{
         const montoUFval=parseFloat(document.getElementById("fMontoUF").value)||null;
         const cuotaActual=parseInt(document.getElementById("fCuotaActual").value)||null;
@@ -1681,12 +1700,15 @@ async function guardar(){
           const mesFinLabel=`${MESES_CORTOS[parseInt(ultimoMesFac.slice(5,7))-1]} ${ultimoMesFac.slice(0,4)}`;
           const confirmado=confirm(`Se crearán ${cuotasRestantes} cuotas automáticamente:\n\n• Desde: cuota ${cuotaActual}/${cuotasTotal} (${mesInicioLabel})\n• Hasta: cuota ${cuotasTotal}/${cuotasTotal} (${mesFinLabel})\n• Monto por cuota: $${Math.round(monto_total_calc).toLocaleString('es-CL')}\n\n¿Confirmas?`);
           if(!confirmado){mostrarToast("❌ Cancelado");return;}
-          const lote=db.batch();
-          for(let i=0;i<cuotasRestantes;i++){const ref=colUsuario().doc();const mesCuota=mesFacDeCuota(mesFac,i);const t={...tranBase,desc,monto:monto_gonzalo,mes_facturacion:mesCuota,cuota_actual:cuotaActual+i,cuotas_total:cuotasTotal,...(monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{})};lote.set(ref,t);}
-          await lote.commit();mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
+          const lote=db.batch();const credRefs=[];
+          for(let i=0;i<cuotasRestantes;i++){const ref=colUsuario().doc();credRefs.push({ref,i});const mesCuota=mesFacDeCuota(mesFac,i);const t={...tranBase,desc,monto:monto_gonzalo,mes_facturacion:mesCuota,cuota_actual:cuotaActual+i,cuotas_total:cuotasTotal,...(monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{})};lote.set(ref,t);}
+          await lote.commit();
+          if(monto_javi_calc>0&&!CATS_NO_SYNC_JAVI.includes(cat)){for(const{ref,i}of credRefs){const mesCuota=mesFacDeCuota(mesFac,i);await sincronizarConJavi(ref.id,{...tranBase,cat,desc,mes_facturacion:mesCuota,cuota_actual:cuotaActual+i,cuotas_total:cuotasTotal},monto_javi_calc);}}
+          mostrarToast(`✅ ${cuotasRestantes} cuotas creadas (${mesInicioLabel} → ${mesFinLabel})`);
         }else{
           const trans={...tranBase,desc,monto:monto_gonzalo,...((cuenta==="tc"||cuenta==="creditos")?{mes_facturacion:mesFac}:{}),...((cuenta==="tc"||cuenta==="creditos"||cuenta==="cc")&&monto_javi_calc>0?{monto_javi:monto_javi_calc,monto_total:monto_total_calc}:{}),...(cuenta==="creditos"&&cat==="credito_hipotecario"&&montoUFval?{monto_uf:montoUFval,valor_uf:valorUF}:{}),...(cuenta==="creditos"&&cuotaActual?{cuota_actual:cuotaActual}:{}),...(cuenta==="creditos"&&cuotasTotal?{cuotas_total:cuotasTotal}:{})};
-          await colUsuario().add(trans);mostrarToast("✅ Transacción agregada");
+          const newDocRef=await colUsuario().add(trans);mostrarToast("✅ Transacción agregada");
+          await sincronizarConJavi(newDocRef.id,trans,monto_javi_calc);
         }
       }
     }
@@ -1790,7 +1812,7 @@ async function borrarUnaTransaccion(id){
     if(trans&&trans.cuenta==="tc"&&trans.cat==="pago"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.tc_pago_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
     if(trans&&trans.cuenta==="cc"&&trans.cat==="pago_tc"){const tcEspejo=data.find(t=>t.cuenta==="tc"&&t.cat==="pago"&&t.pago_tc_cc_ref===id);if(tcEspejo)await colUsuario().doc(tcEspejo.id).delete();}
     if(trans&&trans.cuenta==="ahorros"){const ccEspejo=data.find(t=>t.cuenta==="cc"&&t.ahorro_ref===id);if(ccEspejo)await colUsuario().doc(ccEspejo.id).delete();}
-    await colUsuario().doc(id).delete();mostrarToast("🗑️ Eliminado");
+    await colUsuario().doc(id).delete();eliminarSyncJavi(id);mostrarToast("🗑️ Eliminado");
   }catch(err){mostrarToast("❌ Error al eliminar: "+err.message);}
 }
 
